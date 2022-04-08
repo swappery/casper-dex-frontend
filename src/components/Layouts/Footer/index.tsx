@@ -1,8 +1,10 @@
 import React from "react";
+import useTheme, { Themes } from "../../../hooks/useTheme";
 
-export default function index() {
+export default function Footer() {
+  const { theme, setTheme } = useTheme();
   return (
-    <footer className="flex flex-col md:flex-row items-center justify-around px-2 py-4 w-full bg-transparent text-white backdrop-opacity-40  backdrop-blur-md">
+    <footer className="flex flex-col md:flex-row items-center justify-around px-2 py-4 w-full bg-transparent backdrop-opacity-40  backdrop-blur-md">
       <div className="font-BwGradualDEMO">
         Copyright © 2022. All Rights Reserved by Un!moon
       </div>
@@ -20,6 +22,16 @@ export default function index() {
         >
           Impress
         </button>
+        <div>
+          <input
+            type="checkbox"
+            className="toggle"
+            checked={theme === Themes.DARK ? true : false}
+            onClick={() => {
+              setTheme(theme === Themes.DARK ? Themes.LIGHT : Themes.DARK);
+            }}
+          />
+        </div>
       </div>
     </footer>
   );

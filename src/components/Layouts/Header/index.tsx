@@ -63,12 +63,12 @@ export default function index() {
         </div>
         <div className="flex items-center">
           <div className="mr-5 lg:mr-0">
-            <button className="py-2 px-6 text-white text-lg font-BwGradualDEMO inline-flex items-center">
+            <button className="py-2 px-6 text-lg font-BwGradualDEMO inline-flex items-center">
               <span className="ml-2">connect wallet</span>
             </button>
           </div>
           <div>
-            <button className="py-2 px-6 text-white text-lg font-BwGradualDEMO">
+            <button className="py-2 px-6 text-lg font-BwGradualDEMO">
               Home
             </button>
           </div>
