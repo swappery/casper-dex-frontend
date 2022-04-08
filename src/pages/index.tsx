@@ -2,17 +2,13 @@ import React from "react";
 import Landing from "./Landing";
 import Swap from "./Swap";
 import AddLiquidity from "./AddLiquidity";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { Header, Footer } from "../components";
 export default function Pages() {
-  const { pathname } = useLocation();
-
-  const tabClass = "tab tab-lg tab-bordered ";
-  const tabActiveClass = tabClass + "tab-active";
   return (
     <>
       <Header />
-      <div className="container mx-auto mt-3">
+      {/* <div className="container mx-auto mt-3">
         <div className="tabs justify-center">
           <Link
             className={pathname === "/swap" ? tabActiveClass : tabClass}
@@ -33,7 +29,7 @@ export default function Pages() {
             Perpetual
           </Link>
         </div>
-      </div>
+      </div> */}
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/swap" element={<Swap />} />
