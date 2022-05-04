@@ -3,5 +3,3 @@ export enum RouterEvents {
     RemoveLiquidity = "remove-liquidity",
     Swap = "swap",
   }
-  
-export const DEFAULT_TTL = 1800000;
