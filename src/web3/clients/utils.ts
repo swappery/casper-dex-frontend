@@ -125,23 +125,3 @@ export const format = (big: any) => {
     return big;
   }
 };
-
-export const contractSimpleGetter = async (
-  nodeAddress: string,
-  contractHash: string,
-  key: string[]
-) => {
-  const stateRootHash = await utils.getStateRootHash(nodeAddress);
-  const clValue = await utils.getContractData(
-    nodeAddress,
-    stateRootHash,
-    contractHash,
-    key
-  );
-
-  if (clValue && clValue.CLValue instanceof CLValue) {
-    return clValue.CLValue!.value();
-  } else {
-    throw Error("Invalid stored value");
-  }
-};

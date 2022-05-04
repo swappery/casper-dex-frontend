@@ -1,25 +1,23 @@
+import { helpers } from "casper-js-client-helper";
 import {
-    ERC20Client,
-    constants as erc20constants,
-  } from "casper-erc20-js-client";
-  import { constants, utils, helpers } from "casper-js-client-helper";
-  import {
-    CLAccountHash,
-    CLKey,
-    CLValueParsers,
-    decodeBase16,
-    Signer,
-    RuntimeArgs,
-    CLValueBuilder,
-    CasperClient,
-    DeployUtil,
     CLPublicKey,
-  } from "casper-js-sdk";
-  import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
-  
-  import { contractCallFn } from "./utils";
-  import { RecipientType } from "casper-js-client-helper/dist/types";
-  
-  const { DEFAULT_TTL } = constants;
-  const { ERC20Events } = erc20constants;
-  const { createRecipientAddress, contractSimpleGetter } = helpers;
+} from "casper-js-sdk";
+import { ERC20SignerClient } from "./erc20signer-client";
+
+const { contractSimpleGetter } = helpers;
+export class SwapperyPairClient extends ERC20SignerClient {
+    async getReserves(publicKey: CLPublicKey) {
+        let reserves = [];
+        reserves.push(parseInt(await contractSimpleGetter(
+            this.nodeAddress,
+            this.contractHash!,
+            ["reserve0"]
+        )));
+        reserves.push(parseInt(await contractSimpleGetter(
+            this.nodeAddress,
+            this.contractHash!,
+            ["reserve1"]
+        )));
+        return reserves;
+    }
+}
