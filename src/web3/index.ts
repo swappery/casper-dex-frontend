@@ -4,7 +4,7 @@ import {
   Signer,
   CasperServiceByJsonRPC,
 } from "casper-js-sdk";
-import useNetworkStatus, { NetworkType } from "store/useNetworkStatus";
+// import useNetworkStatus, { NetworkType } from "store/useNetworkStatus";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
 import {
@@ -13,20 +13,19 @@ import {
   WCSPR_CONTRACT_HASH,
   INSTALL_FEE,
   TRANSFER_FEE,
-  MASTER_WALLET_KEYPAIR,
 } from "./config/constant";
 import { CLPublicKey, CLValueBuilder, decodeBase16 } from "casper-js-sdk";
-import { supportedTokens, TokenType } from "store/useTokenStatus";
+// import { supportedTokens, TokenType } from "store/useTokenStatus";
 import { BigNumber, BigNumberish } from "ethers";
 import { DEFAULT_TTL } from "casper-js-client-helper/dist/constants";
-import useTokenStatus from "store/useTokenStatus";
+// import useTokenStatus from "store/useTokenStatus";
 
 import { RequestManager, HTTPTransport, Client } from "@open-rpc/client-js";
 import { AsymmetricKey } from "casper-js-sdk/dist/lib/Keys";
 
 export default function useCasperWeb3Provider() {
-  const { setCasperAddress, casperAddress } = useNetworkStatus();
-  const { tokenType } = useTokenStatus();
+  // const { setCasperAddress, casperAddress } = useNetworkStatus();
+  // const { tokenType } = useTokenStatus();
 
   async function activate(requireConnection = true) {
     try {
