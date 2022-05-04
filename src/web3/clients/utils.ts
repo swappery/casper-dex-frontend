@@ -8,6 +8,7 @@ import {
   CasperClient,
   DeployUtil,
   CLPublicKey,
+  CLValue,
 } from "casper-js-sdk";
 import { Deploy } from "casper-js-sdk/dist/lib/DeployUtil";
 import { BigNumberish } from "@ethersproject/bignumber";
@@ -122,5 +123,25 @@ export const format = (big: any) => {
     return big.div(10 ** 9).toNumber();
   } else {
     return big;
+  }
+};
+
+export const contractSimpleGetter = async (
+  nodeAddress: string,
+  contractHash: string,
+  key: string[]
+) => {
+  const stateRootHash = await utils.getStateRootHash(nodeAddress);
+  const clValue = await utils.getContractData(
+    nodeAddress,
+    stateRootHash,
+    contractHash,
+    key
+  );
+
+  if (clValue && clValue.CLValue instanceof CLValue) {
+    return clValue.CLValue!.value();
+  } else {
+    throw Error("Invalid stored value");
   }
 };
