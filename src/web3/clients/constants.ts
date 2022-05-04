@@ -4,4 +4,4 @@ export enum RouterEvents {
     Swap = "swap",
   }
   
-export const DEFAULT_TTL = 1800000;  
+export const DEFAULT_TTL = 1800000;
