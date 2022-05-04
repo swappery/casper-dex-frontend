@@ -83,8 +83,12 @@ class SwapperyRouterClient extends ContractClient {
         ttl = DEFAULT_TTL
     ) {
         const runtimeArgs = RuntimeArgs.fromMap({
-            token0: CLValueBuilder.string(token0),
-            token1: CLValueBuilder.string(token1),
+            token0: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(token0))
+              ),
+            token1: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(token1))
+              ),
             amount0_desired: CLValueBuilder.u256(amount0Desired),
             amount1_desired: CLValueBuilder.u256(amount1Desired),
             amount0_min: CLValueBuilder.u256(amount0Min),
@@ -114,8 +118,12 @@ class SwapperyRouterClient extends ContractClient {
         ttl = DEFAULT_TTL
     ) {
         const runtimeArgs = RuntimeArgs.fromMap({
-            token0: CLValueBuilder.string(token0),
-            token1: CLValueBuilder.string(token1),
+            token0: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(token0))
+              ),
+            token1: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(token1))
+              ),
             liquidity: CLValueBuilder.u256(liquidity),
             amount0_min: CLValueBuilder.u256(amount0Min),
             amount1_min: CLValueBuilder.u256(amount1Min),
@@ -132,11 +140,15 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async allowances(owner: CLPublicKey, spender: CLPublicKey) {
+    public async getPairFor(token0: string, token1: string) {
         // TODO: REUSEABLE METHOD
-        const keyOwner = new CLKey(new CLAccountHash(owner.toAccountHash()));
-        const keySpender = new CLKey(new CLAccountHash(spender.toAccountHash()));
-        const finalBytes = concat([CLValueParsers.toBytes(keyOwner).unwrap(), CLValueParsers.toBytes(keySpender).unwrap()]);
+        const token0_hash = CLValueBuilder.key(
+            CLValueBuilder.byteArray(decodeBase16(token0))
+          );
+        const token1_hash = CLValueBuilder.key(
+            CLValueBuilder.byteArray(decodeBase16(token1))
+          );
+        const finalBytes = concat([CLValueParsers.toBytes(token0_hash).unwrap(), CLValueParsers.toBytes(token1_hash).unwrap()]);
         const blaked = blake.blake2b(finalBytes, undefined, 32);
         const encodedBytes = Buffer.from(blaked).toString("hex");
 
@@ -151,3 +163,7 @@ class SwapperyRouterClient extends ContractClient {
 }
 
 export default SwapperyRouterClient;
+function decodeBase16(token0: string): Uint8Array {
+    throw new Error("Function not implemented.");
+}
+
