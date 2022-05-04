@@ -1,36 +1,19 @@
 import {
-    CasperClient,
-    CLPublicKey,
-    CLAccountHash,
-    CLByteArray,
-    CLKey,
-    CLString,
-    CLTypeBuilder,
-    CLValue,
     CLValueBuilder,
     CLValueParsers,
-    CLMap,
-    DeployUtil,
-    EventName,
-    EventStream,
     Keys,
     RuntimeArgs,
-    Contracts,
+    decodeBase16
 } from "casper-js-sdk";
-import { Some, None } from "ts-results";
 import blake from "blakejs";
 import { concat } from "@ethersproject/bytes";
 import { RouterEvents } from "./constants";
 import { helpers, constants, utils } from "casper-js-client-helper";
 import ContractClient from "casper-js-client-helper/dist/casper-contract-client";
-import { RecipientType, IPendingDeploy, IClassContractCallParams } from "casper-js-client-helper/dist/types";
+import { RecipientType } from "casper-js-client-helper/dist/types";
 const {
-    fromCLMap,
-    toCLMap,
-    installContract,
     setClient,
     contractSimpleGetter,
-    contractCallFn,
     createRecipientAddress
 } = helpers;
 const { DEFAULT_TTL } = constants;
@@ -161,9 +144,4 @@ class SwapperyRouterClient extends ContractClient {
         return result.toString();
     }
 }
-
 export default SwapperyRouterClient;
-function decodeBase16(token0: string): Uint8Array {
-    throw new Error("Function not implemented.");
-}
-
