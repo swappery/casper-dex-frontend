@@ -3,14 +3,17 @@ import {
     CLValueParsers,
     Keys,
     RuntimeArgs,
-    decodeBase16
+    decodeBase16,
+    CLList,
 } from "casper-js-sdk";
 import blake from "blakejs";
 import { concat } from "@ethersproject/bytes";
-import { RouterEvents } from "./constants";
 import { helpers, constants, utils } from "casper-js-client-helper";
 import ContractClient from "casper-js-client-helper/dist/casper-contract-client";
 import { RecipientType } from "casper-js-client-helper/dist/types";
+import { RouterEvents, WCSPR_CONTRACT_HASH } from "../config/constant";
+import { decode } from "punycode";
+import { getAccountHash } from "./utils";
 const {
     setClient,
     contractSimpleGetter,
@@ -61,7 +64,6 @@ class SwapperyRouterClient extends ContractClient {
         amount1Desired: string,
         amount0Min: string,
         amount1Min: string,
-        to: RecipientType,
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
@@ -76,7 +78,9 @@ class SwapperyRouterClient extends ContractClient {
             amount1_desired: CLValueBuilder.u256(amount1Desired),
             amount0_min: CLValueBuilder.u256(amount0Min),
             amount1_min: CLValueBuilder.u256(amount1Min),
-            to: createRecipientAddress(to)
+            to: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+              ),
         });
 
         return await this.contractCall({
@@ -96,7 +100,6 @@ class SwapperyRouterClient extends ContractClient {
         liquidity: string,
         amount0Min: string,
         amount1Min: string,
-        to: RecipientType,
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
@@ -110,7 +113,9 @@ class SwapperyRouterClient extends ContractClient {
             liquidity: CLValueBuilder.u256(liquidity),
             amount0_min: CLValueBuilder.u256(amount0Min),
             amount1_min: CLValueBuilder.u256(amount1Min),
-            to: createRecipientAddress(to)
+            to: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+              ),
         });
 
         return await this.contractCall({
@@ -119,6 +124,58 @@ class SwapperyRouterClient extends ContractClient {
         paymentAmount,
         runtimeArgs,
         cb: deployHash => this.addPendingDeploy(RouterEvents.RemoveLiquidity, deployHash),
+        ttl,
+        });
+    }
+
+    public async swapExactTokensForTokens(
+        keys: Keys.AsymmetricKey,
+        fromToken: string,
+        toToken: string,
+        amountIn: string,
+        amountOutMin: string,
+        paymentAmount: string,
+        ttl = DEFAULT_TTL
+    ) {
+        let token_path;
+        if ( await this.isPairExists(fromToken, toToken) ){
+            token_path = new CLList([
+                CLValueBuilder.key(
+                  CLValueBuilder.byteArray(decodeBase16(fromToken))
+                ),
+                CLValueBuilder.key(
+                  CLValueBuilder.byteArray(decodeBase16(toToken))
+                )
+              ]);
+        } else if ((await this.isPairExists(fromToken, WCSPR_CONTRACT_HASH.slice(5)))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), toToken))){
+            token_path = new CLList([
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(fromToken))
+                ),
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
+                ),
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(toToken))
+                ),
+            ])
+        } else { return; }
+        const runtimeArgs = RuntimeArgs.fromMap({
+            amount_in: CLValueBuilder.u256(amountIn),
+            amount_out_min: CLValueBuilder.u256(amountOutMin),
+            path: token_path,
+            to: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+              ),
+        });
+
+        return await this.contractCall({
+        entryPoint: "swap_exact_tokens_for_tokens",
+        keys,
+        paymentAmount,
+        runtimeArgs,
+        cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
         ttl,
         });
     }

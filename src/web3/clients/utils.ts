@@ -9,9 +9,14 @@ import {
   DeployUtil,
   CLPublicKey,
   CLValue,
+  Keys
 } from "casper-js-sdk";
 import { Deploy } from "casper-js-sdk/dist/lib/DeployUtil";
 import { BigNumberish } from "@ethersproject/bignumber";
+
+export const getAccountHash = (keyPair: Keys.AsymmetricKey): string => {
+  return Buffer.from(keyPair.accountHash()).toString("hex");
+};
 
 export const signDeploy = async (deploy: Deploy, publicKey: CLPublicKey) => {
   const deployJSON = DeployUtil.deployToJson(deploy);
