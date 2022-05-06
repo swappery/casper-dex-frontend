@@ -67,6 +67,7 @@ class SwapperyRouterClient extends ContractClient {
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
+        if (!this.isPairExists(token0, token1)) return;
         const runtimeArgs = RuntimeArgs.fromMap({
             token0: CLValueBuilder.key(
                 CLValueBuilder.byteArray(decodeBase16(token0))
