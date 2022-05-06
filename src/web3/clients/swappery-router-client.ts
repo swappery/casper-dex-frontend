@@ -5,15 +5,18 @@ import {
     RuntimeArgs,
     decodeBase16,
     CLList,
+    CLPublicKey,
 } from "casper-js-sdk";
 import blake from "blakejs";
 import { concat } from "@ethersproject/bytes";
+import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 import { helpers, constants, utils } from "casper-js-client-helper";
 import ContractClient from "casper-js-client-helper/dist/casper-contract-client";
 import { RecipientType } from "casper-js-client-helper/dist/types";
 import { RouterEvents, WCSPR_CONTRACT_HASH } from "../config/constant";
 import { decode } from "punycode";
 import { getAccountHash } from "./utils";
+import { contractCallFn } from "./utils";
 const {
     setClient,
     contractSimpleGetter,
@@ -21,12 +24,12 @@ const {
 } = helpers;
 const { DEFAULT_TTL } = constants;
 
-class SwapperyRouterClient extends ContractClient {
+export class SwapperyRouterClient extends ContractClient {
     protected namedKeys?: {
         pairList: string;
     };
 
-    public async setContractHash(hash: string) {
+    async setContractHash(hash: string) {
         const { contractPackageHash, namedKeys } = await setClient(
             this.nodeAddress,
             hash,
@@ -40,7 +43,7 @@ class SwapperyRouterClient extends ContractClient {
         this.namedKeys = namedKeys;
     }
 
-    public async feeTo() {
+    async feeTo() {
         return await contractSimpleGetter(
         this.nodeAddress,
         this.contractHash!,
@@ -48,7 +51,7 @@ class SwapperyRouterClient extends ContractClient {
         );
     }
 
-    public async feeToSetter() {
+    async feeToSetter() {
         return await contractSimpleGetter(
         this.nodeAddress,
         this.contractHash!,
@@ -56,7 +59,37 @@ class SwapperyRouterClient extends ContractClient {
         );
     }
 
-    public async addLiquidity(
+    async contractCallWithSigner({
+        publicKey,
+        paymentAmount,
+        entryPoint,
+        runtimeArgs,
+        cb,
+        ttl = DEFAULT_TTL,
+        dependencies = [],
+      }: SwapperyRouterClient.ContractCallWithSignerPayload) {
+        if (!this.contractHash) throw Error("Invalid Conract Hash");
+        const deployHash = await contractCallFn({
+          chainName: this.chainName,
+          contractHash: this.contractHash,
+          entryPoint,
+          paymentAmount,
+          nodeAddress: this.nodeAddress,
+          publicKey,
+          runtimeArgs,
+          ttl,
+          dependencies,
+        });
+    
+        if (deployHash !== null) {
+          cb && cb(deployHash);
+          return deployHash;
+        } else {
+          throw Error("Invalid Deploy");
+        }
+      }
+
+    async addLiquidity(
         keys: Keys.AsymmetricKey,
         token0: string,
         token1: string,
@@ -94,7 +127,7 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async removeLiquidity(
+    async removeLiquidity(
         keys: Keys.AsymmetricKey,
         token0: string,
         token1: string,
@@ -129,7 +162,7 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async swapExactTokensForTokens(
+    async swapExactTokensForTokens(
         keys: Keys.AsymmetricKey,
         fromToken: string,
         toToken: string,
@@ -181,7 +214,7 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async swapTokensForExactTokens(
+    async swapTokensForExactTokens(
         keys: Keys.AsymmetricKey,
         fromToken: string,
         toToken: string,
@@ -233,7 +266,7 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async swapExactTokensForTokensSupportingFee(
+    async swapExactTokensForTokensSupportingFee(
         keys: Keys.AsymmetricKey,
         fromToken: string,
         toToken: string,
@@ -276,16 +309,16 @@ class SwapperyRouterClient extends ContractClient {
         });
 
         return await this.contractCall({
-        entryPoint: "swap_exact_tokens_for_tokens_supporting_fee",
-        keys,
-        paymentAmount,
-        runtimeArgs,
-        cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
-        ttl,
+            entryPoint: "swap_exact_tokens_for_tokens_supporting_fee",
+            keys,
+            paymentAmount,
+            runtimeArgs,
+            cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
+            ttl,
         });
     }
 
-    public async isPairExists(token0: string, token1: string) {
+    async isPairExists(token0: string, token1: string) {
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
             CLValueBuilder.byteArray(decodeBase16(token0))
@@ -305,4 +338,14 @@ class SwapperyRouterClient extends ContractClient {
         return result.isCLValue;
     }
 }
-export default SwapperyRouterClient;
+export namespace SwapperyRouterClient {
+    export interface ContractCallWithSignerPayload {
+      publicKey: CLPublicKey;
+      paymentAmount: BigNumberish;
+      entryPoint: string;
+      runtimeArgs: RuntimeArgs;
+      cb: any;
+      ttl: number;
+      dependencies: string[];
+    }
+  }
