@@ -180,6 +180,58 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
+    public async swapTokensForExactTokens(
+        keys: Keys.AsymmetricKey,
+        fromToken: string,
+        toToken: string,
+        amountOut: string,
+        amountInMax: string,
+        paymentAmount: string,
+        ttl = DEFAULT_TTL
+    ) {
+        let token_path;
+        if ( await this.isPairExists(fromToken, toToken) ){
+            token_path = new CLList([
+                CLValueBuilder.key(
+                  CLValueBuilder.byteArray(decodeBase16(fromToken))
+                ),
+                CLValueBuilder.key(
+                  CLValueBuilder.byteArray(decodeBase16(toToken))
+                )
+              ]);
+        } else if ((await this.isPairExists(fromToken, WCSPR_CONTRACT_HASH.slice(5)))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), toToken))){
+            token_path = new CLList([
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(fromToken))
+                ),
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
+                ),
+                CLValueBuilder.key(
+                    CLValueBuilder.byteArray(decodeBase16(toToken))
+                ),
+            ])
+        } else { return; }
+        const runtimeArgs = RuntimeArgs.fromMap({
+            amount_out: CLValueBuilder.u256(amountOut),
+            amount_in_max: CLValueBuilder.u256(amountInMax),
+            path: token_path,
+            to: CLValueBuilder.key(
+                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+              ),
+        });
+
+        return await this.contractCall({
+        entryPoint: "swap_tokens_for_exact_tokens",
+        keys,
+        paymentAmount,
+        runtimeArgs,
+        cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
+        ttl,
+        });
+    }
+
     public async isPairExists(token0: string, token1: string) {
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
