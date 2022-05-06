@@ -123,7 +123,7 @@ class SwapperyRouterClient extends ContractClient {
         });
     }
 
-    public async getPairFor(token0: string, token1: string) {
+    public async isPairExists(token0: string, token1: string) {
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
             CLValueBuilder.byteArray(decodeBase16(token0))
@@ -140,8 +140,7 @@ class SwapperyRouterClient extends ContractClient {
         encodedBytes,
         this.namedKeys!.pairList
         );
-
-        return result.toString();
+        return result.isCLValue;
     }
 }
 export default SwapperyRouterClient;
