@@ -164,34 +164,34 @@ export class SwapperyRouterClient extends ContractClient {
 
     async swapExactTokensForTokens(
         keys: Keys.AsymmetricKey,
-        fromToken: string,
-        toToken: string,
+        sourceToken: string,
+        targetToken: string,
         amountIn: string,
         amountOutMin: string,
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
         let token_path;
-        if ( await this.isPairExists(fromToken, toToken) ){
+        if ( await this.isPairExists(sourceToken, targetToken) ){
             token_path = new CLList([
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(fromToken))
+                  CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(toToken))
+                  CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(fromToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), toToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(fromToken))
+                    CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(toToken))
+                    CLValueBuilder.byteArray(decodeBase16(targetToken))
                 ),
             ])
         } else { return; }
@@ -216,34 +216,34 @@ export class SwapperyRouterClient extends ContractClient {
 
     async swapTokensForExactTokens(
         keys: Keys.AsymmetricKey,
-        fromToken: string,
-        toToken: string,
+        sourceToken: string,
+        targetToken: string,
         amountOut: string,
         amountInMax: string,
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
         let token_path;
-        if ( await this.isPairExists(fromToken, toToken) ){
+        if ( await this.isPairExists(sourceToken, targetToken) ){
             token_path = new CLList([
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(fromToken))
+                  CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(toToken))
+                  CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(fromToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), toToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(fromToken))
+                    CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(toToken))
+                    CLValueBuilder.byteArray(decodeBase16(targetToken))
                 ),
             ])
         } else { return; }
@@ -268,34 +268,34 @@ export class SwapperyRouterClient extends ContractClient {
 
     async swapExactTokensForTokensSupportingFee(
         keys: Keys.AsymmetricKey,
-        fromToken: string,
-        toToken: string,
+        sourceToken: string,
+        targetToken: string,
         amountIn: string,
         amountOutMin: string,
         paymentAmount: string,
         ttl = DEFAULT_TTL
     ) {
         let token_path;
-        if ( await this.isPairExists(fromToken, toToken) ){
+        if ( await this.isPairExists(sourceToken, targetToken) ){
             token_path = new CLList([
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(fromToken))
+                  CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                  CLValueBuilder.byteArray(decodeBase16(toToken))
+                  CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(fromToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), toToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(fromToken))
+                    CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(toToken))
+                    CLValueBuilder.byteArray(decodeBase16(targetToken))
                 ),
             ])
         } else { return; }
