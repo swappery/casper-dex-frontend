@@ -1,4 +1,4 @@
-import { BigNumberish } from "ethers";
+import { BigNumber, BigNumberish } from "ethers";
 import { getTokenSourceMapRange } from "typescript";
 import create, {State} from "zustand";
 
@@ -56,8 +56,8 @@ export enum ExecutionType {
 
 export enum TxStatus {
     REQ_WRAP = "REQ_WRAP",
-    REQ_FIRST_APPROVE = "REQ_FIRST_APPROVE",
-    REQ_LAST_APPROVE = "REQ_LAST_APPROVE",
+    REQ_SOURCE_APPROVE = "REQ_SOURCE_APPROVE",
+    REQ_TARGET_APPROVE = "REQ_TARGET_APPROVE",
     REQ_EXECUTE = "REQ_EXECUTE",
     PENDING = "PENDING",
 }
@@ -65,14 +65,95 @@ export enum TxStatus {
 interface LiquidityStatus extends State {
     execType: ExecutionType;
     sourceToken: TokenType;
-    sourceBalance: BigNumberish;
-    sourceApproval: BigNumberish;
-    sourceAmount: BigNumberish;
+    sourceBalance: BigNumber;
+    sourceApproval: BigNumber;
+    sourceAmount: BigNumber;
     targetToken: TokenType;
-    targetBalance: BigNumberish;
-    targetApproval: BigNumberish;
-    targetAmount: BigNumberish;
+    targetBalance: BigNumber;
+    targetApproval: BigNumber;
+    targetAmount: BigNumber;
     currentStatus: TxStatus;
     setExecType: (execType: ExecutionType) => void;
-    
+    setSourceToken: (sourceToken: TokenType) => void;
+    setSourceBalance: (sourceBalance: BigNumberish) => void;
+    setSourceApproval: (sourceApproval: BigNumberish) => void;
+    setSourceAmount: (sourceAmount: BigNumberish) => void;
+    setTargetToken: (targetToken: TokenType) => void;
+    setTargetBalance: (targetBalance: BigNumberish) => void;
+    setTargetApproval: (targetApproval: BigNumberish) => void;
+    setTargetAmount: (targetAmount: BigNumberish) => void;
+    setCurrentStatus: (currentStatus: TxStatus) => void;
+    updateCurrentStatus: () => void;
 }
+
+const useLiquidityStatus = create<LiquidityStatus>((set) => ({
+    execType: ExecutionType.EXE_ADD_LIQUIDITY,
+    sourceToken: TokenType.COIN_A,
+    sourceBalance: BigNumber.from(0),
+    sourceApproval: BigNumber.from(0),
+    sourceAmount: BigNumber.from(0),
+    targetToken: TokenType.COIN_B,
+    targetBalance: BigNumber.from(0),
+    targetApproval: BigNumber.from(0),
+    targetAmount: BigNumber.from(0),
+    currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+    setExecType: (execType: ExecutionType) => 
+        set(() => ({
+            execType,
+        })),
+    setSourceToken: (sourceToken: TokenType) => 
+        set(() => ({
+            sourceToken,
+        })),
+    setSourceBalance: (sourceBalance: BigNumberish) => 
+        set(() => ({
+            sourceBalance: BigNumber.from(sourceBalance),
+        })),
+    setSourceApproval: (sourceApproval: BigNumberish) => 
+        set(() => ({
+            sourceApproval: BigNumber.from(sourceApproval),
+        })),
+    setSourceAmount: (sourceAmount: BigNumberish) => 
+        set(() => ({
+            sourceAmount: BigNumber.from(sourceAmount),
+        })),
+    setTargetToken: (targetToken: TokenType) => 
+        set(() => ({
+            targetToken,
+        })),
+    setTargetBalance: (targetBalance: BigNumberish) => 
+        set(() => ({
+            targetBalance: BigNumber.from(targetBalance),
+        })),
+    setTargetApproval: (targetApproval: BigNumberish) => 
+        set(() => ({
+            targetApproval: BigNumber.from(targetApproval),
+        })),
+    setTargetAmount: (targetAmount: BigNumberish) => 
+        set(() => ({
+            targetAmount: BigNumber.from(targetAmount),
+        })),
+    setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
+    updateCurrentStatus: () =>
+        set((state) => {
+        if (
+            state.sourceBalance.lt(state.sourceAmount) &&
+            supportedTokens[state.sourceToken].isNative
+        )
+            return {
+            currentStatus: TxStatus.REQ_WRAP,
+            };
+        else if (state.sourceApproval.lt(state.sourceAmount))
+            return {
+            currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+            };
+        else if (state.targetApproval.lt(state.targetAmount) &&
+            state.execType == ExecutionType.EXE_ADD_LIQUIDITY)
+            return {
+            currentStatus: TxStatus.REQ_TARGET_APPROVE,
+            };
+        return {
+            currentStatus: TxStatus.REQ_EXECUTE,
+        };
+        }),
+}));
