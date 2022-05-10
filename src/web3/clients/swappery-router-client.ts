@@ -93,11 +93,11 @@ export class SwapperyRouterClient extends ContractClient {
         publicKey: CLPublicKey,
         token0: string,
         token1: string,
-        amount0Desired: string,
-        amount1Desired: string,
-        amount0Min: string,
-        amount1Min: string,
-        paymentAmount: string,
+        amount0Desired: BigNumberish,
+        amount1Desired: BigNumberish,
+        amount0Min: BigNumberish,
+        amount1Min: BigNumberish,
+        paymentAmount: BigNumberish,
         ttl = DEFAULT_TTL
     ) {
         if (!this.isPairExists(token0, token1)) return;
@@ -132,10 +132,10 @@ export class SwapperyRouterClient extends ContractClient {
         publicKey: CLPublicKey,
         token0: string,
         token1: string,
-        liquidity: string,
-        amount0Min: string,
-        amount1Min: string,
-        paymentAmount: string,
+        liquidity: BigNumberish,
+        amount0Min: BigNumberish,
+        amount1Min: BigNumberish,
+        paymentAmount: BigNumberish,
         ttl = DEFAULT_TTL
     ) {
         const runtimeArgs = RuntimeArgs.fromMap({
@@ -168,9 +168,9 @@ export class SwapperyRouterClient extends ContractClient {
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
-        amountIn: string,
-        amountOutMin: string,
-        paymentAmount: string,
+        amountIn: BigNumberish,
+        amountOutMin: BigNumberish,
+        paymentAmount: BigNumberish,
         ttl = DEFAULT_TTL
     ) {
         let token_path;
@@ -221,9 +221,9 @@ export class SwapperyRouterClient extends ContractClient {
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
-        amountOut: string,
-        amountInMax: string,
-        paymentAmount: string,
+        amountOut: BigNumberish,
+        amountInMax: BigNumberish,
+        paymentAmount: BigNumberish,
         ttl = DEFAULT_TTL
     ) {
         let token_path;
@@ -274,9 +274,9 @@ export class SwapperyRouterClient extends ContractClient {
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
-        amountIn: string,
-        amountOutMin: string,
-        paymentAmount: string,
+        amountIn: BigNumberish,
+        amountOutMin: BigNumberish,
+        paymentAmount: BigNumberish,
         ttl = DEFAULT_TTL
     ) {
         let token_path;

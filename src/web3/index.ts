@@ -11,11 +11,12 @@ import { RecipientType } from "casper-js-client-helper/dist/types";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
 import useNetworkStatus from "../store/useNetworkStatus";
-import useLiquidityStatus, { supportedTokens, TxStatus } from "../store/useLiquidityStatus";
+import useLiquidityStatus, { supportedTokens, TokenType, TxStatus } from "../store/useLiquidityStatus";
 import { BigNumberish } from "ethers";
-import { CHAIN_NAME, INSTALL_FEE, NODE_ADDRESS, ROUTER_CONTRACT_PACKAGE_HASH, TRANSFER_FEE, WCSPR_CONTRACT_HASH } from "./config/constant";
+import { CHAIN_NAME, INSTALL_FEE, NODE_ADDRESS, ROUTER_CONTRACT_HASH, ROUTER_CONTRACT_PACKAGE_HASH, TRANSFER_FEE, WCSPR_CONTRACT_HASH } from "./config/constant";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { SwapperyRouterClient } from "./clients/swappery-router-client";
 
 export default function useCasperWeb3Provider() {
   const {setActiveAddress, activeAddress, isConnected} = useNetworkStatus();
@@ -201,4 +202,78 @@ export default function useCasperWeb3Provider() {
     approveTargetToken,
     wrapCspr,
   };
+}
+
+export async function addLiquidity(
+  publicKey: CLPublicKey,
+  sourceToken: TokenType,
+  sourceAmount: BigNumberish,
+  targetToken: TokenType,
+  targetAmount: BigNumberish
+  ) {
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await routerClient.setContractHash(contractHash);
+    const txHash = await routerClient.addLiquidity(
+      publicKey, 
+      supportedTokens[sourceToken].contractHash,
+      supportedTokens[targetToken].contractHash,
+      sourceAmount,
+      targetAmount,
+      0,
+      0,
+      TRANSFER_FEE
+    );
+    if (txHash === undefined) return;
+    const casperClient = new CasperClient(NODE_ADDRESS);
+    await casperClient.getDeploy(txHash);
+    return txHash;
+}
+
+export async function removeLiquidity(
+  publicKey: CLPublicKey,
+  sourceToken: TokenType,
+  targetToken: TokenType,
+  liquidityAmount: BigNumberish
+  ) {
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await routerClient.setContractHash(contractHash);
+    const txHash = await routerClient.removeLiquidity(
+      publicKey, 
+      supportedTokens[sourceToken].contractHash,
+      supportedTokens[targetToken].contractHash,
+      liquidityAmount,
+      0,
+      0,
+      TRANSFER_FEE
+    );
+    const casperClient = new CasperClient(NODE_ADDRESS);
+    await casperClient.getDeploy(txHash);
+    return txHash;
+}
+
+export async function swapExactTokensForTokens(
+  publicKey: CLPublicKey,
+  sourceToken: TokenType,
+  targetToken: TokenType,
+  sourceAmount: BigNumberish,
+  targetAmountMin: BigNumberish,
+  paymentAmount: BigNumberish,
+) {
+  let contractHash = ROUTER_CONTRACT_HASH;
+  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  await routerClient.setContractHash(contractHash);
+  let txHash = await routerClient.swapExactTokensForTokens(
+    publicKey,
+    supportedTokens[sourceToken].contractHash,
+    supportedTokens[targetToken].contractHash,
+    sourceAmount,
+    targetAmountMin,
+    paymentAmount
+  );
+  if (txHash === undefined) return;
+  let casperClient = new CasperClient(NODE_ADDRESS);
+  await casperClient.getDeploy(txHash);
+  return txHash;
 }
