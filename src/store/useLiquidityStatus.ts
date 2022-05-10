@@ -77,11 +77,11 @@ interface LiquidityStatus extends State {
     setSourceToken: (sourceToken: TokenType) => void;
     setSourceBalance: (sourceBalance: BigNumberish) => void;
     setSourceApproval: (sourceApproval: BigNumberish) => void;
-    setSourceAmount: (sourceAmount: BigNumberish) => void;
+    setSourceAmount: (sourceAmount: BigNumberish, withDecimals: boolean) => void;
     setTargetToken: (targetToken: TokenType) => void;
     setTargetBalance: (targetBalance: BigNumberish) => void;
     setTargetApproval: (targetApproval: BigNumberish) => void;
-    setTargetAmount: (targetAmount: BigNumberish) => void;
+    setTargetAmount: (targetAmount: BigNumberish, withDecimals: boolean) => void;
     setCurrentStatus: (currentStatus: TxStatus) => void;
     updateCurrentStatus: () => void;
 }
@@ -113,10 +113,16 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         set(() => ({
             sourceApproval: BigNumber.from(sourceApproval),
         })),
-    setSourceAmount: (sourceAmount: BigNumberish) => 
-        set(() => ({
-            sourceAmount: BigNumber.from(sourceAmount),
-        })),
+    setSourceAmount: (sourceAmount: BigNumberish, withDecimals: boolean) => 
+        set((state) =>
+            withDecimals
+            ? {
+                sourceAmount: BigNumber.from(sourceAmount).mul(
+                    10 ** supportedTokens[state.sourceToken].decimals
+                ),
+            }
+            : { sourceAmount: BigNumber.from(sourceAmount) }
+        ),
     setTargetToken: (targetToken: TokenType) => 
         set(() => ({
             targetToken,
@@ -129,10 +135,16 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         set(() => ({
             targetApproval: BigNumber.from(targetApproval),
         })),
-    setTargetAmount: (targetAmount: BigNumberish) => 
-        set(() => ({
-            targetAmount: BigNumber.from(targetAmount),
-        })),
+    setTargetAmount: (targetAmount: BigNumberish, withDecimals: boolean) => 
+        set((state) =>
+            withDecimals
+            ? {
+                targetAmount: BigNumber.from(targetAmount).mul(
+                    10 ** supportedTokens[state.sourceToken].decimals
+                ),
+            }
+            : { targetAmount: BigNumber.from(targetAmount) }
+        ),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
         set((state) => {
