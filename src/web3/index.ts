@@ -277,3 +277,28 @@ export async function swapExactTokensForTokens(
   await casperClient.getDeploy(txHash);
   return txHash;
 }
+
+export async function swapTokensForExactTokens(
+  publicKey: CLPublicKey,
+  sourceToken: TokenType,
+  targetToken: TokenType,
+  sourceAmountMax: BigNumberish,
+  targetAmount: BigNumberish,
+  paymentAmount: BigNumberish,
+) {
+  let contractHash = ROUTER_CONTRACT_HASH;
+  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  await routerClient.setContractHash(contractHash);
+  let txHash = await routerClient.swapTokensForExactTokens(
+    publicKey,
+    supportedTokens[sourceToken].contractHash,
+    supportedTokens[targetToken].contractHash,
+    sourceAmountMax,
+    targetAmount,
+    paymentAmount
+  );
+  if (txHash === undefined) return;
+  let casperClient = new CasperClient(NODE_ADDRESS);
+  await casperClient.getDeploy(txHash);
+  return txHash;
+}
