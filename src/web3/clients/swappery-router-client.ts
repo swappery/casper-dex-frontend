@@ -90,7 +90,7 @@ export class SwapperyRouterClient extends ContractClient {
       }
 
     async addLiquidity(
-        keys: Keys.AsymmetricKey,
+        publicKey: CLPublicKey,
         token0: string,
         token1: string,
         amount0Desired: string,
@@ -113,22 +113,23 @@ export class SwapperyRouterClient extends ContractClient {
             amount0_min: CLValueBuilder.u256(amount0Min),
             amount1_min: CLValueBuilder.u256(amount1Min),
             to: CLValueBuilder.key(
-                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+                CLValueBuilder.byteArray(publicKey.toAccountHash())
               ),
         });
 
-        return await this.contractCall({
-        entryPoint: "add_liquidity",
-        keys,
-        paymentAmount,
-        runtimeArgs,
-        cb: deployHash => this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
-        ttl,
-        });
+        return await this.contractCallWithSigner({
+            publicKey,
+            entryPoint: "add_liquidity",
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) =>
+                this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
+            ttl,
+        } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
     async removeLiquidity(
-        keys: Keys.AsymmetricKey,
+        publicKey: CLPublicKey,
         token0: string,
         token1: string,
         liquidity: string,
@@ -148,22 +149,23 @@ export class SwapperyRouterClient extends ContractClient {
             amount0_min: CLValueBuilder.u256(amount0Min),
             amount1_min: CLValueBuilder.u256(amount1Min),
             to: CLValueBuilder.key(
-                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+                CLValueBuilder.byteArray(publicKey.toAccountHash())
               ),
         });
 
-        return await this.contractCall({
-        entryPoint: "remove_liquidity",
-        keys,
-        paymentAmount,
-        runtimeArgs,
-        cb: deployHash => this.addPendingDeploy(RouterEvents.RemoveLiquidity, deployHash),
-        ttl,
-        });
+        return await this.contractCallWithSigner({
+            entryPoint: "remove_liquidity",
+            publicKey,
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) => 
+                this.addPendingDeploy(RouterEvents.RemoveLiquidity, deployHash),
+            ttl,
+        } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
     async swapExactTokensForTokens(
-        keys: Keys.AsymmetricKey,
+        publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
         amountIn: string,
@@ -200,22 +202,23 @@ export class SwapperyRouterClient extends ContractClient {
             amount_out_min: CLValueBuilder.u256(amountOutMin),
             path: token_path,
             to: CLValueBuilder.key(
-                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+                CLValueBuilder.byteArray(publicKey.toAccountHash())
               ),
         });
 
-        return await this.contractCall({
-        entryPoint: "swap_exact_tokens_for_tokens",
-        keys,
-        paymentAmount,
-        runtimeArgs,
-        cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
-        ttl,
-        });
+        return await this.contractCallWithSigner({
+            entryPoint: "swap_exact_tokens_for_tokens",
+            publicKey,
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) => 
+                this.addPendingDeploy(RouterEvents.Swap, deployHash),
+            ttl,
+        } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
     async swapTokensForExactTokens(
-        keys: Keys.AsymmetricKey,
+        publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
         amountOut: string,
@@ -252,22 +255,23 @@ export class SwapperyRouterClient extends ContractClient {
             amount_in_max: CLValueBuilder.u256(amountInMax),
             path: token_path,
             to: CLValueBuilder.key(
-                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+                CLValueBuilder.byteArray(publicKey.toAccountHash())
               ),
         });
 
-        return await this.contractCall({
-        entryPoint: "swap_tokens_for_exact_tokens",
-        keys,
-        paymentAmount,
-        runtimeArgs,
-        cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
-        ttl,
-        });
+        return await this.contractCallWithSigner({
+            entryPoint: "swap_tokens_for_exact_tokens",
+            publicKey,
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) => 
+                this.addPendingDeploy(RouterEvents.Swap, deployHash),
+            ttl,
+        } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
     async swapExactTokensForTokensSupportingFee(
-        keys: Keys.AsymmetricKey,
+        publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
         amountIn: string,
@@ -304,18 +308,19 @@ export class SwapperyRouterClient extends ContractClient {
             amount_out_min: CLValueBuilder.u256(amountOutMin),
             path: token_path,
             to: CLValueBuilder.key(
-                CLValueBuilder.byteArray(decodeBase16(getAccountHash(keys)))
+                CLValueBuilder.byteArray(publicKey.toAccountHash())
               ),
         });
 
-        return await this.contractCall({
+        return await this.contractCallWithSigner({
             entryPoint: "swap_exact_tokens_for_tokens_supporting_fee",
-            keys,
+            publicKey,
             paymentAmount,
             runtimeArgs,
-            cb: deployHash => this.addPendingDeploy(RouterEvents.Swap, deployHash),
+            cb: (deployHash: string) => 
+                this.addPendingDeploy(RouterEvents.Swap, deployHash),
             ttl,
-        });
+        } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
     async isPairExists(token0: string, token1: string) {
