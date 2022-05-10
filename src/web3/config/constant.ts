@@ -22,3 +22,4 @@ export const ROUTER_CONTRACT_PACKAGE_HASH =
   "b8814448f6e631c19a3a7aa6ebc825cdb9d8647bf5849c41db720ffaf7cb86e4";
 
 export const TRANSFER_FEE = 1 * 10 ** 9;
+export const INSTALL_FEE = 3 * 10 ** 9;

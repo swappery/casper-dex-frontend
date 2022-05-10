@@ -13,8 +13,9 @@ import { ERC20SignerClient } from "./clients/erc20signer-client";
 import useNetworkStatus from "../store/useNetworkStatus";
 import useLiquidityStatus, { supportedTokens, TxStatus } from "../store/useLiquidityStatus";
 import { BigNumberish } from "ethers";
-import { CHAIN_NAME, NODE_ADDRESS, ROUTER_CONTRACT_PACKAGE_HASH, TRANSFER_FEE } from "./config/constant";
+import { CHAIN_NAME, INSTALL_FEE, NODE_ADDRESS, ROUTER_CONTRACT_PACKAGE_HASH, TRANSFER_FEE, WCSPR_CONTRACT_HASH } from "./config/constant";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
 
 export default function useCasperWeb3Provider() {
   const {setActiveAddress, activeAddress, isConnected} = useNetworkStatus();
@@ -107,6 +108,12 @@ export default function useCasperWeb3Provider() {
     );
   }
 
+  async function balanceOf(contractHash: string) {
+    const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await erc20.setContractHash(contractHash);
+    return await erc20.balanceOf(CLPublicKey.fromHex(activeAddress));
+  }
+
   async function approveSourceToken(amount: BigNumberish) {
     if (!isConnected) return;
     let txHash;
@@ -146,4 +153,52 @@ export default function useCasperWeb3Provider() {
     setSourceApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
     toast.success("Target Approved.");
   }
+
+  async function wrapCspr(amount: BigNumberish) {
+    if (!isConnected) return;
+    let txHash = "";
+    setCurrentStatus(TxStatus.PENDING);
+    const contractHash = WCSPR_CONTRACT_HASH;
+    const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await wcsprClient.setContractHash(contractHash);
+    const clPK = CLPublicKey.fromHex(activeAddress);
+    txHash = await wcsprClient.deposit(
+      clPK,
+      contractHash,
+      amount,
+      INSTALL_FEE
+    );
+    const casperClient = new CasperClient(NODE_ADDRESS);
+    await casperClient.getDeploy(txHash);
+    setSourceBalance(await balanceOf(contractHash));
+    toast.success("Wrapped CSPR.");
+  }
+  useEffect(() => {
+    initialize();
+  }, []);
+
+  useEffect(() => {
+    async function handleChangeAddress() {
+      if (!isConnected) return;
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+    }
+    handleChangeAddress();
+  }, [activeAddress]);
+
+  useEffect(() => {
+    updateCurrentStatus();
+  }, [sourceToken, sourceBalance, sourceApproval, sourceAmount,
+      targetToken, targetBalance, targetApproval, targetAmount]);
+
+  return {
+    activate,
+    balanceOf,
+    allowanceOf,
+    approveSourceToken,
+    approveTargetToken,
+    wrapCspr,
+  };
 }
