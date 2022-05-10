@@ -181,14 +181,14 @@ export class SwapperyRouterClient extends ContractClient {
                   CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH, targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
+                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(targetToken))
@@ -233,14 +233,14 @@ export class SwapperyRouterClient extends ContractClient {
                   CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH, targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
+                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(targetToken))
@@ -285,14 +285,14 @@ export class SwapperyRouterClient extends ContractClient {
                   CLValueBuilder.byteArray(decodeBase16(targetToken))
                 )
               ]);
-        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH.slice(5)))
-                && (await this.isPairExists(WCSPR_CONTRACT_HASH.slice(5), targetToken))){
+        } else if ((await this.isPairExists(sourceToken, WCSPR_CONTRACT_HASH))
+                && (await this.isPairExists(WCSPR_CONTRACT_HASH, targetToken))){
             token_path = new CLList([
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(sourceToken))
                 ),
                 CLValueBuilder.key(
-                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH.slice(5)))
+                    CLValueBuilder.byteArray(decodeBase16(WCSPR_CONTRACT_HASH))
                 ),
                 CLValueBuilder.key(
                     CLValueBuilder.byteArray(decodeBase16(targetToken))

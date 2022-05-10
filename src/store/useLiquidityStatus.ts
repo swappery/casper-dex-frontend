@@ -19,21 +19,21 @@ export enum TokenType {
 
 export const supportedTokens: TokenContext[] = [
     {
-        name: "Coin A",
+        name: "Coin_A",
         symbol: "CoA",
         decimals: 9,
         contractHash: "94336dc55269c2fbf05aa44d395c5684297eeb7e801056c9c9fe4ef93b651fb1",
         isNative: false,
     },
     {
-        name: "Coin B",
+        name: "Coin_B",
         symbol: "CoB",
         decimals: 9,
         contractHash: "ce05047ad3bd89e3febdb54f9a61018ce0697488d26cb59cb1fc31f4a2753e2c",
         isNative: false,
     },
     {
-        name: "Coin C",
+        name: "Coin_C",
         symbol: "CoC",
         decimals: 9,
         contractHash: "45546f58480f6fe3163736c6ca09c40bf9aa5d63c09a16601e50716343bade4d",
@@ -155,5 +155,7 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         return {
             currentStatus: TxStatus.REQ_EXECUTE,
         };
-        }),
+    }),
 }));
+
+export default useLiquidityStatus;

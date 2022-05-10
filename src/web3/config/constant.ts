@@ -13,6 +13,12 @@ export const NODE_ADDRESS =
 export const CHAIN_NAME = "casper-test";
 
 export const WCSPR_CONTRACT_HASH =
-  "hash-0e7b887ac1c7603d3901cc526cd9753e7f8d3d251c254293a429b780fd195e88";
+  "0e7b887ac1c7603d3901cc526cd9753e7f8d3d251c254293a429b780fd195e88";
+
+export const ROUTER_CONTRACT_HASH = 
+  "97e7dc9175fe0f038e728a8c3d8a68d417ba51e3353679e965d3f0e73c1e7e8e";
+
+export const ROUTER_CONTRACT_PACKAGE_HASH =
+  "b8814448f6e631c19a3a7aa6ebc825cdb9d8647bf5849c41db720ffaf7cb86e4";
 
 export const TRANSFER_FEE = 1 * 10 ** 9;
