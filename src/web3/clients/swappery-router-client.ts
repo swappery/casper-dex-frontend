@@ -164,7 +164,7 @@ export class SwapperyRouterClient extends ContractClient {
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
-    async swapExactTokensForTokens(
+    async swapExactIn(
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
@@ -217,7 +217,7 @@ export class SwapperyRouterClient extends ContractClient {
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
-    async swapTokensForExactTokens(
+    async swapExactOut(
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,
@@ -270,7 +270,7 @@ export class SwapperyRouterClient extends ContractClient {
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
 
-    async swapExactTokensForTokensSupportingFee(
+    async swapSupportingFee(
         publicKey: CLPublicKey,
         sourceToken: string,
         targetToken: string,

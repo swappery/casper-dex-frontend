@@ -253,7 +253,7 @@ export async function removeLiquidity(
     return txHash;
 }
 
-export async function swapExactTokensForTokens(
+export async function swapExactIn(
   publicKey: CLPublicKey,
   sourceToken: TokenType,
   targetToken: TokenType,
@@ -264,7 +264,7 @@ export async function swapExactTokensForTokens(
   let contractHash = ROUTER_CONTRACT_HASH;
   let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
   await routerClient.setContractHash(contractHash);
-  let txHash = await routerClient.swapExactTokensForTokens(
+  let txHash = await routerClient.swapExactIn(
     publicKey,
     supportedTokens[sourceToken].contractHash,
     supportedTokens[targetToken].contractHash,
@@ -278,7 +278,7 @@ export async function swapExactTokensForTokens(
   return txHash;
 }
 
-export async function swapTokensForExactTokens(
+export async function swapExactOut(
   publicKey: CLPublicKey,
   sourceToken: TokenType,
   targetToken: TokenType,
@@ -289,7 +289,7 @@ export async function swapTokensForExactTokens(
   let contractHash = ROUTER_CONTRACT_HASH;
   let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
   await routerClient.setContractHash(contractHash);
-  let txHash = await routerClient.swapTokensForExactTokens(
+  let txHash = await routerClient.swapExactOut(
     publicKey,
     supportedTokens[sourceToken].contractHash,
     supportedTokens[targetToken].contractHash,

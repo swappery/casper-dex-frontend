@@ -11,10 +11,13 @@
     "@types/react": "^17.0.43",
     "@types/react-dom": "^17.0.14",
     "casper-erc20-js-client": "^0.2.0",
+    "casper-js-client-helper": "^1.0.1",
+    "casper-js-sdk": "^2.9.1",
     "daisyui": "^2.13.6",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.5",
     "react": "^18.0.0",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.1.0",
     "react-router-dom": "^6.3.0",
     "react-scripts": "5.0.0",
@@ -24,9 +27,9 @@
     "zustand": "^3.7.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -1,6 +1,11 @@
-import React from "react";
+import { FC } from "react";
 import { Link } from "react-router-dom";
-export default function index() {
+import useNetworkStatus from "../../../store/useNetworkStatus";
+import useCasperWeb3Provider from "../../../web3";
+import { shortenAddress } from "../../../utils/stringUtils";
+const AppBar: FC = () => {
+  const { activate } = useCasperWeb3Provider();
+  const { isConnected, activeAddress } = useNetworkStatus();
   return (
     <header className="shadow-xl bg-transparent bg-opacity-20 ">
       <nav className="flex items-center justify-between p-3 container mx-auto">
@@ -63,8 +68,9 @@ export default function index() {
         </div>
         <div className="flex items-center">
           <div className="mr-5 lg:mr-0">
-            <button className="py-2 px-6 text-lg font-BwGradualDEMO inline-flex items-center">
-              <span className="ml-2">connect wallet</span>
+            <button className="py-2 px-6 text-lg font-BwGradualDEMO inline-flex items-center"
+              onClick={() => activate()}>
+              {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
             </button>
           </div>
           <div>
@@ -77,3 +83,4 @@ export default function index() {
     </header>
   );
 }
+export default AppBar;
