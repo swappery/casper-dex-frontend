@@ -6,6 +6,7 @@ import {
     decodeBase16,
     CLList,
     CLPublicKey,
+    CLByteArray,
 } from "casper-js-sdk";
 import blake from "blakejs";
 import { concat } from "@ethersproject/bytes";
@@ -14,7 +15,7 @@ import { helpers, constants, utils } from "casper-js-client-helper";
 import ContractClient from "casper-js-client-helper/dist/casper-contract-client";
 import { RecipientType } from "casper-js-client-helper/dist/types";
 import { RouterEvents, WCSPR_CONTRACT_HASH } from "../config/constant";
-import { decode } from "punycode";
+import { decode, encode } from "punycode";
 import { getAccountHash } from "./utils";
 import { contractCallFn } from "./utils";
 const {
@@ -324,6 +325,7 @@ export class SwapperyRouterClient extends ContractClient {
     }
 
     async isPairExists(token0: string, token1: string) {
+        // console.log(this.namedKeys!.pairList);
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
             CLValueBuilder.byteArray(decodeBase16(token0))
@@ -341,6 +343,29 @@ export class SwapperyRouterClient extends ContractClient {
         this.namedKeys!.pairList
         );
         return result.isCLValue;
+    }
+
+    async getPairFor(token0: string, token1: string) {
+        // console.log(this.namedKeys!.pairList);
+        // TODO: REUSEABLE METHOD
+        const token0_hash = CLValueBuilder.key(
+            CLValueBuilder.byteArray(decodeBase16(token0))
+          );
+        const token1_hash = CLValueBuilder.key(
+            CLValueBuilder.byteArray(decodeBase16(token1))
+          );
+        const finalBytes = concat([CLValueParsers.toBytes(token0_hash).unwrap(), CLValueParsers.toBytes(token1_hash).unwrap()]);
+        const blaked = blake.blake2b(finalBytes, undefined, 32);
+        const encodedBytes = Buffer.from(blaked).toString("hex");
+
+        const result = await utils.contractDictionaryGetter(
+        this.nodeAddress,
+        encodedBytes,
+        this.namedKeys!.pairList
+        );
+        if (!result.isCLValue) return "";
+        const pairContractHashString = Buffer.from(result.data).toString('hex');
+        return pairContractHashString;
     }
 }
 export namespace SwapperyRouterClient {

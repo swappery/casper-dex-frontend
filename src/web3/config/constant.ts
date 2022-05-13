@@ -8,7 +8,8 @@ export enum RouterEvents {
 }
 
 export const NODE_ADDRESS =
-  "http://localhost:3000/api/cors?url=http://5.9.50.59:7777/rpc";
+  // "http://localhost:3000/api/cors?url=http://5.9.50.59:7777/rpc";
+  "https://picaswap.io/.netlify/functions/cors?url=http://5.9.50.59:7777/rpc";
 
 export const CHAIN_NAME = "casper-test";
 

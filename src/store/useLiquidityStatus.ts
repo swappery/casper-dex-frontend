@@ -72,30 +72,36 @@ interface LiquidityStatus extends State {
     targetBalance: BigNumber;
     targetApproval: BigNumber;
     targetAmount: BigNumber;
+    reserves: BigNumber[];
+    isExactIn: boolean;
     currentStatus: TxStatus;
     setExecType: (execType: ExecutionType) => void;
     setSourceToken: (sourceToken: TokenType) => void;
     setSourceBalance: (sourceBalance: BigNumberish) => void;
     setSourceApproval: (sourceApproval: BigNumberish) => void;
-    setSourceAmount: (sourceAmount: BigNumberish, withDecimals: boolean) => void;
+    setSourceAmount: (sourceAmount: number) => void;
     setTargetToken: (targetToken: TokenType) => void;
     setTargetBalance: (targetBalance: BigNumberish) => void;
     setTargetApproval: (targetApproval: BigNumberish) => void;
-    setTargetAmount: (targetAmount: BigNumberish, withDecimals: boolean) => void;
+    setTargetAmount: (targetAmount: number) => void;
+    setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) => void;
     setCurrentStatus: (currentStatus: TxStatus) => void;
+    setExactIn: (isExactIn: boolean) => void;
     updateCurrentStatus: () => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     execType: ExecutionType.EXE_ADD_LIQUIDITY,
-    sourceToken: TokenType.COIN_A,
+    sourceToken: TokenType.CSPR,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.COIN_B,
+    targetToken: TokenType.COIN_A,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
+    reserves: [BigNumber.from(1), BigNumber.from(1)],
+    isExactIn: true,
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
     setExecType: (execType: ExecutionType) => 
         set(() => ({
@@ -113,16 +119,10 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         set(() => ({
             sourceApproval: BigNumber.from(sourceApproval),
         })),
-    setSourceAmount: (sourceAmount: BigNumberish, withDecimals: boolean) => 
-        set((state) =>
-            withDecimals
-            ? {
-                sourceAmount: BigNumber.from(sourceAmount).mul(
-                    10 ** supportedTokens[state.sourceToken].decimals
-                ),
-            }
-            : { sourceAmount: BigNumber.from(sourceAmount) }
-        ),
+    setSourceAmount: (sourceAmount: number) => 
+        set((state) => ({
+            sourceAmount: BigNumber.from(sourceAmount * (10 ** supportedTokens[state.sourceToken].decimals))
+        })),
     setTargetToken: (targetToken: TokenType) => 
         set(() => ({
             targetToken,
@@ -135,16 +135,15 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         set(() => ({
             targetApproval: BigNumber.from(targetApproval),
         })),
-    setTargetAmount: (targetAmount: BigNumberish, withDecimals: boolean) => 
-        set((state) =>
-            withDecimals
-            ? {
-                targetAmount: BigNumber.from(targetAmount).mul(
-                    10 ** supportedTokens[state.sourceToken].decimals
-                ),
-            }
-            : { targetAmount: BigNumber.from(targetAmount) }
-        ),
+    setTargetAmount: (targetAmount: number) => 
+        set((state) => ({
+            sourceAmount: BigNumber.from(targetAmount * (10 ** supportedTokens[state.targetToken].decimals))
+        })),
+    setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) =>
+        set(() => {
+            return {reserves: [BigNumber.from(reserve0), BigNumber.from(reserve1)]}
+        }),
+    setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
         set((state) => {
