@@ -39,6 +39,7 @@ export default function useCasperWeb3Provider() {
     setSourceApproval,
     setTargetBalance,
     setTargetApproval,
+    setReserves,
   } = useLiquidityStatus();
 
   async function activate(requireConnection = true) {
@@ -194,6 +195,15 @@ export default function useCasperWeb3Provider() {
     updateCurrentStatus();
   }, [sourceToken, sourceBalance, sourceApproval, sourceAmount,
       targetToken, targetBalance, targetApproval, targetAmount]);
+
+  useEffect(() => {
+    async function handleChangeToken() {
+      const reserves = await getReserves(sourceToken, targetToken);
+      // console.log(reserves[0].toNumber(), reserves[1].toNumber());
+      setReserves(reserves[0], reserves[1]);
+    }
+    handleChangeToken();
+  }, [sourceToken, targetToken]);
 
   return {
     activate,

@@ -91,12 +91,12 @@ interface LiquidityStatus extends State {
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
-    execType: ExecutionType.EXE_ADD_LIQUIDITY,
-    sourceToken: TokenType.CSPR,
+    execType: ExecutionType.EXE_SWAP,
+    sourceToken: TokenType.COIN_A,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.COIN_A,
+    targetToken: TokenType.CSPR,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
@@ -137,7 +137,7 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         })),
     setTargetAmount: (targetAmount: number) => 
         set((state) => ({
-            sourceAmount: BigNumber.from(targetAmount * (10 ** supportedTokens[state.targetToken].decimals))
+            targetAmount: BigNumber.from(targetAmount * (10 ** supportedTokens[state.targetToken].decimals))
         })),
     setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) =>
         set(() => {

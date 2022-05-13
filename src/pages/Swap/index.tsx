@@ -38,10 +38,6 @@ export default function Swap() {
       10 ** supportedTokens[targetToken].decimals
     : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
 
-  const calculatedReserves = useMemo(async () => {
-    return await getReserves(sourceToken, targetToken);
-  }, [sourceToken, targetToken]);
-
   return (
     <div className="container mx-auto mt-10">
       <div className="bg-transparent w-96 mx-auto rounded-2xl border border-slate-300 shadow-lg">
@@ -68,9 +64,9 @@ export default function Swap() {
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
+                    console.log("source change");
                     console.log(sourceAmount.toNumber());
-                    const reserves = await calculatedReserves;
-                    setReserves(reserves[0], reserves[1]);
+                    console.log(isExactIn);
                   }}
                 />
               </div>
@@ -93,10 +89,10 @@ export default function Swap() {
                   )}
                   onValueChange={async (values) => {
                     const { value } = values;
-                    // setTargetAmount(parseFloat(value) || 0);
+                    setTargetAmount(parseFloat(value) || 0);
+                    console.log("target change");
                     console.log(targetAmount.toNumber());
-                    const reserves = await calculatedReserves;
-                    setReserves(reserves[0], reserves[1]);
+                    console.log(isExactIn);
                   }}
                 />
               </div>
