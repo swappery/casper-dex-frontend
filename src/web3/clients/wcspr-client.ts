@@ -33,15 +33,12 @@ export class WCSPRClient extends ERC20SignerClient {
     recipient: CLPublicKey | Keys.AsymmetricKey,
     withdrawAmount: BigNumberish,
     paymentAmount: BigNumberish,
-    isMaster = false,
     ttl = DEFAULT_TTL
   ) {
     const runtimeArgs = RuntimeArgs.fromMap({
       amount: CLValueBuilder.u512(withdrawAmount.toString()),
     });
-
-    if (!isMaster) {
-      return await this.contractCallWithSigner({
+    return await this.contractCallWithSigner({
         entryPoint: "withdraw",
         publicKey: recipient,
         paymentAmount: paymentAmount.toString(),
@@ -50,19 +47,6 @@ export class WCSPRClient extends ERC20SignerClient {
           this.addPendingDeploy("withdraw", deployHash),
         ttl,
       } as ERC20SignerClient.ContractCallWithSignerPayload);
-    } else if (recipient instanceof Keys.AsymmetricKey) {
-      return await this.contractCall({
-        keys: recipient,
-        entryPoint: "withdraw",
-        runtimeArgs,
-        paymentAmount: paymentAmount.toString(),
-        cb: (deployHash: string) =>
-          this.addPendingDeploy("withdraw", deployHash),
-        ttl,
-      });
-    } else {
-      throw Error("Something went wrong!");
-    }
   }
 
   async deposit(
