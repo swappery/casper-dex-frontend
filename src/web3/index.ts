@@ -209,7 +209,6 @@ export async function getReserves(
   sourceToken: TokenType,
   targetToken: TokenType
 ) {
-  console.log("calc");
   let routerContractHash = ROUTER_CONTRACT_HASH;
   let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
   await routerClient.setContractHash(routerContractHash);

@@ -65,14 +65,6 @@ export default function Swap() {
                     },
                     [isExactIn]
                   )}
-                  // onKeyDown={async (e: any) => {
-                  //   setExactIn(true);
-                  //   console.log(isExactIn);
-                  //   setSourceAmount(parseFloat(e.target.value) || 0);
-                  //   // console.log(sourceAmount.toNumber());
-                  //   // const reserves = await calculatedReserves;
-                  //   // setReserves(reserves[0], reserves[1]);
-                  // }}
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
