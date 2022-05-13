@@ -59,6 +59,7 @@ export enum TxStatus {
     REQ_SOURCE_APPROVE = "REQ_SOURCE_APPROVE",
     REQ_TARGET_APPROVE = "REQ_TARGET_APPROVE",
     REQ_EXECUTE = "REQ_EXECUTE",
+    REQ_UNWRAP = "REQ_UNWRAP",
     PENDING = "PENDING",
 }
 
@@ -148,6 +149,13 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     updateCurrentStatus: () =>
         set((state) => {
         if (
+            state.execType == ExecutionType.EXE_SWAP && 
+            supportedTokens[state.targetToken].isNative && 
+            state.targetBalance.gte(state.targetAmount))
+            return {
+                currentStatus: TxStatus.REQ_UNWRAP,
+            }
+        else if (
             state.sourceBalance.lt(state.sourceAmount) &&
             supportedTokens[state.sourceToken].isNative
         )

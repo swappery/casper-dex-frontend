@@ -176,6 +176,24 @@ export default function useCasperWeb3Provider() {
     setSourceBalance(await balanceOf(contractHash));
     toast.success("Wrapped CSPR.");
   }
+
+  async function unWrapCspr(amount: BigNumberish) {
+    if (!isConnected) return;
+    let txHash = "";
+    setCurrentStatus(TxStatus.PENDING);
+    const contractHash = WCSPR_CONTRACT_HASH;
+    const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await wcsprClient.setContractHash(contractHash);
+    const clPK = CLPublicKey.fromHex(activeAddress);
+    txHash = await wcsprClient.withdraw(
+      clPK,
+      amount,
+      INSTALL_FEE
+    );
+    const casperClient = new CasperClient(NODE_ADDRESS);
+    await casperClient.getDeploy(txHash);
+    toast.success("Unwrapped CSPR.");
+  }
   useEffect(() => {
     initialize();
   }, []);
@@ -212,6 +230,7 @@ export default function useCasperWeb3Provider() {
     approveSourceToken,
     approveTargetToken,
     wrapCspr,
+    unWrapCspr,
   };
 }
 
