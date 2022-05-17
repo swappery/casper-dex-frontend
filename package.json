@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@netlify/functions": "^1.0.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
@@ -18,6 +19,7 @@
     "daisyui": "^2.13.6",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.5",
+    "netlify-lambda": "^2.0.15",
     "react": "^18.0.0",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.1.0",
@@ -34,7 +36,9 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "netlify:dev": "netlify-lambda serve ./netlify/functions/cors",
+    "netlify:build": "netlify-lambda build ./netlify/functions/cors"
   },
   "eslintConfig": {
     "extends": [
@@ -55,6 +59,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.6.1",
     "@types/react-router-dom": "^5.3.3",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",
