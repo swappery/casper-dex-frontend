@@ -30,6 +30,8 @@ const ActionButton: FC = () => {
     targetApproval,
     targetAmount,
     isExactIn,
+    minAmountOut,
+    maxAmountIn,
     currentStatus,
   } = useLiquidityStatus();
   const handleClick = async () => {
@@ -48,7 +50,7 @@ const ActionButton: FC = () => {
             sourceToken,
             targetToken,
             sourceAmount,
-            0
+            minAmountOut
           )
         );
       } else if (currentStatus == TxStatus.REQ_EXECUTE && !isExactIn) {
@@ -57,7 +59,7 @@ const ActionButton: FC = () => {
             CLPublicKey.fromHex(activeAddress),
             sourceToken,
             targetToken,
-            10000000000000,
+            maxAmountIn,
             targetAmount
           )
         );

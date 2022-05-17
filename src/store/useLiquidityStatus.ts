@@ -75,6 +75,8 @@ interface LiquidityStatus extends State {
     targetAmount: BigNumber;
     reserves: BigNumber[];
     isExactIn: boolean;
+    minAmountOut: BigNumber;
+    maxAmountIn: BigNumber;
     currentStatus: TxStatus;
     setExecType: (execType: ExecutionType) => void;
     setSourceToken: (sourceToken: TokenType) => void;
@@ -88,21 +90,25 @@ interface LiquidityStatus extends State {
     setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) => void;
     setCurrentStatus: (currentStatus: TxStatus) => void;
     setExactIn: (isExactIn: boolean) => void;
+    setMinAmountOut: (minAmountOut: BigNumberish) => void;
+    setMaxAmountIn: (maxAmountIn: BigNumberish) => void;
     updateCurrentStatus: () => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     execType: ExecutionType.EXE_SWAP,
-    sourceToken: TokenType.COIN_A,
+    sourceToken: TokenType.CSPR,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.CSPR,
+    targetToken: TokenType.COIN_A,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
     reserves: [BigNumber.from(1), BigNumber.from(1)],
     isExactIn: true,
+    minAmountOut: BigNumber.from(0),
+    maxAmountIn: BigNumber.from(0),
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
     setExecType: (execType: ExecutionType) => 
         set(() => ({
@@ -145,6 +151,8 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
             return {reserves: [BigNumber.from(reserve0), BigNumber.from(reserve1)]}
         }),
     setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
+    setMinAmountOut: (minAmountOut: BigNumberish) => set(() => ({ minAmountOut: BigNumber.from(minAmountOut), })),
+    setMaxAmountIn: (maxAmountIn: BigNumberish) => set(() => ({ maxAmountIn: BigNumber.from(maxAmountIn), })),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
         set((state) => {

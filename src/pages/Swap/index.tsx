@@ -17,8 +17,9 @@ export default function Swap() {
     isExactIn,
     setSourceAmount,
     setTargetAmount,
-    setReserves,
     setExactIn,
+    setMaxAmountIn,
+    setMinAmountOut,
   } = useLiquidityStatus();
 
   const sourceValue = !isExactIn
@@ -64,6 +65,10 @@ export default function Swap() {
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
+                    setMaxAmountIn(
+                      ((parseFloat(value) * 10100) / 10000) *
+                        10 ** supportedTokens[sourceToken].decimals
+                    );
                     console.log("source change");
                     console.log(sourceAmount.toNumber());
                     console.log(isExactIn);
@@ -90,8 +95,12 @@ export default function Swap() {
                   onValueChange={async (values) => {
                     const { value } = values;
                     setTargetAmount(parseFloat(value) || 0);
+                    setMinAmountOut(
+                      ((parseFloat(value) * 10000) / 10100) *
+                        10 ** supportedTokens[sourceToken].decimals
+                    );
                     console.log("target change");
-                    console.log(targetAmount.toNumber());
+                    console.log(value);
                     console.log(isExactIn);
                   }}
                 />
