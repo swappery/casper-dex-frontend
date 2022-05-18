@@ -24,14 +24,11 @@ async function handler(event, context) {
   }
 
   try {
-    console.log("first");
     const response = await fetch(url, {
       method: httpMethod,
       body: httpMethod === "GET" ? undefined : body,
       headers: headers,
     });
-
-    console.log({ httpMethod, body });
 
     const responseJson = await response.json();
 
@@ -45,7 +42,7 @@ async function handler(event, context) {
     console.error(err);
     return {
       statusCode: 400,
-      body: JSON.stringify({ error: JSON.stringify(err), er: "asdf" }),
+      body: JSON.stringify({ error: JSON.stringify(err) }),
     };
   }
 }

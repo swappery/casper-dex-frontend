@@ -1,10 +1,6 @@
-import { ethers } from "ethers";
-import React, { FC, useEffect } from "react";
-import { toast } from "react-toastify";
+import { FC } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useLiquidityStatus, {
-  TokenType,
-  ExecutionType,
   TxStatus,
 } from "../../store/useLiquidityStatus";
 import useCasperWeb3Provider, { swapExactOut } from "../../web3";
@@ -23,11 +19,8 @@ const ActionButton: FC = () => {
   const {
     sourceToken,
     sourceBalance,
-    sourceApproval,
     sourceAmount,
     targetToken,
-    targetBalance,
-    targetApproval,
     targetAmount,
     isExactIn,
     minAmountOut,
@@ -36,14 +29,14 @@ const ActionButton: FC = () => {
   } = useLiquidityStatus();
   const handleClick = async () => {
     if (isConnected) {
-      if (currentStatus == TxStatus.REQ_UNWRAP) unWrapCspr(targetAmount);
-      else if (currentStatus == TxStatus.REQ_WRAP)
+      if (currentStatus === TxStatus.REQ_UNWRAP) unWrapCspr(targetAmount);
+      else if (currentStatus === TxStatus.REQ_WRAP)
         wrapCspr(sourceAmount.sub(sourceBalance));
-      else if (currentStatus == TxStatus.REQ_SOURCE_APPROVE)
+      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
         approveSourceToken(sourceAmount);
-      else if (currentStatus == TxStatus.REQ_TARGET_APPROVE)
+      else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
-      else if (currentStatus == TxStatus.REQ_EXECUTE && isExactIn) {
+      else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn) {
         console.log(
           swapExactIn(
             CLPublicKey.fromHex(activeAddress),
@@ -53,7 +46,7 @@ const ActionButton: FC = () => {
             minAmountOut
           )
         );
-      } else if (currentStatus == TxStatus.REQ_EXECUTE && !isExactIn) {
+      } else if (currentStatus === TxStatus.REQ_EXECUTE && !isExactIn) {
         console.log(
           swapExactOut(
             CLPublicKey.fromHex(activeAddress),
@@ -73,13 +66,13 @@ const ActionButton: FC = () => {
   if (!isConnected) {
     content = <>Connect</>;
   } else {
-    if (currentStatus == TxStatus.REQ_UNWRAP) content = <>Unwrap</>;
-    else if (currentStatus == TxStatus.REQ_WRAP) content = <>Wrap</>;
-    else if (currentStatus == TxStatus.REQ_SOURCE_APPROVE)
+    if (currentStatus === TxStatus.REQ_UNWRAP) content = <>Unwrap</>;
+    else if (currentStatus === TxStatus.REQ_WRAP) content = <>Wrap</>;
+    else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
       content = <>Approve 1</>;
-    else if (currentStatus == TxStatus.REQ_TARGET_APPROVE)
+    else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
       content = <>Approve 2</>;
-    else if (currentStatus == TxStatus.REQ_EXECUTE) content = <>Swap</>;
+    else if (currentStatus === TxStatus.REQ_EXECUTE) content = <>Swap</>;
     else
       content = (
         <div className="inline-flex items-center">

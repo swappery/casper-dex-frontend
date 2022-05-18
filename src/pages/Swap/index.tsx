@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState, KeyboardEvent } from "react";
+import { useCallback, KeyboardEvent } from "react";
 import IconButton from "../../components/Button/IconButton";
 import useLiquidityStatus, {
   supportedTokens,
 } from "../../store/useLiquidityStatus";
-import { getReserves } from "../../web3";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
 
@@ -24,19 +23,19 @@ export default function Swap() {
 
   const sourceValue = !isExactIn
     ? reserves[0]
-        .mul(targetAmount)
-        .mul(1000)
-        .div(reserves[1].sub(targetAmount).mul(998))
-        .toNumber() /
-      10 ** supportedTokens[sourceToken].decimals
+      .mul(targetAmount)
+      .mul(1000)
+      .div(reserves[1].sub(targetAmount).mul(998))
+      .toNumber() /
+    10 ** supportedTokens[sourceToken].decimals
     : sourceAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
   const targetValue = isExactIn
     ? sourceAmount
-        .mul(998)
-        .mul(reserves[1])
-        .div(reserves[0].mul(1000).add(sourceAmount.mul(998)))
-        .toNumber() /
-      10 ** supportedTokens[targetToken].decimals
+      .mul(998)
+      .mul(reserves[1])
+      .div(reserves[0].mul(1000).add(sourceAmount.mul(998)))
+      .toNumber() /
+    10 ** supportedTokens[targetToken].decimals
     : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
 
   return (
@@ -67,7 +66,7 @@ export default function Swap() {
                     setSourceAmount(parseFloat(value) || 0);
                     setMaxAmountIn(
                       ((parseFloat(value) * 10100) / 10000) *
-                        10 ** supportedTokens[sourceToken].decimals
+                      10 ** supportedTokens[sourceToken].decimals
                     );
                     console.log("source change");
                     console.log(sourceAmount.toNumber());
@@ -97,7 +96,7 @@ export default function Swap() {
                     setTargetAmount(parseFloat(value) || 0);
                     setMinAmountOut(
                       ((parseFloat(value) * 10000) / 10100) *
-                        10 ** supportedTokens[sourceToken].decimals
+                      10 ** supportedTokens[sourceToken].decimals
                     );
                     console.log("target change");
                     console.log(value);
