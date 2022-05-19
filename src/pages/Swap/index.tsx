@@ -65,12 +65,9 @@ export default function Swap() {
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
-                    setMaxAmountIn(
-                      ((parseFloat(value) * 10100) / 10000) *
-                        10 ** supportedTokens[sourceToken].decimals
-                    );
+                    setMaxAmountIn((parseFloat(value) * 10100) / 10000);
                     console.log("source change");
-                    console.log(sourceAmount.toNumber());
+                    console.log(value);
                     console.log(isExactIn);
                   }}
                 />
@@ -95,10 +92,7 @@ export default function Swap() {
                   onValueChange={async (values) => {
                     const { value } = values;
                     setTargetAmount(parseFloat(value) || 0);
-                    setMinAmountOut(
-                      ((parseFloat(value) * 10000) / 10100) *
-                        10 ** supportedTokens[sourceToken].decimals
-                    );
+                    setMinAmountOut((parseFloat(value) * 10000) / 10100);
                     console.log("target change");
                     console.log(value);
                     console.log(isExactIn);

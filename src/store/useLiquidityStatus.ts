@@ -90,8 +90,8 @@ interface LiquidityStatus extends State {
     setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) => void;
     setCurrentStatus: (currentStatus: TxStatus) => void;
     setExactIn: (isExactIn: boolean) => void;
-    setMinAmountOut: (minAmountOut: BigNumberish) => void;
-    setMaxAmountIn: (maxAmountIn: BigNumberish) => void;
+    setMinAmountOut: (minAmountOut: number) => void;
+    setMaxAmountIn: (maxAmountIn: number) => void;
     updateCurrentStatus: () => void;
 }
 
@@ -151,8 +151,10 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
             return {reserves: [BigNumber.from(reserve0), BigNumber.from(reserve1)]}
         }),
     setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
-    setMinAmountOut: (minAmountOut: BigNumberish) => set(() => ({ minAmountOut: BigNumber.from(minAmountOut), })),
-    setMaxAmountIn: (maxAmountIn: BigNumberish) => set(() => ({ maxAmountIn: BigNumber.from(maxAmountIn), })),
+    setMinAmountOut: (minAmountOut: number) => 
+        set((state) => ({ minAmountOut: BigNumber.from((minAmountOut * 10 ** supportedTokens[state.targetToken].decimals) | 0), })),
+    setMaxAmountIn: (maxAmountIn: number) => 
+        set((state) => ({ maxAmountIn: BigNumber.from((maxAmountIn * 10 ** supportedTokens[state.sourceToken].decimals) | 0), })),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
         set((state) => {
