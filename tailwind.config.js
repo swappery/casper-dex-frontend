@@ -1,12 +1,44 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    colors: {
+      transparent: "transparent",
+      current: "currentColor",
+      white: "#FFFFFF",
+      black: "#000000",
+      lightblue: "#CAEFFF",
+      lightgreen: "#E1F7D7",
+      lightyellow: "#FFF8D4",
+      lightred: "#FFE9E3",
+    },
+    fontFamily: {
+      gotham: "Gotham",
+      "orator-std": "Orator Std",
+    },
   },
   plugins: [require("daisyui")],
   daisyui: {
     styled: true,
-    themes: ["dark", "light"],
+    themes: [
+      {
+        light: {
+          ...require("daisyui/src/colors/themes")["[data-theme=light]"],
+          primary: "#CAEFFF",
+          secondary: "#E1F7D7",
+          accent: "#FFF8D4",
+          neutral: "#000000",
+        },
+      },
+      {
+        dark: {
+          ...require("daisyui/src/colors/themes")["[data-theme=dark]"],
+          primary: "#000000",
+          secondary: "#000000",
+          accent: "#000000",
+          neutral: "#FFF8D4",
+        },
+      },
+    ],
     base: true,
     utils: true,
     logs: true,

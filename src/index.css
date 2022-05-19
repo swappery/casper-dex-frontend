@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "Gotham";
+  src: local("Gotham"), url(./assets/fonts/Gotham/Gotham.ttf) format("ttf"),
+    url(./assets/fonts/Gotham/Gotham.woff2) format("woff2");
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "Gotham";
+  src: local("Gotham"), url(./assets/fonts/Gotham/GothamBold.ttf) format("ttf"),
+    url(./assets/fonts/Gotham/GothamBold.woff2) format("woff2");
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "Orator Std";
+  src: local("Orator Std"),
+    url(./assets/fonts/Orator-Std/Orator-Std.ttf) format("ttf"),
+    url(./assets/fonts/Orator-Std/Orator-Std.woff2) format("woff2");
+}

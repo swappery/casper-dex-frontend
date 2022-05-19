@@ -8,7 +8,7 @@ interface Theme {
   setTheme: (theme: string) => void;
 }
 const useTheme = create<Theme>((set) => ({
-  theme: Themes.DARK,
+  theme: Themes.LIGHT,
   setTheme: (theme: string) => {
     document.documentElement.setAttribute("data-theme", theme);
     set({ theme });
