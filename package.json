@@ -3,13 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@netlify/functions": "^1.0.0",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.4",
     "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.1",
-    "@types/node": "^16.11.26",
-    "@types/react": "^17.0.43",
-    "@types/react-dom": "^17.0.14",
     "buffer": "^6.0.3",
     "casper-erc20-js-client": "^0.2.0",
     "casper-js-client-helper": "^1.0.1",
@@ -18,7 +15,8 @@
     "daisyui": "^2.13.6",
     "dotenv": "^16.0.0",
     "ethers": "^5.6.5",
-    "react": "^18.0.0",
+    "netlify-lambda": "^2.0.15",
+    "react": "^18.1.0",
     "react-app-rewired": "^2.2.1",
     "react-dom": "^18.1.0",
     "react-number-format": "^4.9.3",
@@ -34,7 +32,9 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "netlify:dev": "netlify-lambda serve ./netlify/functions/cors",
+    "netlify:build": "netlify-lambda build ./netlify/functions/cors"
   },
   "eslintConfig": {
     "extends": [
@@ -55,6 +55,11 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/node": "^16.11.26",
+    "@types/node-fetch": "^2.6.1",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.4",
     "@types/react-router-dom": "^5.3.3",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",

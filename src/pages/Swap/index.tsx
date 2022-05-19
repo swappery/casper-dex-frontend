@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState, KeyboardEvent } from "react";
+import { useCallback, KeyboardEvent } from "react";
 import IconButton from "../../components/Button/IconButton";
 import useLiquidityStatus, {
   supportedTokens,
 } from "../../store/useLiquidityStatus";
-import { getReserves } from "../../web3";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
 
@@ -17,8 +16,9 @@ export default function Swap() {
     isExactIn,
     setSourceAmount,
     setTargetAmount,
-    setReserves,
     setExactIn,
+    setMaxAmountIn,
+    setMinAmountOut,
   } = useLiquidityStatus();
 
   const sourceValue = !isExactIn
@@ -37,10 +37,6 @@ export default function Swap() {
         .toNumber() /
       10 ** supportedTokens[targetToken].decimals
     : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
-
-  const calculatedReserves = useMemo(async () => {
-    return await getReserves(sourceToken, targetToken);
-  }, [sourceToken, targetToken]);
 
   return (
     <div className="container mx-auto mt-10">
@@ -65,20 +61,13 @@ export default function Swap() {
                     },
                     [isExactIn]
                   )}
-                  // onKeyDown={async (e: any) => {
-                  //   setExactIn(true);
-                  //   console.log(isExactIn);
-                  //   setSourceAmount(parseFloat(e.target.value) || 0);
-                  //   // console.log(sourceAmount.toNumber());
-                  //   // const reserves = await calculatedReserves;
-                  //   // setReserves(reserves[0], reserves[1]);
-                  // }}
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
-                    console.log(sourceAmount.toNumber());
-                    const reserves = await calculatedReserves;
-                    setReserves(reserves[0], reserves[1]);
+                    setMaxAmountIn((parseFloat(value) * 10100) / 10000);
+                    console.log("source change");
+                    console.log(value);
+                    console.log(isExactIn);
                   }}
                 />
               </div>
@@ -101,10 +90,11 @@ export default function Swap() {
                   )}
                   onValueChange={async (values) => {
                     const { value } = values;
-                    // setTargetAmount(parseFloat(value) || 0);
-                    console.log(targetAmount.toNumber());
-                    const reserves = await calculatedReserves;
-                    setReserves(reserves[0], reserves[1]);
+                    setTargetAmount(parseFloat(value) || 0);
+                    setMinAmountOut((parseFloat(value) * 10000) / 10100);
+                    console.log("target change");
+                    console.log(value);
+                    console.log(isExactIn);
                   }}
                 />
               </div>

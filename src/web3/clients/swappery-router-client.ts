@@ -325,7 +325,6 @@ export class SwapperyRouterClient extends ContractClient {
     }
 
     async isPairExists(token0: string, token1: string) {
-        // console.log(this.namedKeys!.pairList);
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
             CLValueBuilder.byteArray(decodeBase16(token0))
@@ -346,7 +345,6 @@ export class SwapperyRouterClient extends ContractClient {
     }
 
     async getPairFor(token0: string, token1: string) {
-        // console.log(this.namedKeys!.pairList);
         // TODO: REUSEABLE METHOD
         const token0_hash = CLValueBuilder.key(
             CLValueBuilder.byteArray(decodeBase16(token0))

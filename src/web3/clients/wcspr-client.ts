@@ -1,28 +1,15 @@
-import { ERC20Client } from "casper-erc20-js-client";
-import { constants, helpers, utils } from "casper-js-client-helper";
+import { constants } from "casper-js-client-helper";
 import {
   decodeBase16,
-  Signer,
   RuntimeArgs,
   CLValueBuilder,
-  CasperClient,
-  DeployUtil,
   CLPublicKey,
 } from "casper-js-sdk";
 
-import { installWasmFile, contractCallFn, signDeploy } from "./utils";
+import { installWasmFile } from "./utils";
 import { ERC20SignerClient } from "./erc20signer-client";
 import { BigNumberish } from "@ethersproject/bignumber";
 import { Keys } from "casper-js-sdk";
-
-const {
-  fromCLMap,
-  toCLMap,
-  installContract,
-  setClient,
-  contractSimpleGetter,
-  createRecipientAddress,
-} = helpers;
 
 const { DEFAULT_TTL } = constants;
 
@@ -33,36 +20,20 @@ export class WCSPRClient extends ERC20SignerClient {
     recipient: CLPublicKey | Keys.AsymmetricKey,
     withdrawAmount: BigNumberish,
     paymentAmount: BigNumberish,
-    isMaster = false,
     ttl = DEFAULT_TTL
   ) {
     const runtimeArgs = RuntimeArgs.fromMap({
       amount: CLValueBuilder.u512(withdrawAmount.toString()),
     });
-
-    if (!isMaster) {
-      return await this.contractCallWithSigner({
-        entryPoint: "withdraw",
-        publicKey: recipient,
-        paymentAmount: paymentAmount.toString(),
-        runtimeArgs,
-        cb: (deployHash: string) =>
-          this.addPendingDeploy("withdraw", deployHash),
-        ttl,
-      } as ERC20SignerClient.ContractCallWithSignerPayload);
-    } else if (recipient instanceof Keys.AsymmetricKey) {
-      return await this.contractCall({
-        keys: recipient,
-        entryPoint: "withdraw",
-        runtimeArgs,
-        paymentAmount: paymentAmount.toString(),
-        cb: (deployHash: string) =>
-          this.addPendingDeploy("withdraw", deployHash),
-        ttl,
-      });
-    } else {
-      throw Error("Something went wrong!");
-    }
+    return await this.contractCallWithSigner({
+      entryPoint: "withdraw",
+      publicKey: recipient,
+      paymentAmount: paymentAmount.toString(),
+      runtimeArgs,
+      cb: (deployHash: string) =>
+        this.addPendingDeploy("withdraw", deployHash),
+      ttl,
+    } as ERC20SignerClient.ContractCallWithSignerPayload);
   }
 
   async deposit(
