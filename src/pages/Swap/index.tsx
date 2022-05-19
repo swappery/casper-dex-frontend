@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState, KeyboardEvent } from "react";
+import { useCallback, KeyboardEvent } from "react";
 import IconButton from "../../components/Button/IconButton";
 import useLiquidityStatus, {
   supportedTokens,
 } from "../../store/useLiquidityStatus";
-import { getReserves } from "../../web3";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
 
