@@ -23,7 +23,7 @@ export default function Header() {
       <div className='col-span-2 bg-secondary'>
         <div className='grid grid-cols-2'>
           <div className='flex justify-around items-center py-8 px-4 border-r-[0.5px] border-l-[0.5px] border-neutral text-neutral font-gotham'>
-            <Link to='/exchange'>Swap</Link>
+            <Link to='/swap'>Swap</Link>
             <Link to='/liquidity'>Liquidity</Link>
             <Link to='/farm'>Farm</Link>
           </div>
