@@ -20,22 +20,33 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
+  const getAmountsOut = () => {
+    let tempAmount = sourceAmount;
+    for (var i = 0; i < reserves.length; i++) {
+      tempAmount = tempAmount
+        .mul(998)
+        .mul(reserves[i][1])
+        .div(reserves[i][0].mul(1000).add(tempAmount.mul(998)));
+    }
+    return tempAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
+  };
+
+  const getAmountsIn = () => {
+    let tempAmount = targetAmount;
+    for (var i = 0; i < reserves.length; i++) {
+      tempAmount = reserves[i][0]
+        .mul(tempAmount)
+        .mul(1000)
+        .div(reserves[i][1].sub(tempAmount).mul(998));
+    }
+    return tempAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
+  };
 
   const sourceValue = !isExactIn
-    ? reserves[0]
-        .mul(targetAmount)
-        .mul(1000)
-        .div(reserves[1].sub(targetAmount).mul(998))
-        .toNumber() /
-      10 ** supportedTokens[sourceToken].decimals
+    ? getAmountsIn()
     : sourceAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
   const targetValue = isExactIn
-    ? sourceAmount
-        .mul(998)
-        .mul(reserves[1])
-        .div(reserves[0].mul(1000).add(sourceAmount.mul(998)))
-        .toNumber() /
-      10 ** supportedTokens[targetToken].decimals
+    ? getAmountsOut()
     : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
 
   return (

@@ -37,6 +37,7 @@ export default function useCasperWeb3Provider() {
     setTargetBalance,
     setTargetApproval,
     setReserves,
+    setPairExist,
   } = useLiquidityStatus();
 
   async function activate(requireConnection = true) {
@@ -198,7 +199,6 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeAddress() {
       if (!isConnected) return;
-      console.log(await balanceOf(supportedTokens[sourceToken].contractHash))
       setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
       setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
       setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
@@ -214,9 +214,24 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     async function handleChangeToken() {
-      const reserves = await getReserves(sourceToken, targetToken);
-      // console.log(reserves[0].toNumber(), reserves[1].toNumber());
-      setReserves(reserves[0], reserves[1]);
+      if (await isPairExist(sourceToken, targetToken)) {
+        setPairExist(true);
+        const reserves = await getReserves(sourceToken, targetToken);
+        console.log(reserves[0].toNumber(), reserves[1].toNumber());
+        let reservesList: BigNumber[][] = [];
+        reservesList.push([BigNumber.from(reserves[0]), BigNumber.from(reserves[1])]);
+        setReserves(reservesList);
+      }
+      else if (await isPairExist(sourceToken, TokenType.CSPR) && await isPairExist(TokenType.CSPR, targetToken)) {
+        setPairExist(false);
+        let reservesList: BigNumber[][] = [];
+        const step1 = await getReserves(sourceToken, TokenType.CSPR);
+        console.log(step1[0].toNumber(), step1[1].toNumber());
+        reservesList.push([BigNumber.from(step1[0]), BigNumber.from(step1[1])]);
+        const step2 = await getReserves(TokenType.CSPR, targetToken);
+        reservesList.push([BigNumber.from(step2[0]), BigNumber.from(step2[1])]);
+        setReserves(reservesList);
+      }
     }
     handleChangeToken();
   }, [sourceToken, targetToken]);
@@ -232,6 +247,18 @@ export default function useCasperWeb3Provider() {
   };
 }
 
+export async function isPairExist(
+  sourceToken: TokenType,
+  targetToken: TokenType
+) {
+  let routerContractHash = ROUTER_CONTRACT_HASH;
+  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  await routerClient.setContractHash(routerContractHash);
+  const sourceContractHash = supportedTokens[sourceToken].contractHash;
+  const targetContractHash = supportedTokens[targetToken].contractHash;
+  return await routerClient.isPairExists(sourceContractHash, targetContractHash);
+}
+
 export async function getReserves(
   sourceToken: TokenType,
   targetToken: TokenType
@@ -243,7 +270,6 @@ export async function getReserves(
   const targetContractHash = supportedTokens[targetToken].contractHash;
   if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
     let pairContract = await routerClient.getPairFor(sourceContractHash, targetContractHash);
-    console.log(pairContract);
     let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await pairClient.setContractHash(pairContract);
     let reserves = await pairClient.getReserves();
