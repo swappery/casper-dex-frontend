@@ -1,20 +1,13 @@
 import { FC } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import useLiquidityStatus, {
-  TxStatus,
-} from "../../store/useLiquidityStatus";
+import useLiquidityStatus, { TxStatus } from "../../store/useLiquidityStatus";
 import useCasperWeb3Provider, { swapExactOut } from "../../web3";
 import { swapExactIn } from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 const ActionButton: FC = () => {
   const { isConnected, activeAddress } = useNetworkStatus();
-  const {
-    activate,
-    wrapCspr,
-    approveSourceToken,
-    approveTargetToken,
-    unWrapCspr,
-  } = useCasperWeb3Provider();
+  const { activate, wrapCspr, approveSourceToken, approveTargetToken } =
+    useCasperWeb3Provider();
 
   const {
     sourceToken,
@@ -29,14 +22,15 @@ const ActionButton: FC = () => {
   } = useLiquidityStatus();
   const handleClick = async () => {
     if (isConnected) {
-      if (currentStatus === TxStatus.REQ_UNWRAP) unWrapCspr(targetAmount);
-      else if (currentStatus === TxStatus.REQ_WRAP)
+      if (currentStatus === TxStatus.REQ_WRAP)
         wrapCspr(sourceAmount.sub(sourceBalance));
       else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
-        approveSourceToken(sourceAmount);
+        approveSourceToken(maxAmountIn);
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
       else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn) {
+        console.log(minAmountOut.toNumber());
+        console.log(targetAmount.toNumber());
         console.log(
           swapExactIn(
             CLPublicKey.fromHex(activeAddress),
@@ -66,8 +60,7 @@ const ActionButton: FC = () => {
   if (!isConnected) {
     content = <>Connect</>;
   } else {
-    if (currentStatus === TxStatus.REQ_UNWRAP) content = <>Unwrap</>;
-    else if (currentStatus === TxStatus.REQ_WRAP) content = <>Wrap</>;
+    if (currentStatus === TxStatus.REQ_WRAP) content = <>Wrap</>;
     else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
       content = <>Approve 1</>;
     else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)

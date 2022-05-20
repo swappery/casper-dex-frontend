@@ -21,28 +21,28 @@ export const supportedTokens: TokenContext[] = [
         name: "Coin_A",
         symbol: "CoA",
         decimals: 9,
-        contractHash: "94336dc55269c2fbf05aa44d395c5684297eeb7e801056c9c9fe4ef93b651fb1",
+        contractHash: "08751d44484b9d528bb89c27c328dff934bad47376ee0086d059602364d6d986",
         isNative: false,
     },
     {
         name: "Coin_B",
         symbol: "CoB",
-        decimals: 9,
-        contractHash: "ce05047ad3bd89e3febdb54f9a61018ce0697488d26cb59cb1fc31f4a2753e2c",
+        decimals: 18,
+        contractHash: "662071d2d2d64c07c91da1dbde8a0945ddb0b3d2f7eaa56f725db7007968d4e1",
         isNative: false,
     },
     {
         name: "Coin_C",
         symbol: "CoC",
-        decimals: 9,
-        contractHash: "45546f58480f6fe3163736c6ca09c40bf9aa5d63c09a16601e50716343bade4d",
+        decimals: 12,
+        contractHash: "400689fb2c42b38e39c2299c0c8c8cde729771a9e0161a433d2a308124eb79aa",
         isNative: false,
     },
     {
         name: "Casper",
         symbol: "CSPR",
         decimals: 9,
-        contractHash: "0e7b887ac1c7603d3901cc526cd9753e7f8d3d251c254293a429b780fd195e88",
+        contractHash: "d91883e9ebe885aaa16b16c10652617e1752d40bd90148aa79d971df60d93120",
         isNative: true,
     },
 ]
@@ -58,7 +58,6 @@ export enum TxStatus {
     REQ_SOURCE_APPROVE = "REQ_SOURCE_APPROVE",
     REQ_TARGET_APPROVE = "REQ_TARGET_APPROVE",
     REQ_EXECUTE = "REQ_EXECUTE",
-    REQ_UNWRAP = "REQ_UNWRAP",
     PENDING = "PENDING",
 }
 
@@ -96,11 +95,11 @@ interface LiquidityStatus extends State {
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     execType: ExecutionType.EXE_SWAP,
-    sourceToken: TokenType.CSPR,
+    sourceToken: TokenType.COIN_A,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.COIN_A,
+    targetToken: TokenType.CSPR,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
@@ -151,27 +150,20 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         }),
     setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
     setMinAmountOut: (minAmountOut: number) => 
-        set((state) => ({ minAmountOut: BigNumber.from((minAmountOut * 10 ** supportedTokens[state.targetToken].decimals) | 0), })),
+        set((state) => ({ minAmountOut: BigNumber.from((minAmountOut * 10 ** supportedTokens[state.targetToken].decimals).toFixed()), })),
     setMaxAmountIn: (maxAmountIn: number) => 
-        set((state) => ({ maxAmountIn: BigNumber.from((maxAmountIn * 10 ** supportedTokens[state.sourceToken].decimals) | 0), })),
+        set((state) => ({ maxAmountIn: BigNumber.from((maxAmountIn * 10 ** supportedTokens[state.sourceToken].decimals).toFixed()), })),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
         set((state) => {
             if (
-                state.execType === ExecutionType.EXE_SWAP &&
-                supportedTokens[state.targetToken].isNative &&
-                state.targetBalance.gte(state.targetAmount))
-                return {
-                    currentStatus: TxStatus.REQ_UNWRAP,
-                }
-            else if (
                 state.sourceBalance.lt(state.sourceAmount) &&
                 supportedTokens[state.sourceToken].isNative
             )
                 return {
                     currentStatus: TxStatus.REQ_WRAP,
                 };
-            else if (state.sourceApproval.lt(state.sourceAmount))
+            else if (state.sourceApproval.lt(state.maxAmountIn))
                 return {
                     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
                 };
