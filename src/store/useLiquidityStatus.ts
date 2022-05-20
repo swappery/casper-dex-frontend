@@ -76,7 +76,6 @@ interface LiquidityStatus extends State {
     minAmountOut: BigNumber;
     maxAmountIn: BigNumber;
     currentStatus: TxStatus;
-    isPairExist: boolean;
     setExecType: (execType: ExecutionType) => void;
     setSourceToken: (sourceToken: TokenType) => void;
     setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -92,7 +91,6 @@ interface LiquidityStatus extends State {
     setMinAmountOut: (minAmountOut: number) => void;
     setMaxAmountIn: (maxAmountIn: number) => void;
     updateCurrentStatus: () => void;
-    setPairExist: (isPairExist: boolean) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
@@ -110,7 +108,6 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     minAmountOut: BigNumber.from(0),
     maxAmountIn: BigNumber.from(0),
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
-    isPairExist: true,
     setExecType: (execType: ExecutionType) =>
         set(() => ({
             execType,
@@ -157,7 +154,6 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     setMaxAmountIn: (maxAmountIn: number) => 
         set((state) => ({ maxAmountIn: BigNumber.from((maxAmountIn * 10 ** supportedTokens[state.sourceToken].decimals).toFixed()), })),
     setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
-    setPairExist: (isPairExist: boolean) => set(() => ({ isPairExist })),
     updateCurrentStatus: () =>
         set((state) => {
             if (

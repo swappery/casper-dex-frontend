@@ -37,7 +37,6 @@ export default function useCasperWeb3Provider() {
     setTargetBalance,
     setTargetApproval,
     setReserves,
-    setPairExist,
   } = useLiquidityStatus();
 
   async function activate(requireConnection = true) {
@@ -215,7 +214,6 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeToken() {
       if (await isPairExist(sourceToken, targetToken)) {
-        setPairExist(true);
         const reserves = await getReserves(sourceToken, targetToken);
         console.log(reserves[0].toNumber(), reserves[1].toNumber());
         let reservesList: BigNumber[][] = [];
@@ -223,7 +221,6 @@ export default function useCasperWeb3Provider() {
         setReserves(reservesList);
       }
       else if (await isPairExist(sourceToken, TokenType.CSPR) && await isPairExist(TokenType.CSPR, targetToken)) {
-        setPairExist(false);
         let reservesList: BigNumber[][] = [];
         const step1 = await getReserves(sourceToken, TokenType.CSPR);
         console.log(step1[0].toNumber(), step1[1].toNumber());
