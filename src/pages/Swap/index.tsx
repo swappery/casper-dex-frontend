@@ -6,6 +6,12 @@ import useLiquidityStatus, {
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals } from "../../utils/stringUtils";
+import swapImage from "../../assets/images/swap/swap.svg";
+import chevronIcon from "../../assets/images/swap/chevron.svg";
+import csprToken from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
+import swprToken from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import leftHand from "../../assets/images/hands/left.svg";
+import "./swap.css";
 
 export default function Swap() {
   const {
@@ -70,73 +76,95 @@ export default function Swap() {
       );
 
   return (
-    <div className="container mx-auto mt-10">
-      <div className="bg-transparent w-96 mx-auto rounded-2xl border border-slate-300 shadow-lg">
-        <div className="p-5 text-center">
-          <span className="text-2xl">Swap</span>
-          <div>trade tokens in an instant</div>
+    <div className="flex items-center bg-accent relative swap-wrapper px-2 md:px-0">
+      <div className="container mx-auto py-0 md:py-[90px] grid grid-cols-12 gap-2 md:gap-6">
+        <div className="col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0">
+          <img
+            src={leftHand}
+            className="hidden md:block absolute top-[112px] -left-[130px] xl:top-[50px] xl:-left-[145px] z-10"
+            alt="Left Hand"
+          />
+          <div className="hidden lg:block absolute w-[500px] top-[132px] -left-[462px] h-[46px] xl:w-[2000px] xl:h-[57px] xl:-left-[1933px] xl:top-[76px] border-t border-b border-black bg-white z-20]"></div>
+          <img
+            src={swapImage}
+            className="max-w-[94px] md:max-w-none mx-auto md:absolute md:px-6 xl:px-8 w-full md:bottom-[60px]"
+            alt="Swap Button"
+          />
         </div>
-        <hr />
-        <div className="relative flex-col justify-between p-4">
-          <div className="grid grid-cols-1 gap-3">
-            <div>
-              <div className="pb-2">{supportedTokens[sourceToken].symbol}</div>
-              <div>
-                <NumberFormat
-                  value={sourceValue}
-                  className="input w-full border border-slate-500 focus:outline-none"
-                  thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(true);
-                    },
-                    [isExactIn]
-                  )}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    setSourceAmount(parseFloat(value) || 0);
-                    setMaxAmountIn((parseFloat(value) * 10100) / 10000);
-                    console.log("source change");
-                    console.log(value);
-                    console.log(isExactIn);
-                  }}
+        <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 bg-transparent border bg-success">
+          <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
+            <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
+              <NumberFormat
+                value={sourceValue}
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                thousandSeparator={true}
+                onKeyDown={useCallback(
+                  (e: KeyboardEvent<HTMLInputElement>) => {
+                    setExactIn(true);
+                  },
+                  [isExactIn]
+                )}
+                onValueChange={async (values) => {
+                  const { value } = values;
+                  setSourceAmount(parseFloat(value) || 0);
+                  setMaxAmountIn((parseFloat(value) * 10100) / 10000);
+                  console.log("source change");
+                  console.log(value);
+                  console.log(isExactIn);
+                }}
+              />
+              <div className="flex items-center md:gap-2">
+                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                  <span className="text-[14px] md:text-[19px]">CSPR</span>
+                  <img src={chevronIcon} alt="" />
+                </button>
+                <img
+                  src={csprToken}
+                  className="w-[30px] md:w-[53px]"
+                  alt="CSPR Token"
                 />
               </div>
             </div>
             <div className="flex justify-center">
-              <IconButton IconUrl="" />
+              <IconButton />
             </div>
-            <div>
-              <div className="pb-2">{supportedTokens[targetToken].symbol}</div>
-              <div>
-                <NumberFormat
-                  value={targetValue}
-                  className="input w-full border border-slate-500 focus:outline-none"
-                  thousandSeparator={false}
-                  isAllowed={withTargetLimit}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(false);
-                    },
-                    [isExactIn]
-                  )}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    setTargetAmount(parseFloat(value) || 0);
-                    setMinAmountOut((parseFloat(value) * 10000) / 10100);
-                    console.log("target change");
-                    console.log(value);
-                    console.log(isExactIn);
-                  }}
+            <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
+              <NumberFormat
+                value={targetValue}
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                thousandSeparator={false}
+                onKeyDown={useCallback(
+                  (e: KeyboardEvent<HTMLInputElement>) => {
+                    setExactIn(false);
+                  },
+                  [isExactIn]
+                )}
+                onValueChange={async (values) => {
+                  const { value } = values;
+                  setTargetAmount(parseFloat(value) || 0);
+                  setMinAmountOut((parseFloat(value) * 10000) / 10100);
+                  console.log("target change");
+                  console.log(value);
+                  console.log(isExactIn);
+                }}
+              />
+              <div className="flex items-center md:gap-2">
+                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                  <span className="text-[14px] md:text-[19px]">SWPR</span>
+                  <img src={chevronIcon} alt="" />
+                </button>
+                <img
+                  src={swprToken}
+                  className="w-[30px] md:w-[53px]"
+                  alt="SWPR Token"
                 />
               </div>
             </div>
-            <div className="flex justify-between px-5 place-items-end">
-              <span className="font-bold text-xs">Slippage Tolerance</span>
-              <span className="font-bold">1%</span>
-            </div>
+            <p className="text-center mt-3 px-8 text-neutral text-[12px] md:text-[15px]">
+              Slippage Tolerance 1%
+            </p>
+            <ActionButton />
           </div>
-          <ActionButton />
         </div>
       </div>
     </div>

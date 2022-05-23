@@ -1,15 +1,26 @@
-import React from "react";
 import useLiquidityStatus from "../../store/useLiquidityStatus";
 
-export default function IconButton({ IconUrl }: { IconUrl: string }) {
+export default function IconButton() {
   const { switchToken } = useLiquidityStatus();
   return (
-    <button
-      className="p-1 w-8 shadow-inner border rounded-full "
-      onClick={switchToken}
-    >
-      <svg viewBox="0 0 24 24" fill="#1fc7d4">
-        <path d="M11 5V16.17L6.11997 11.29C5.72997 10.9 5.08997 10.9 4.69997 11.29C4.30997 11.68 4.30997 12.31 4.69997 12.7L11.29 19.29C11.68 19.68 12.31 19.68 12.7 19.29L19.29 12.7C19.68 12.31 19.68 11.68 19.29 11.29C18.9 10.9 18.27 10.9 17.88 11.29L13 16.17V5C13 4.45 12.55 4 12 4C11.45 4 11 4.45 11 5Z" />
+    <button className="" onClick={switchToken}>
+      <svg
+        width="38"
+        height="39"
+        viewBox="0 0 38 39"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19.0544 37.6475C29.082 37.6475 37.2109 29.5159 37.2109 19.485C37.2109 9.45414 29.082 1.32251 19.0544 1.32251C9.0268 1.32251 0.897827 9.45414 0.897827 19.485C0.897827 29.5159 9.0268 37.6475 19.0544 37.6475Z"
+          fill="#E1F7D7"
+          stroke="black"
+          stroke-miterlimit="10"
+        />
+        <path
+          d="M20.0329 23.6179H17.9672L14.7055 15.3523H17.2061L19.0544 20.7902L20.9027 15.3523H23.2946L20.0329 23.6179Z"
+          fill="black"
+        />
       </svg>
     </button>
   );
