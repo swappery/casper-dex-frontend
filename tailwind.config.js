@@ -25,6 +25,7 @@ module.exports = {
           secondary: "#E1F7D7",
           accent: "#FFF8D4",
           neutral: "#000000",
+          info: "#E1F7D7",
         },
       },
       {
@@ -34,6 +35,7 @@ module.exports = {
           secondary: "#000000",
           accent: "#000000",
           neutral: "#FFF8D4",
+          info: "#FFF8D4",
         },
       },
     ],

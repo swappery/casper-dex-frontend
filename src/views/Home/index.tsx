@@ -9,8 +9,8 @@ import logo from "../../assets/images/logo-huge.png";
 import logoWhite from "../../assets/images/logo-huge-white.png";
 import greenHand from "../../assets/images/hands/green-hand.svg";
 import pinkHand from "../../assets/images/hands/pink-hand.svg";
+import pinkHandDark from "../../assets/images/hands/pink-hand-dark.svg";
 import blueHand from "../../assets/images/hands/blue-hand.svg";
-// import leftArm from "../../assets/images/hands/left-arm.svg";
 
 export default function Home() {
   const { theme, setTheme } = useTheme();
@@ -32,7 +32,7 @@ export default function Home() {
             alt='Green Hand'
           />
           <img
-            src={pinkHand}
+            src={theme === Themes.LIGHT ? pinkHand : pinkHandDark}
             className='absolute bottom-12 right-10 z-10'
             alt='Pink Hand'
           />
