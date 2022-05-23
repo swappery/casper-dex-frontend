@@ -78,7 +78,7 @@ export default function Swap() {
                 <NumberFormat
                   value={sourceValue}
                   className="input w-full border border-slate-500 focus:outline-none"
-                  thousandSeparator={true}
+                  thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
                       setExactIn(true);
@@ -106,6 +106,7 @@ export default function Swap() {
                   value={targetValue}
                   className="input w-full border border-slate-500 focus:outline-none"
                   thousandSeparator={false}
+                  max={reserves[reserves.length - 1][1].toNumber()}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
                       setExactIn(false);
