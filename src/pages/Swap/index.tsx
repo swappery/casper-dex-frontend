@@ -5,6 +5,7 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
+import { amountWithoutDecimals } from "../../utils/stringUtils";
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
 import csprToken from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
@@ -26,47 +27,77 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
+  const getAmountsOut = () => {
+    let tempAmount = sourceAmount;
+    for (var i = 0; i < reserves.length; i++) {
+      tempAmount = tempAmount
+        .mul(998)
+        .mul(reserves[i][1])
+        .div(reserves[i][0].mul(1000).add(tempAmount.mul(998)));
+    }
+    return amountWithoutDecimals(
+      tempAmount,
+      supportedTokens[targetToken].decimals
+    );
+  };
+
+  const getAmountsIn = () => {
+    let tempAmount = targetAmount;
+    for (var i = 0; i < reserves.length; i++) {
+      tempAmount = reserves[i][0]
+        .mul(tempAmount)
+        .mul(1000)
+        .div(reserves[i][1].sub(tempAmount).mul(998));
+    }
+    return amountWithoutDecimals(
+      tempAmount,
+      supportedTokens[sourceToken].decimals
+    );
+  };
+
+  const withTargetLimit = ({ floatValue }: any) =>
+    floatValue <
+    amountWithoutDecimals(
+      reserves[reserves.length - 1][1],
+      supportedTokens[targetToken].decimals
+    );
 
   const sourceValue = !isExactIn
-    ? reserves[0]
-        .mul(targetAmount)
-        .mul(1000)
-        .div(reserves[1].sub(targetAmount).mul(998))
-        .toNumber() /
-      10 ** supportedTokens[sourceToken].decimals
-    : sourceAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
+    ? getAmountsIn()
+    : amountWithoutDecimals(
+        sourceAmount,
+        supportedTokens[sourceToken].decimals
+      );
   const targetValue = isExactIn
-    ? sourceAmount
-        .mul(998)
-        .mul(reserves[1])
-        .div(reserves[0].mul(1000).add(sourceAmount.mul(998)))
-        .toNumber() /
-      10 ** supportedTokens[targetToken].decimals
-    : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
+    ? getAmountsOut()
+    : amountWithoutDecimals(
+        targetAmount,
+        supportedTokens[targetToken].decimals
+      );
 
   return (
-    <div className='flex items-center bg-accent relative swap-wrapper px-2 md:px-0'>
-      <div className='container mx-auto py-0 md:py-[90px] grid grid-cols-12 gap-2 md:gap-6'>
-        <div className='col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0'>
+    <div className="flex items-center bg-accent relative swap-wrapper px-2 md:px-0">
+      <div className="container mx-auto py-0 md:py-[90px] grid grid-cols-12 gap-2 md:gap-6">
+        <div className="col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0">
           <img
             src={leftHand}
-            className='hidden md:block absolute top-[112px] -left-[130px] xl:top-[50px] xl:-left-[145px] z-10'
-            alt='Left Hand'
+            className="hidden md:block absolute top-[112px] -left-[130px] xl:top-[50px] xl:-left-[145px] z-10"
+            alt="Left Hand"
           />
-          <div className='hidden lg:block absolute w-[500px] top-[132px] -left-[462px] h-[46px] xl:w-[2000px] xl:h-[57px] xl:-left-[1933px] xl:top-[76px] border-t border-b border-black bg-white z-20]'></div>
+          <div className="hidden lg:block absolute w-[500px] top-[132px] -left-[462px] h-[46px] xl:w-[2000px] xl:h-[57px] xl:-left-[1933px] xl:top-[76px] border-t border-b border-black bg-white z-20]"></div>
           <img
             src={swapImage}
-            className='max-w-[94px] md:max-w-none mx-auto md:absolute md:px-6 xl:px-8 w-full md:bottom-[60px]'
-            alt='Swap Button'
+            className="max-w-[94px] md:max-w-none mx-auto md:absolute md:px-6 xl:px-8 w-full md:bottom-[60px]"
+            alt="Swap Button"
           />
         </div>
-        <div className='col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 bg-transparent border bg-success'>
-          <div className='px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black'>
-            <div className='flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6'>
+        <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 bg-transparent border bg-success">
+          <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
+            <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
                 value={sourceValue}
-                className='md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]'
-                thousandSeparator={true}
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                thousandSeparator={false}
                 onKeyDown={useCallback(
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(true);
@@ -82,26 +113,29 @@ export default function Swap() {
                   console.log(isExactIn);
                 }}
               />
-              <div className='flex items-center md:gap-2'>
-                <button className='md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
-                  <span className='text-[14px] md:text-[19px]'>CSPR</span>
-                  <img src={chevronIcon} alt='' />
+              <div className="flex items-center md:gap-2">
+                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                  <span className="text-[14px] md:text-[19px]">
+                    {supportedTokens[sourceToken].symbol}
+                  </span>
+                  <img src={chevronIcon} alt="" />
                 </button>
                 <img
                   src={csprToken}
-                  className='w-[30px] md:w-[53px]'
-                  alt='CSPR Token'
+                  className="w-[30px] md:w-[53px]"
+                  alt="CSPR Token"
                 />
               </div>
             </div>
-            <div className='flex justify-center'>
+            <div className="flex justify-center">
               <IconButton />
             </div>
-            <div className='flex justify-between items-center border border-neutral px-5 py-4 md:px-6'>
+            <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
               <NumberFormat
                 value={targetValue}
-                className='md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]'
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                 thousandSeparator={false}
+                isAllowed={withTargetLimit}
                 onKeyDown={useCallback(
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(false);
@@ -117,19 +151,21 @@ export default function Swap() {
                   console.log(isExactIn);
                 }}
               />
-              <div className='flex items-center md:gap-2'>
-                <button className='md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
-                  <span className='text-[14px] md:text-[19px]'>SWPR</span>
-                  <img src={chevronIcon} alt='' />
+              <div className="flex items-center md:gap-2">
+                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                  <span className="text-[14px] md:text-[19px]">
+                    {supportedTokens[targetToken].symbol}
+                  </span>
+                  <img src={chevronIcon} alt="" />
                 </button>
                 <img
                   src={swprToken}
-                  className='w-[30px] md:w-[53px]'
-                  alt='SWPR Token'
+                  className="w-[30px] md:w-[53px]"
+                  alt="SWPR Token"
                 />
               </div>
             </div>
-            <p className='text-center mt-3 px-8 text-neutral text-[12px] md:text-[15px]'>
+            <p className="text-center mt-3 px-8 text-neutral text-[12px] md:text-[15px]">
               Slippage Tolerance 1%
             </p>
             <ActionButton />

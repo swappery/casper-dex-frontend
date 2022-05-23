@@ -29,8 +29,6 @@ const ActionButton: FC = () => {
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
       else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn) {
-        console.log(minAmountOut.toNumber());
-        console.log(targetAmount.toNumber());
         console.log(
           swapExactIn(
             CLPublicKey.fromHex(activeAddress),

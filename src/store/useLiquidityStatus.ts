@@ -71,7 +71,7 @@ interface LiquidityStatus extends State {
     targetBalance: BigNumber;
     targetApproval: BigNumber;
     targetAmount: BigNumber;
-    reserves: BigNumber[];
+    reserves: BigNumber[][];
     isExactIn: boolean;
     minAmountOut: BigNumber;
     maxAmountIn: BigNumber;
@@ -85,25 +85,26 @@ interface LiquidityStatus extends State {
     setTargetBalance: (targetBalance: BigNumberish) => void;
     setTargetApproval: (targetApproval: BigNumberish) => void;
     setTargetAmount: (targetAmount: number) => void;
-    setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) => void;
+    setReserves: (reserves: BigNumber[][]) => void;
     setCurrentStatus: (currentStatus: TxStatus) => void;
     setExactIn: (isExactIn: boolean) => void;
     setMinAmountOut: (minAmountOut: number) => void;
     setMaxAmountIn: (maxAmountIn: number) => void;
     updateCurrentStatus: () => void;
+    switchToken: () => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
     execType: ExecutionType.EXE_SWAP,
-    sourceToken: TokenType.COIN_A,
+    sourceToken: TokenType.CSPR,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.CSPR,
+    targetToken: TokenType.COIN_A,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
-    reserves: [BigNumber.from(1), BigNumber.from(1)],
+    reserves: [[BigNumber.from(1), BigNumber.from(1)]],
     isExactIn: true,
     minAmountOut: BigNumber.from(0),
     maxAmountIn: BigNumber.from(0),
@@ -126,7 +127,7 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         })),
     setSourceAmount: (sourceAmount: number) =>
         set((state) => ({
-            sourceAmount: BigNumber.from(sourceAmount * (10 ** supportedTokens[state.sourceToken].decimals))
+            sourceAmount: BigNumber.from((sourceAmount * 10 ** supportedTokens[state.sourceToken].decimals).toFixed())
         })),
     setTargetToken: (targetToken: TokenType) =>
         set(() => ({
@@ -142,12 +143,12 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
         })),
     setTargetAmount: (targetAmount: number) =>
         set((state) => ({
-            targetAmount: BigNumber.from(targetAmount * (10 ** supportedTokens[state.targetToken].decimals))
+            targetAmount: BigNumber.from((targetAmount * 10 ** supportedTokens[state.targetToken].decimals).toFixed())
         })),
-    setReserves: (reserve0: BigNumberish, reserve1: BigNumberish) =>
-        set(() => {
-            return { reserves: [BigNumber.from(reserve0), BigNumber.from(reserve1)] }
-        }),
+    setReserves: (reserves: BigNumber[][]) =>
+        set(() => ({
+            reserves
+        })),
     setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
     setMinAmountOut: (minAmountOut: number) => 
         set((state) => ({ minAmountOut: BigNumber.from((minAmountOut * 10 ** supportedTokens[state.targetToken].decimals).toFixed()), })),
@@ -174,6 +175,24 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
                 };
             return {
                 currentStatus: TxStatus.REQ_EXECUTE,
+            };
+        }),
+    switchToken: () =>
+        set((state) => {
+            if (state.isExactIn) 
+                return {
+                    sourceToken: state.targetToken,
+                    targetToken: state.sourceToken,
+                    isExactIn: !state.isExactIn,
+                    sourceAmount: state.targetAmount,
+                    targetAmount: state.sourceAmount,
+                };
+            return {
+                sourceToken: state.targetToken,
+                targetToken: state.sourceToken,
+                isExactIn: !state.isExactIn,
+                sourceAmount: state.targetAmount,
+                targetAmount: state.sourceAmount,
             };
         }),
 }));
