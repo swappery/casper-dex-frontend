@@ -5,6 +5,7 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
+import { amountWithoutDecimals } from "../../utils/stringUtils";
 
 export default function Swap() {
   const {
@@ -28,7 +29,10 @@ export default function Swap() {
         .mul(reserves[i][1])
         .div(reserves[i][0].mul(1000).add(tempAmount.mul(998)));
     }
-    return tempAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
+    return amountWithoutDecimals(
+      tempAmount,
+      supportedTokens[targetToken].decimals
+    );
   };
 
   const getAmountsIn = () => {
@@ -39,15 +43,24 @@ export default function Swap() {
         .mul(1000)
         .div(reserves[i][1].sub(tempAmount).mul(998));
     }
-    return tempAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
+    return amountWithoutDecimals(
+      tempAmount,
+      supportedTokens[sourceToken].decimals
+    );
   };
 
   const sourceValue = !isExactIn
     ? getAmountsIn()
-    : sourceAmount.toNumber() / 10 ** supportedTokens[sourceToken].decimals;
+    : amountWithoutDecimals(
+        sourceAmount,
+        supportedTokens[sourceToken].decimals
+      );
   const targetValue = isExactIn
     ? getAmountsOut()
-    : targetAmount.toNumber() / 10 ** supportedTokens[targetToken].decimals;
+    : amountWithoutDecimals(
+        targetAmount,
+        supportedTokens[targetToken].decimals
+      );
 
   return (
     <div className="container mx-auto mt-10">
