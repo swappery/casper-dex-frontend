@@ -49,6 +49,13 @@ export default function Swap() {
     );
   };
 
+  const withTargetLimit = ({ floatValue }: any) =>
+    floatValue <=
+    amountWithoutDecimals(
+      reserves[reserves.length - 1][1].sub(1),
+      supportedTokens[targetToken].decimals
+    );
+
   const sourceValue = !isExactIn
     ? getAmountsIn()
     : amountWithoutDecimals(
@@ -90,7 +97,7 @@ export default function Swap() {
                     setSourceAmount(parseFloat(value) || 0);
                     setMaxAmountIn((parseFloat(value) * 10100) / 10000);
                     console.log("source change");
-                    console.log(value);
+                    //console.log(value);
                     console.log(isExactIn);
                   }}
                 />
@@ -106,7 +113,7 @@ export default function Swap() {
                   value={targetValue}
                   className="input w-full border border-slate-500 focus:outline-none"
                   thousandSeparator={false}
-                  max={reserves[reserves.length - 1][1].toNumber()}
+                  isAllowed={withTargetLimit}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
                       setExactIn(false);
