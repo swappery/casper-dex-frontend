@@ -7,8 +7,8 @@ import useTheme, { Themes } from "../../../hooks/useTheme";
 
 import logo from "../../../assets/images/logo.svg";
 import logoWhite from "../../../assets/images/logo-white.svg";
-import swapperyIcon from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.png";
-import swapperyDarkIcon from "../../../assets/images/token-dark.svg";
+import swapperyIcon from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import swapperyDarkIcon from "../../../assets/images/tokens/token-dark.svg";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -43,6 +43,7 @@ export default function Header() {
             <div className='flex items-center gap-1'>
               <img
                 src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
+                className='w-9 h-9'
                 alt='Swappery Icon'
               />
               <span className='text-neutral font-gotham font-bold'>$0.01</span>
@@ -157,7 +158,7 @@ export default function Header() {
             </svg>
           </label>
           <button
-            className='absolute left-1/2 -translate-x-1/2 top-4 text-black font-orator-std text-[8px] lg:text-[13px] rounded-xl bg-lightyellow py-0.5 px-1 lg:px-3 ml-[18px]'
+            className='absolute left-1/2 -translate-x-1/2 top-4 text-black font-orator-std text-[8px] xl:text-[13px] rounded-xl bg-lightyellow py-0.5 px-1 lg:px-3 ml-[18px]'
             onClick={() => activate()}>
             {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
           </button>
@@ -247,7 +248,7 @@ export default function Header() {
         </div>
       </div>
       <div
-        className={`py-2 col-span-3 bg-info border-t border-neutral grid text-center text-black ${
+        className={`absolute w-full top-[131px] z-20 py-2 col-span-3 bg-info border-t border-b border-neutral grid text-center text-black ${
           navbarOpen ? "" : "hidden"
         }`}>
         <Link to='/swap'>Swap</Link>

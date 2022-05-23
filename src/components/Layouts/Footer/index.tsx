@@ -3,7 +3,7 @@ import twitter from "../../../assets/images/twitter.svg";
 
 export default function Footer() {
   return (
-    <footer className='grid grid-cols-12 font-gotham text-lightyellow bg-black py-6 lg:py-4'>
+    <footer className='grid grid-cols-12 font-gotham text-lightyellow bg-black py-6 lg:py-4 border-t border-neutral'>
       <div className='col-span-12 lg:col-start-2 lg:col-end-5 text-[12px] lg:text-[15px] order-last lg:order-first text-center'>
         © 2021 TheSwappery
       </div>

@@ -26,6 +26,7 @@ module.exports = {
           accent: "#FFF8D4",
           neutral: "#000000",
           info: "#E1F7D7",
+          success: "#FFF4C5",
         },
       },
       {
@@ -36,6 +37,7 @@ module.exports = {
           accent: "#000000",
           neutral: "#FFF8D4",
           info: "#FFF8D4",
+          success: "#232323",
         },
       },
     ],
