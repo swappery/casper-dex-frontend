@@ -8,6 +8,7 @@ import useTheme, { Themes } from "../../../hooks/useTheme";
 import logo from "../../../assets/images/logo.svg";
 import logoWhite from "../../../assets/images/logo-white.svg";
 import swapperyIcon from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.png";
+import swapperyDarkIcon from "../../../assets/images/token-dark.svg";
 
 export default function Header() {
   const { theme, setTheme } = useTheme();
@@ -21,12 +22,12 @@ export default function Header() {
 
   return (
     <header className='grid grid-cols-3 border-b-[0.5px] border-neutral'>
-      <div className='col-span-3 2xl:col-span-1 flex items-center justify-center bg-primary h-full py-8 px-4 border-b border-neutral 2xl:border-0'>
+      <div className='col-span-3 xl:col-span-1 flex items-center justify-center bg-primary h-full py-8 px-4 border-b border-neutral xl:border-0'>
         <Link to='/'>
           <img src={theme === Themes.LIGHT ? logo : logoWhite} alt='Logo' />
         </Link>
       </div>
-      <div className='col-span-2 bg-secondary hidden 2xl:block'>
+      <div className='col-span-2 bg-secondary hidden xl:block'>
         <div className='grid grid-cols-2'>
           <div className='flex justify-around items-center py-8 px-4 border-r-[0.5px] border-l-[0.5px] border-neutral text-neutral font-gotham'>
             <Link to='/swap'>Swap</Link>
@@ -40,7 +41,10 @@ export default function Header() {
               {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
             </button>
             <div className='flex items-center gap-1'>
-              <img src={swapperyIcon} alt='Swappery Icon' />
+              <img
+                src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
+                alt='Swappery Icon'
+              />
               <span className='text-neutral font-gotham font-bold'>$0.01</span>
             </div>
             <div className='flex items-center'>
@@ -124,12 +128,12 @@ export default function Header() {
         </div>
       </div>
 
-      <div className='col-span-3 grid grid-cols-2 bg-secondary'>
+      <div className='col-span-3 grid grid-cols-2 bg-secondary xl:hidden'>
         <div className='relative py-1.5 px-2 border-r border-neutral'>
           <label className='swap swap-rotate bg-lightyellow p-[5px]'>
             <input type='checkbox' onChange={handleToggle} />
             <svg
-              className='swap-off fill-current  w-[30px] h-[30px]'
+              className='swap-off fill-current  w-[20px] h-[20px] xl:w-[30px] xl:h-[30px]'
               width='30'
               height='17'
               viewBox='0 0 30 17'
@@ -141,7 +145,7 @@ export default function Header() {
             </svg>
 
             <svg
-              className='swap-on fill-current w-[30px] h-[30px]'
+              className='swap-on fill-current w-[20px] h-[20px] xl:w-[30px] xl:h-[30px]'
               width='19'
               height='30'
               viewBox='0 0 19 30'
@@ -153,13 +157,17 @@ export default function Header() {
             </svg>
           </label>
           <button
-            className='absolute left-1/2 -translate-x-1/2 top-4 text-black font-orator-std text-[13px] rounded-xl bg-lightyellow py-0.5 px-3'
+            className='absolute left-1/2 -translate-x-1/2 top-4 text-black font-orator-std text-[8px] lg:text-[13px] rounded-xl bg-lightyellow py-0.5 px-1 lg:px-3 ml-[18px]'
             onClick={() => activate()}>
             {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
           </button>
         </div>
         <div className='flex justify-between items-center px-2'>
-          <img src={swapperyIcon} className='w-9 h-9' alt='Swappery Icon' />
+          <img
+            src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
+            className='w-9 h-9'
+            alt='Swappery Icon'
+          />
           <span className='text-neutral font-gotham font-bold'>$0.01</span>
           <div className='flex items-center'>
             <label className='swap swap-rotate'>

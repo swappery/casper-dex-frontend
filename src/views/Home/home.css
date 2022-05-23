@@ -1,9 +1,6 @@
 .animate-slide {
-  position: absolute;
-  right: -100%;
-  bottom: -30px;
-  height: 110px;
   animation: mymove 20s linear infinite;
+  max-width: none;
 }
 
 .tokenomics,

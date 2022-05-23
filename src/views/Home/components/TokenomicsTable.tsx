@@ -9,20 +9,20 @@ export default function TokenomicsTable() {
         theme === Themes.LIGHT ? "" : "dark"
       }`}>
       <tr>
-        <td className='h-[70px] w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
-        <td className='w-[9%]'></td>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
+        <td className='w-[6%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[12%] xl:w-[9%]'></td>
+        <td className='w-[6%] xl:w-[9%]'></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[25px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[12px] xl:text-[25px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td></td>
         <td></td>
@@ -33,10 +33,10 @@ export default function TokenomicsTable() {
           Vesting
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>SEED ROUND</td>
         <td className='bg-lightred'>2%</td>
@@ -47,10 +47,10 @@ export default function TokenomicsTable() {
           12 MONTHS
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>PRIVATE SALE</td>
         <td className='bg-lightred'>10%</td>
@@ -61,10 +61,10 @@ export default function TokenomicsTable() {
           10 MONTHS
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>PUBLIC SALE</td>
         <td className='bg-lightred'>10%</td>
@@ -75,10 +75,10 @@ export default function TokenomicsTable() {
           8 MONTHS
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>LIQUIDITY</td>
         <td className='bg-lightred'>5%</td>
@@ -89,10 +89,10 @@ export default function TokenomicsTable() {
           Unlocked
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>ADVISORY</td>
         <td className='bg-lightred'>3%</td>
@@ -103,10 +103,10 @@ export default function TokenomicsTable() {
           24 Months
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightblue'>FARMING REWARDS</td>
         <td className='bg-lightred'>70%</td>
@@ -117,10 +117,10 @@ export default function TokenomicsTable() {
           --
         </td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
-      <tr className='text-[20px]'>
-        <td className='h-[70px]'></td>
+      <tr className='text-[11px] xl:text-[20px]'>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%]'></td>
         <td></td>
         <td className='bg-lightgreen'>TOTAL</td>
         <td className='bg-lightgreen'>100%</td>
@@ -130,10 +130,10 @@ export default function TokenomicsTable() {
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
       <tr>
-        <td className='h-[70px] w-[9%]'></td>
+        <td className='h-[40px] xl:h-[70px] w-0 xl:w-[9%] w-[9%]'></td>
         <td></td>
         <td></td>
         <td></td>
@@ -142,7 +142,7 @@ export default function TokenomicsTable() {
         <td></td>
         <td></td>
         <td></td>
-        <td></td>
+        <td className='w-0 xl:w-[9%]'></td>
       </tr>
     </table>
   );
