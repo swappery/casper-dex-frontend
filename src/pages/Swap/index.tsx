@@ -97,7 +97,7 @@ export default function Swap() {
               <NumberFormat
                 value={sourceValue}
                 className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
-                thousandSeparator={true}
+                thousandSeparator={false}
                 onKeyDown={useCallback(
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(true);
@@ -133,6 +133,7 @@ export default function Swap() {
                 value={targetValue}
                 className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                 thousandSeparator={false}
+                isAllowed={withTargetLimit}
                 onKeyDown={useCallback(
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(false);
