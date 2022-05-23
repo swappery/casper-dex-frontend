@@ -1,0 +1,26 @@
+.animate-slide {
+  position: absolute;
+  right: -100%;
+  bottom: -30px;
+  height: 110px;
+  animation: mymove 20s linear infinite;
+}
+
+.tokenomics,
+.tokenomics td {
+  border: 0.5px solid black;
+}
+
+.tokenomics.dark,
+.tokenomics.dark td {
+  border-color: #606060;
+}
+
+@keyframes mymove {
+  from {
+    right: -100%;
+  }
+  to {
+    right: 105%;
+  }
+}

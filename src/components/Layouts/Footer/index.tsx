@@ -1,37 +1,23 @@
-import React from "react";
-import useTheme, { Themes } from "../../../hooks/useTheme";
+import telegram from "../../../assets/images/telegram.svg";
+import twitter from "../../../assets/images/twitter.svg";
 
 export default function Footer() {
-  const { theme, setTheme } = useTheme();
   return (
-    <footer className="flex flex-col md:flex-row items-center justify-around px-2 py-4 w-full bg-transparent backdrop-opacity-40  backdrop-blur-md">
-      <div className="font-BwGradualDEMO">
-        Copyright © 2022. All Rights Reserved by Un!moon
+    <footer className='grid grid-cols-12 font-gotham text-lightyellow bg-black py-4'>
+      <div className='col-start-2 col-end-5 text-[15px]'>
+        © 2021 TheSwappery
       </div>
-      <p className="font-BwGradualDEMO">version 1.0</p>
-      <div className="flex flex-row">
-        <button
-          type="button"
-          className="font-BwGradualDEMO inline-flex items-center m-2"
-        >
-          Privacy Policy
-        </button>
-        <button
-          type="button"
-          className="font-BwGradualDEMO inline-flex items-center m-2"
-        >
-          Impress
-        </button>
-        <div>
-          <input
-            type="checkbox"
-            className="toggle"
-            checked={theme === Themes.DARK ? true : false}
-            onClick={() => {
-              setTheme(theme === Themes.DARK ? Themes.LIGHT : Themes.DARK);
-            }}
-          />
-        </div>
+      <div className='col-start-5 col-end-9 md:flex md:justify-around text-[15px]'>
+        <p>Documentation</p>
+        <p>Audit</p>
+      </div>
+      <div className='col-start-9 col-end-12 flex justify-end items-center gap-8'>
+        <a href='https://t.me/TheSwapperyAnn' target='_blank'>
+          <img src={telegram} className='w-4 h-4' alt='Telegram Icon' />
+        </a>
+        <a href='https://twitter.com/TheSwappery' target='_blank'>
+          <img src={twitter} className='w-4 h-4' alt='Twitter Icon' />
+        </a>
       </div>
     </footer>
   );
