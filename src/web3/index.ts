@@ -198,6 +198,7 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeAddress() {
       if (!isConnected) return;
+      console.log(await balanceOf(supportedTokens[sourceToken].contractHash))
       setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
       setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
       setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
@@ -241,7 +242,8 @@ export async function getReserves(
   const sourceContractHash = supportedTokens[sourceToken].contractHash;
   const targetContractHash = supportedTokens[targetToken].contractHash;
   if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
-    let pairContract = "14faabfc9ec86f46136b8d483b0cbef2d4df3f1a3f7f1c605b8abe8cc734b13e";
+    let pairContract = await routerClient.getPairFor(sourceContractHash, targetContractHash);
+    console.log(pairContract);
     let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await pairClient.setContractHash(pairContract);
     let reserves = await pairClient.getReserves();
@@ -346,5 +348,4 @@ export async function swapExactOut(
   let casperClient = new CasperClient(NODE_ADDRESS);
   await casperClient.getDeploy(txHash);
   return txHash;
-  // this will be save in feature branch
 }

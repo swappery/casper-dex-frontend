@@ -6,18 +6,18 @@ export enum RouterEvents {
 }
 
 export const NODE_ADDRESS =
-  process.env.REACT_APP_CASPER_NODE_ADDRESS || "https://picaswap.io/.netlify/functions/cors?url=http://5.9.50.59:7777/rpc";
+  "https://picaswap.io/.netlify/functions/cors?url=http://95.217.34.115:7777/rpc";
 
 export const CHAIN_NAME = process.env.REACT_APP_CHAIN_NAME || "casper-test";
 
 export const WCSPR_CONTRACT_HASH =
-  "0e7b887ac1c7603d3901cc526cd9753e7f8d3d251c254293a429b780fd195e88";
+  "d91883e9ebe885aaa16b16c10652617e1752d40bd90148aa79d971df60d93120";
 
 export const ROUTER_CONTRACT_HASH =
-  "97e7dc9175fe0f038e728a8c3d8a68d417ba51e3353679e965d3f0e73c1e7e8e";
+  "b03d2f26752372f2169776465e891a12bcba5c4bfc5dc50ae80a0c1cd34089a0";
 
 export const ROUTER_CONTRACT_PACKAGE_HASH =
-  "b8814448f6e631c19a3a7aa6ebc825cdb9d8647bf5849c41db720ffaf7cb86e4";
+  "2ffac3a9aa396218151784d39455aee899b94fc9d916b7294fad145333cbed90";
 
-export const TRANSFER_FEE = 1 * 10 ** 9;
+export const TRANSFER_FEE = 10 * 10 ** 9;
 export const INSTALL_FEE = 3 * 10 ** 9;
