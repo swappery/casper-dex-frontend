@@ -91,6 +91,7 @@ interface LiquidityStatus extends State {
     setMinAmountOut: (minAmountOut: number) => void;
     setMaxAmountIn: (maxAmountIn: number) => void;
     updateCurrentStatus: () => void;
+    switchToken: () => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>((set) => ({
@@ -174,6 +175,24 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
                 };
             return {
                 currentStatus: TxStatus.REQ_EXECUTE,
+            };
+        }),
+    switchToken: () =>
+        set((state) => {
+            if (state.isExactIn) 
+                return {
+                    sourceToken: state.targetToken,
+                    targetToken: state.sourceToken,
+                    isExactIn: !state.isExactIn,
+                    sourceAmount: state.targetAmount,
+                    targetAmount: state.sourceAmount,
+                };
+            return {
+                sourceToken: state.targetToken,
+                targetToken: state.sourceToken,
+                isExactIn: !state.isExactIn,
+                sourceAmount: state.targetAmount,
+                targetAmount: state.sourceAmount,
             };
         }),
 }));

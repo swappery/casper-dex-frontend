@@ -80,7 +80,7 @@ export default function Swap() {
         <div className="relative flex-col justify-between p-4">
           <div className="grid grid-cols-1 gap-3">
             <div>
-              <div className="pb-2">CSPR</div>
+              <div className="pb-2">{supportedTokens[sourceToken].symbol}</div>
               <div>
                 <NumberFormat
                   value={sourceValue}
@@ -97,7 +97,7 @@ export default function Swap() {
                     setSourceAmount(parseFloat(value) || 0);
                     setMaxAmountIn((parseFloat(value) * 10100) / 10000);
                     console.log("source change");
-                    //console.log(value);
+                    console.log(value);
                     console.log(isExactIn);
                   }}
                 />
@@ -107,7 +107,7 @@ export default function Swap() {
               <IconButton IconUrl="" />
             </div>
             <div>
-              <div className="pb-2">CoA</div>
+              <div className="pb-2">{supportedTokens[targetToken].symbol}</div>
               <div>
                 <NumberFormat
                   value={targetValue}
