@@ -1,5 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers";
 import create, { State } from "zustand";
+import csprToken from "../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
+import swprToken from "../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 
 export interface TokenContext {
     name: string;
@@ -7,6 +9,7 @@ export interface TokenContext {
     decimals: number;
     contractHash: string;
     isNative: boolean;
+    tokenSvg: string,
 }
 
 export enum TokenType {
@@ -23,6 +26,7 @@ export const supportedTokens: TokenContext[] = [
         decimals: 9,
         contractHash: "08751d44484b9d528bb89c27c328dff934bad47376ee0086d059602364d6d986",
         isNative: false,
+        tokenSvg: swprToken,
     },
     {
         name: "Coin_B",
@@ -30,6 +34,7 @@ export const supportedTokens: TokenContext[] = [
         decimals: 18,
         contractHash: "662071d2d2d64c07c91da1dbde8a0945ddb0b3d2f7eaa56f725db7007968d4e1",
         isNative: false,
+        tokenSvg: swprToken,
     },
     {
         name: "Coin_C",
@@ -37,6 +42,7 @@ export const supportedTokens: TokenContext[] = [
         decimals: 12,
         contractHash: "400689fb2c42b38e39c2299c0c8c8cde729771a9e0161a433d2a308124eb79aa",
         isNative: false,
+        tokenSvg: swprToken,
     },
     {
         name: "Casper",
@@ -44,6 +50,7 @@ export const supportedTokens: TokenContext[] = [
         decimals: 9,
         contractHash: "d91883e9ebe885aaa16b16c10652617e1752d40bd90148aa79d971df60d93120",
         isNative: true,
+        tokenSvg: csprToken,
     },
 ]
 
