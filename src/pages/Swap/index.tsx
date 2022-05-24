@@ -5,7 +5,7 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/stringUtils";
+import { amountWithoutDecimals } from "../../utils/utils";
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
 import leftHand from "../../assets/images/hands/left.svg";
