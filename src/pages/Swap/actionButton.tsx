@@ -1,6 +1,9 @@
 import { FC } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import useLiquidityStatus, { TxStatus } from "../../store/useLiquidityStatus";
+import useLiquidityStatus, {
+  supportedTokens,
+  TxStatus,
+} from "../../store/useLiquidityStatus";
 import useCasperWeb3Provider, { swapExactOut } from "../../web3";
 import { swapExactIn } from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
@@ -60,9 +63,9 @@ const ActionButton: FC = () => {
   } else {
     if (currentStatus === TxStatus.REQ_WRAP) content = <>Wrap</>;
     else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
-      content = <>Approve 1</>;
+      content = <>Approve {supportedTokens[sourceToken].symbol} Token</>;
     else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
-      content = <>Approve 2</>;
+      content = <>Approve {supportedTokens[targetToken].symbol} Token</>;
     else if (currentStatus === TxStatus.REQ_EXECUTE) content = <>Swap</>;
     else
       content = (

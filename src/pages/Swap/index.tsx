@@ -5,7 +5,7 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/stringUtils";
+import { amountWithoutDecimals } from "../../utils/utils";
 import TokenModal from "../../views/Swap/components/TokenModal";
 
 import swapImage from "../../assets/images/swap/swap.svg";

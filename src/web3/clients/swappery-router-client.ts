@@ -338,12 +338,17 @@ export class SwapperyRouterClient extends ContractClient {
         const blaked = blake.blake2b(finalBytes, undefined, 32);
         const encodedBytes = Buffer.from(blaked).toString("hex");
 
-        const result = await utils.contractDictionaryGetter(
-        this.nodeAddress,
-        encodedBytes,
-        this.namedKeys!.pairList
-        );
-        return result.isCLValue;
+        try {
+            const result = await utils.contractDictionaryGetter(
+                this.nodeAddress,
+                encodedBytes,
+                this.namedKeys!.pairList
+            );
+            return result.isCLValue;
+        }
+        catch (err: any) {
+            return false;
+        }
     }
 
     async getPairFor(token0: string, token1: string) {
