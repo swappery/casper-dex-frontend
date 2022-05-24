@@ -13,7 +13,7 @@ import pinkHandDark from "../../assets/images/hands/pink-hand-dark.svg";
 import blueHand from "../../assets/images/hands/blue-hand.svg";
 
 export default function Home() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
 

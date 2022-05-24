@@ -1,7 +1,7 @@
 import useTheme, { Themes } from "../../../hooks/useTheme";
 
 export default function TokenomicsTable() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   return (
     <table
