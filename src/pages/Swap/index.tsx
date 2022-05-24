@@ -6,6 +6,8 @@ import useLiquidityStatus, {
 import ActionButton from "./actionButton";
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals } from "../../utils/utils";
+import TokenModal from "../../views/Swap/components/TokenModal";
+
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
 import leftHand from "../../assets/images/hands/left.svg";
@@ -112,12 +114,15 @@ export default function Swap() {
                 }}
               />
               <div className="flex items-center md:gap-2">
-                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                <label
+                  htmlFor="currentTokenModal"
+                  className="cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                >
                   <span className="text-[14px] md:text-[19px]">
                     {supportedTokens[sourceToken].symbol}
                   </span>
                   <img src={chevronIcon} alt="" />
-                </button>
+                </label>
                 <img
                   src={supportedTokens[sourceToken].tokenSvg}
                   className="w-[30px] md:w-[53px]"
@@ -150,12 +155,15 @@ export default function Swap() {
                 }}
               />
               <div className="flex items-center md:gap-2">
-                <button className="md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                <label
+                  htmlFor="currentTokenModal"
+                  className="cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                >
                   <span className="text-[14px] md:text-[19px]">
                     {supportedTokens[targetToken].symbol}
                   </span>
                   <img src={chevronIcon} alt="" />
-                </button>
+                </label>
                 <img
                   src={supportedTokens[targetToken].tokenSvg}
                   className="w-[30px] md:w-[53px]"
@@ -170,6 +178,7 @@ export default function Swap() {
           </div>
         </div>
       </div>
+      <TokenModal />
     </div>
   );
 }
