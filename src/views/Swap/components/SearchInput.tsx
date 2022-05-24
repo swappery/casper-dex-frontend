@@ -52,15 +52,19 @@ export default function SearchInput() {
 
   return (
     <>
-      <input
-        className='font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral'
-        placeholder='Search name or paste address'
-        value={searchTerm}
-        onChange={handleChange}
-      />
+      <div className='px-6'>
+        <input
+          className='font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral'
+          placeholder='Search name or paste address'
+          value={searchTerm}
+          onChange={handleChange}
+        />
+      </div>
       <div className='grid gap-2 mt-6'>
         {searchResults?.map((item) => (
-          <div key={item.name} className='px-1 flex items-center gap-1'>
+          <div
+            key={item.name}
+            className='py-1 px-6 flex items-center gap-1 hover:bg-accent cursor-pointer'>
             <img src={SWPR} className='w-9 h-9' alt='Token' />
             <div className='font-orator-std'>
               <p className='text-[18px] text-neutral'>{item.name}</p>

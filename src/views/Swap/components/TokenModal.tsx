@@ -13,7 +13,7 @@ export default function TokenModal() {
             </label>
           </div>
 
-          <div className='p-6'>
+          <div className='py-7'>
             <SearchInput />
           </div>
         </div>

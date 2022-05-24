@@ -116,7 +116,7 @@ export default function Swap() {
               <div className='flex items-center md:gap-2'>
                 <label
                   htmlFor='currentTokenModal'
-                  className='cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
+                  className='hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
                   <span className='text-[14px] md:text-[19px]'>
                     {supportedTokens[sourceToken].symbol}
                   </span>
@@ -124,7 +124,7 @@ export default function Swap() {
                 </label>
                 <img
                   src={supportedTokens[sourceToken].tokenSvg}
-                  className='w-[30px] md:w-[53px]'
+                  className='w-[30px] h-[30px] md:w-[50px] md:h-[50px]'
                   alt='CSPR Token'
                 />
               </div>
@@ -156,7 +156,7 @@ export default function Swap() {
               <div className='flex items-center md:gap-2'>
                 <label
                   htmlFor='currentTokenModal'
-                  className='cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
+                  className='hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]'>
                   <span className='text-[14px] md:text-[19px]'>
                     {supportedTokens[targetToken].symbol}
                   </span>
@@ -164,7 +164,7 @@ export default function Swap() {
                 </label>
                 <img
                   src={supportedTokens[targetToken].tokenSvg}
-                  className='w-[30px] md:w-[53px]'
+                  className='w-[30px] h-[30px] md:w-[50px] md:h-[50px]'
                   alt='SWPR Token'
                 />
               </div>

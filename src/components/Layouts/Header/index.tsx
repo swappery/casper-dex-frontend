@@ -158,7 +158,7 @@ export default function Header() {
             </svg>
           </label>
           <button
-            className='absolute left-1/2 -translate-x-1/2 top-4 text-black font-orator-std text-[8px] xl:text-[13px] rounded-xl bg-lightyellow py-0.5 px-1 lg:px-3 ml-[18px]'
+            className='absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 leading-[10px] md:leading-[16px] text-black font-orator-std text-[10px] xl:text-[13px] rounded-xl bg-lightyellow py-0.5 px-2 lg:px-3 ml-[18px]'
             onClick={() => activate()}>
             {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
           </button>
