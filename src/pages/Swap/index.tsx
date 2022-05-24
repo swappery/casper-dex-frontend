@@ -8,8 +8,6 @@ import NumberFormat from "react-number-format";
 import { amountWithoutDecimals } from "../../utils/stringUtils";
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
-import csprToken from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
-import swprToken from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 import leftHand from "../../assets/images/hands/left.svg";
 import "./swap.css";
 
@@ -121,7 +119,7 @@ export default function Swap() {
                   <img src={chevronIcon} alt="" />
                 </button>
                 <img
-                  src={csprToken}
+                  src={supportedTokens[sourceToken].tokenSvg}
                   className="w-[30px] md:w-[53px]"
                   alt="CSPR Token"
                 />
@@ -159,7 +157,7 @@ export default function Swap() {
                   <img src={chevronIcon} alt="" />
                 </button>
                 <img
-                  src={swprToken}
+                  src={supportedTokens[targetToken].tokenSvg}
                   className="w-[30px] md:w-[53px]"
                   alt="SWPR Token"
                 />
