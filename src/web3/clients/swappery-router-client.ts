@@ -344,7 +344,6 @@ export class SwapperyRouterClient extends ContractClient {
                 encodedBytes,
                 this.namedKeys!.pairList
             );
-            console.log(result);
             return result.isCLValue;
         }
         catch (err: any) {
