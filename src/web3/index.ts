@@ -4,6 +4,7 @@ import {
   CLPublicKey,
   CLValueBuilder,
   decodeBase16,
+  CasperServiceByJsonRPC,
 } from "casper-js-sdk";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
@@ -266,12 +267,25 @@ export async function getReserves(
   const sourceContractHash = supportedTokens[sourceToken].contractHash;
   const targetContractHash = supportedTokens[targetToken].contractHash;
   if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
-    let pairContract = await routerClient.getPairFor(sourceContractHash, targetContractHash);
-    let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
-    await pairClient.setContractHash(pairContract);
-    let reserves = await pairClient.getReserves();
-    if (sourceContractHash < targetContractHash) return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
-    return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
+    let pairPackageHash = await routerClient.getPairFor(sourceContractHash, targetContractHash);
+    const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+    const { block } = await client.getLatestBlockInfo();
+    
+    if (block) {
+      const stateRootHash = block.header.state_root_hash;
+      const blockState = await client.getBlockState(
+        stateRootHash,
+        `hash-${pairPackageHash}`,
+        []
+      );
+
+      let pairContractHash = blockState.ContractPackage?.versions[blockState.ContractPackage.versions.length - 1].contractHash.slice(9);
+      let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+      await pairClient.setContractHash(pairContractHash!);
+      let reserves = await pairClient.getReserves();
+      if (sourceContractHash < targetContractHash) return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
+      return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
+    }
   }
   return [BigNumber.from(0), BigNumber.from(1)];
 }
