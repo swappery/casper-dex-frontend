@@ -26,7 +26,8 @@
     "stream-browserify": "^3.0.0",
     "typescript": "^4.6.3",
     "web-vitals": "^2.1.4",
-    "zustand": "^3.7.2"
+    "zustand": "^3.7.2",
+    "zustand-persist": "^0.4.0"
   },
   "scripts": {
     "start": "react-app-rewired start",
