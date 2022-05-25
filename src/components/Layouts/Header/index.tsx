@@ -16,6 +16,8 @@ export default function Header() {
   const { isConnected, activeAddress } = useNetworkStatus();
   const [navbarOpen, setNavbarOpen] = useState(false);
 
+  document.documentElement.setAttribute("data-theme", theme);
+
   const handleToggle = () => {
     setNavbarOpen((prev) => !prev);
   };
