@@ -1,6 +1,7 @@
 import { CLPublicKey } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import create, { State } from "zustand";
+import { configurePersist } from "zustand-persist";
 import { TokenContext } from "./useLiquidityStatus";
 
 export interface Pool {
@@ -23,7 +24,15 @@ interface WalletStatus extends State {
     setPool: (publicKey: string, pool: Pool) => void;
 }
 
-const useWalletStatus = create<WalletStatus>((set) => ({
+const { persist } = configurePersist({
+    storage: localStorage,
+    rootKey: "wallet_data",
+});
+
+const useWalletStatus = create<WalletStatus>(
+    persist({
+        key: 'wallets',
+    }, (set) => ({
     accountList: new Map(),
     addAccount: (publicKey: string) =>
         set((state) => {
@@ -47,3 +56,6 @@ const useWalletStatus = create<WalletStatus>((set) => ({
             };
         }),
 }))
+);
+
+export default useWalletStatus;
