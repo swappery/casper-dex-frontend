@@ -1,7 +1,7 @@
 import create, {State} from "zustand";
 import { configurePersist } from "zustand-persist";
 
-const {persist, purge} = configurePersist({
+const { persist } = configurePersist({
     storage: localStorage,
     rootKey: "casper_address",
 });
