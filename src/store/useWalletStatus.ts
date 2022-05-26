@@ -14,7 +14,6 @@ export interface Pool {
 }
 
 interface AccountContext {
-    publicKey: string;
     poolList: Map<string, Pool>;
 }
 
@@ -34,17 +33,17 @@ const useWalletStatus = create<WalletStatus>((set) => ({
                 };
             else
                 return {
-                    accountList: state.accountList.set(publicKey, {publicKey: publicKey, poolList: new Map()}),
+                    accountList: state.accountList.set(publicKey, {poolList: new Map()}),
                 };
         }),
     setPool: (publicKey: string, pool: Pool) =>
         set((state) => {
             if (!state.accountList.has(publicKey))
                 return {
-                    accountList: state.accountList.set(publicKey, {publicKey: publicKey, poolList: new Map().set(pool.contractPackageHash, pool)}),
+                    accountList: state.accountList.set(publicKey, {poolList: new Map().set(pool.contractPackageHash, pool)}),
                 };
             else return {
-                accountList: state.accountList.set(publicKey, {publicKey: publicKey, poolList: state.accountList.get(publicKey)?.poolList.set(pool.contractPackageHash, pool)!}),
+                accountList: state.accountList.set(publicKey, {poolList: state.accountList.get(publicKey)?.poolList.set(pool.contractPackageHash, pool)!}),
             };
         }),
 }))
