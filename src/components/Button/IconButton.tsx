@@ -3,7 +3,7 @@ import useLiquidityStatus from "../../store/useLiquidityStatus";
 export default function IconButton() {
   const { switchToken } = useLiquidityStatus();
   return (
-    <button className="" onClick={switchToken}>
+    <button className="hover:opacity-80" onClick={switchToken}>
       <svg
         width="38"
         height="39"

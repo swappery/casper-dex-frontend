@@ -4,10 +4,10 @@ import twitter from "../../../assets/images/twitter.svg";
 export default function Footer() {
   return (
     <footer className='grid grid-cols-12 font-gotham text-lightyellow bg-black py-6 lg:py-4 border-t border-neutral'>
-      <div className='col-span-12 lg:col-start-2 lg:col-end-5 text-[12px] lg:text-[15px] order-last lg:order-first text-center'>
+      <div className='col-span-12 lg:col-start-2 lg:col-end-5 text-[12px] lg:text-[15px] order-last lg:order-first text-center lg:text-left'>
         © 2021 TheSwappery
       </div>
-      <div className='grid col-span-12 justify-center text-center lg:text-left lg:col-start-5 lg:col-end-9 lg:flex lg:justify-around text-[12px] lg:text-[15px]'>
+      <div className='grid col-span-12 justify-center text-center lg:text-left lg:col-start-6 lg:col-end-9 lg:flex lg:justify-between text-[12px] lg:text-[15px]'>
         <p className='order-last lg:order-first my-2 lg:my-0'>Documentation</p>
         <p className='order-first lg:order-last'>Audit</p>
       </div>

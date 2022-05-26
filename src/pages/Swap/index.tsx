@@ -80,7 +80,7 @@ export default function Swap() {
       );
 
   return (
-    <div className="flex items-center bg-accent relative swap-wrapper px-2 md:px-0">
+    <div className="flex items-center bg-accent relative page-wrapper px-2 md:px-0">
       <div className="container mx-auto py-0 md:py-[90px] grid grid-cols-12 gap-2 md:gap-6">
         <div className="col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0">
           <img
@@ -95,7 +95,7 @@ export default function Swap() {
             alt="Swap Button"
           />
         </div>
-        <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 bg-transparent border bg-success">
+        <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 border bg-success">
           <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
             <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
@@ -160,7 +160,7 @@ export default function Swap() {
               />
               <div className="flex items-center md:gap-2">
                 <label
-                  htmlFor="currentTokenModal"
+                  htmlFor="targetTokenModal"
                   className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                 >
                   <span className="text-[14px] md:text-[19px]">
@@ -182,7 +182,8 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <TokenModal />
+      <TokenModal modalId="currentTokenModal" />
+      <TokenModal modalId="targetTokenModal" />
     </div>
   );
 }
