@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
 import { shortenAddress } from "../../../utils/utils";
@@ -23,16 +23,28 @@ export default function Header() {
   return (
     <header className='grid grid-cols-3 border-b-[0.5px] border-neutral'>
       <div className='col-span-3 xl:col-span-1 flex items-center justify-center bg-primary h-full py-8 px-4 border-b border-neutral xl:border-0'>
-        <Link to='/'>
+        <NavLink to='/'>
           <img src={theme === Themes.LIGHT ? logo : logoWhite} alt='Logo' />
-        </Link>
+        </NavLink>
       </div>
       <div className='col-span-2 bg-secondary hidden xl:block'>
         <div className='grid grid-cols-2'>
           <div className='flex justify-around items-center py-8 px-4 border-r-[0.5px] border-l-[0.5px] border-neutral text-neutral font-gotham'>
-            <Link to='/swap'>Swap</Link>
-            <Link to='/liquidity'>Liquidity</Link>
-            <Link to='/farm'>Farm</Link>
+            <NavLink
+              to='/swap'
+              className={({ isActive }) => (isActive ? "font-bold" : "")}>
+              Swap
+            </NavLink>
+            <NavLink
+              to='/liquidity'
+              className={({ isActive }) => (isActive ? "font-bold" : "")}>
+              Liquidity
+            </NavLink>
+            <NavLink
+              to='/farm'
+              className={({ isActive }) => (isActive ? "font-bold" : "")}>
+              Farm
+            </NavLink>
           </div>
           <div className='flex justify-around items-center py-8 px-4'>
             <button
@@ -251,9 +263,21 @@ export default function Header() {
         className={`absolute w-full top-[131px] z-20 py-2 col-span-3 bg-info border-t border-b border-neutral grid text-center text-black ${
           navbarOpen ? "" : "hidden"
         }`}>
-        <Link to='/swap'>Swap</Link>
-        <Link to='/liquidity'>Liquidity</Link>
-        <Link to='/farm'>Farm</Link>
+        <NavLink
+          to='/swap'
+          className={({ isActive }) => (isActive ? "font-bold" : "")}>
+          Swap
+        </NavLink>
+        <NavLink
+          to='/liquidity'
+          className={({ isActive }) => (isActive ? "font-bold" : "")}>
+          Liquidity
+        </NavLink>
+        <NavLink
+          to='/farm'
+          className={({ isActive }) => (isActive ? "font-bold" : "")}>
+          Farm
+        </NavLink>
       </div>
     </header>
   );

@@ -32,8 +32,7 @@ const tokenLists: TokenItem[] = [
     description: "Casper Wrapped Native",
   },
 ];
-
-export default function SearchInput() {
+const SearchInput = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [searchResults, setSearchResults] = useState<TokenItem[] | undefined>();
 
@@ -75,4 +74,6 @@ export default function SearchInput() {
       </div>
     </>
   );
-}
+};
+
+export default SearchInput;

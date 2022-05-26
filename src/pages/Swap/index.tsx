@@ -11,7 +11,6 @@ import TokenModal from "../../views/Swap/components/TokenModal";
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
 import leftHand from "../../assets/images/hands/left.svg";
-import "./swap.css";
 
 export default function Swap() {
   const {
@@ -76,7 +75,7 @@ export default function Swap() {
       );
 
   return (
-    <div className='flex items-center bg-accent relative swap-wrapper px-2 md:px-0'>
+    <div className='flex items-center bg-accent relative page-wrapper px-2 md:px-0'>
       <div className='container mx-auto py-0 md:py-[90px] grid grid-cols-12 gap-2 md:gap-6'>
         <div className='col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0'>
           <img

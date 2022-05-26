@@ -22,3 +22,7 @@
     url(./assets/fonts/Orator-Std/Orator-Std.ttf) format("ttf"),
     url(./assets/fonts/Orator-Std/Orator-Std.woff2) format("woff2");
 }
+
+.page-wrapper {
+  min-height: calc(100vh - 157px);
+}
