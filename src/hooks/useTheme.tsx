@@ -1,5 +1,6 @@
 import create from "zustand";
 import { configurePersist } from "zustand-persist";
+import { devtools } from "zustand/middleware";
 export const Themes = {
   DARK: "dark",
   LIGHT: "light",
@@ -11,23 +12,24 @@ interface Theme {
 
 const { persist, purge } = configurePersist({
   storage: localStorage,
-  rootKey: "current_theme",
 });
 
 const useTheme = create<Theme>(
-  persist(
-    {
-      key: "theme",
-      allowlist: ["theme"],
-      denylist: [],
-    },
-    (set) => ({
-      theme: Themes.LIGHT,
-      setTheme: (theme: string) => {
-        document.documentElement.setAttribute("data-theme", theme);
-        set({ theme });
+  devtools(
+    persist(
+      {
+        key: "theme",
+        allowlist: ["theme"],
+        denylist: [],
       },
-    })
+      (set) => ({
+        theme: Themes.LIGHT,
+        setTheme: (theme: string) => {
+          document.documentElement.setAttribute("data-theme", theme);
+          set({ theme });
+        },
+      })
+    )
   )
 );
 

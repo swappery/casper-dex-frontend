@@ -48,7 +48,7 @@ export default function useCasperWeb3Provider() {
       if (!!activeAddress && activeAddress !== "") return;
       let publicKey = await Signer.getActivePublicKey();
       setActiveAddress(publicKey);
-      addAccount(publicKey);
+      // addAccount(publicKey);
     } catch (err: any | Error) {
       if (requireConnection) {
         Signer.sendConnectionRequest();
@@ -76,8 +76,10 @@ export default function useCasperWeb3Provider() {
         "signer:connected",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );
@@ -85,8 +87,10 @@ export default function useCasperWeb3Provider() {
         "signer:unlocked",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );
@@ -94,8 +98,10 @@ export default function useCasperWeb3Provider() {
         "signer:activeKeyChanged",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );

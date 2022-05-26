@@ -1,10 +1,11 @@
-import { CLPublicKey } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import create, { State } from "zustand";
-import { Map } from "immutable";
 import { configurePersist } from "zustand-persist";
 import { devtools } from 'zustand/middleware'
-import { supportedTokens, TokenContext } from "./useLiquidityStatus";
+import { TokenContext } from "./useLiquidityStatus";
+import { deserialize } from "../utils/utils";
+
+const serialize = require('serialize-javascript');
 
 export interface Pool {
     contractPackageHash: string;
@@ -21,7 +22,7 @@ interface AccountContext {
 }
 
 interface WalletStatus extends State {
-    accountList: Map<string, AccountContext>;
+    accountListString: string;
     addAccount: (publicKey: string) => void;
     setPool: (publicKey: string, pool: Pool) => void;
 }
@@ -33,29 +34,33 @@ const { persist } = configurePersist({
 const useWalletStatus = create<WalletStatus>(devtools(
     persist({
         key: 'wallets',
-        allowlist: ["accountList"],
+        allowlist: ["accountListString"],
     }, (set) => ({
-    accountList: Map<string, AccountContext>(),
+    accountListString: serialize(new Map<string, AccountContext>()),
     
     addAccount: (publicKey: string) =>
         set((state) => {
-            if (state.accountList.has(publicKey)) 
+            let accountList = deserialize(state.accountListString);
+
+            if (accountList.has(publicKey))
                 return {
-                    accountList: state.accountList,
+                    accountListString: state.accountListString,
                 };
             else
                 return {
-                    accountList: state.accountList.set(publicKey, {poolList: Map<string, Pool>()}),
+                    accountListString: serialize(accountList.set(publicKey, {poolList: new Map<string, Pool>()})),
                 };
         }),
     setPool: (publicKey: string, pool: Pool) =>
         set((state) => {
-            if (!state.accountList.has(publicKey))
+            let accountList = deserialize(state.accountListString);
+
+            if (!accountList.has(publicKey))
                 return {
-                    accountList: state.accountList.set(publicKey, {poolList: Map<string, Pool>().set(pool.contractPackageHash, pool)}),
+                    accountListString: serialize(accountList.set(publicKey, {poolList: new Map<string, Pool>().set(pool.contractPackageHash, pool)})),
                 };
             else return {
-                accountList: state.accountList.set(publicKey, {poolList: state.accountList.get(publicKey)?.poolList.set(pool.contractPackageHash, pool)!}),
+                accountListString: serialize(accountList.set(publicKey, {poolList: accountList.get(publicKey)?.poolList.set(pool.contractPackageHash, pool)!})),
             };
         }),
 })))
