@@ -1,11 +1,6 @@
 import create, {State} from "zustand";
 import { configurePersist } from "zustand-persist";
 
-const { persist } = configurePersist({
-    storage: localStorage,
-    rootKey: "casper_address",
-});
-
 interface NetworkStatus extends State {
     isConnected: boolean;
     activeAddress: string;
@@ -13,12 +8,7 @@ interface NetworkStatus extends State {
     setActiveAddress: (activeAddress: string | undefined) => void;
 }
 
-const useNetworkStatus = create<NetworkStatus>(
-    persist({
-        key: 'address',
-        allowlist: ['isConnected', 'activeAddress'],
-        denylist: [],
-    }, (set) => ({
+const useNetworkStatus = create<NetworkStatus>((set) => ({
     isConnected: false,
     activeAddress: "",
     setConnected: (isConnected: boolean) => set(() => ({ isConnected })),
@@ -31,7 +21,6 @@ const useNetworkStatus = create<NetworkStatus>(
             isConnected,
         };
     }),
-}))
-);
+}));
 
 export default useNetworkStatus;

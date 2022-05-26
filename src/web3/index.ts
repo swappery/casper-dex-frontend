@@ -16,6 +16,7 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
+import useWalletStatus from "../store/useWalletStatus";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -40,11 +41,14 @@ export default function useCasperWeb3Provider() {
     setReserves,
   } = useLiquidityStatus();
 
+  const {addAccount} = useWalletStatus();
+
   async function activate(requireConnection = true) {
     try {
       if (!!activeAddress && activeAddress !== "") return;
       let publicKey = await Signer.getActivePublicKey();
       setActiveAddress(publicKey);
+      addAccount(publicKey);
     } catch (err: any | Error) {
       if (requireConnection) {
         Signer.sendConnectionRequest();

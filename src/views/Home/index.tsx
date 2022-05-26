@@ -16,7 +16,6 @@ export default function Home() {
   const { theme } = useTheme();
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
-  activate();
 
   return (
     <div className="bg-accent overflow-hidden">

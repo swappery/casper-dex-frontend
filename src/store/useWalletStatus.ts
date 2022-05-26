@@ -1,8 +1,10 @@
 import { CLPublicKey } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import create, { State } from "zustand";
+import { Map } from "immutable";
 import { configurePersist } from "zustand-persist";
-import { TokenContext } from "./useLiquidityStatus";
+import { devtools } from 'zustand/middleware'
+import { supportedTokens, TokenContext } from "./useLiquidityStatus";
 
 export interface Pool {
     contractPackageHash: string;
@@ -26,14 +28,15 @@ interface WalletStatus extends State {
 
 const { persist } = configurePersist({
     storage: localStorage,
-    rootKey: "wallet_data",
 });
 
-const useWalletStatus = create<WalletStatus>(
+const useWalletStatus = create<WalletStatus>(devtools(
     persist({
         key: 'wallets',
+        allowlist: ["accountList"],
     }, (set) => ({
-    accountList: new Map(),
+    accountList: Map<string, AccountContext>(),
+    
     addAccount: (publicKey: string) =>
         set((state) => {
             if (state.accountList.has(publicKey)) 
@@ -42,20 +45,20 @@ const useWalletStatus = create<WalletStatus>(
                 };
             else
                 return {
-                    accountList: state.accountList.set(publicKey, {poolList: new Map()}),
+                    accountList: state.accountList.set(publicKey, {poolList: Map<string, Pool>()}),
                 };
         }),
     setPool: (publicKey: string, pool: Pool) =>
         set((state) => {
             if (!state.accountList.has(publicKey))
                 return {
-                    accountList: state.accountList.set(publicKey, {poolList: new Map().set(pool.contractPackageHash, pool)}),
+                    accountList: state.accountList.set(publicKey, {poolList: Map<string, Pool>().set(pool.contractPackageHash, pool)}),
                 };
             else return {
                 accountList: state.accountList.set(publicKey, {poolList: state.accountList.get(publicKey)?.poolList.set(pool.contractPackageHash, pool)!}),
             };
         }),
-}))
+})))
 );
 
 export default useWalletStatus;
