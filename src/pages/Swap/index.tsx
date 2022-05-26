@@ -11,7 +11,6 @@ import TokenModal from "../../views/Swap/components/TokenModal";
 import swapImage from "../../assets/images/swap/swap.svg";
 import chevronIcon from "../../assets/images/swap/chevron.svg";
 import leftHand from "../../assets/images/hands/left.svg";
-import "./swap.css";
 import useWalletStatus from "../../store/useWalletStatus";
 
 export default function Swap() {
