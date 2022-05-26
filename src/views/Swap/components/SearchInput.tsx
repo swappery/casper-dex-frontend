@@ -35,9 +35,7 @@ const tokenLists: TokenItem[] = [
 
 export default function SearchInput() {
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<TokenItem[] | undefined>(
-    undefined
-  );
+  const [searchResults, setSearchResults] = useState<TokenItem[] | undefined>();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
