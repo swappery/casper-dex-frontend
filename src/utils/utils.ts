@@ -6,3 +6,7 @@ export function shortenAddress(address: string) {
 export function amountWithoutDecimals(amount: BigNumber, decimals: number) {
     return amount.div(10 ** decimals).toNumber() + amount.mod(10 ** decimals).toNumber() / 10 ** decimals;
 }
+
+export function deserialize(serializedString: string) {
+    return eval('(' + serializedString + ')');
+}

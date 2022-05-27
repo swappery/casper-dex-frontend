@@ -4,6 +4,7 @@ import {
   CLPublicKey,
   CLValueBuilder,
   decodeBase16,
+  CasperServiceByJsonRPC,
 } from "casper-js-sdk";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
@@ -15,6 +16,7 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
+import useWalletStatus from "../store/useWalletStatus";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -39,11 +41,14 @@ export default function useCasperWeb3Provider() {
     setReserves,
   } = useLiquidityStatus();
 
+  const {addAccount} = useWalletStatus();
+
   async function activate(requireConnection = true) {
     try {
       if (!!activeAddress && activeAddress !== "") return;
       let publicKey = await Signer.getActivePublicKey();
       setActiveAddress(publicKey);
+      // addAccount(publicKey);
     } catch (err: any | Error) {
       if (requireConnection) {
         Signer.sendConnectionRequest();
@@ -71,8 +76,10 @@ export default function useCasperWeb3Provider() {
         "signer:connected",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );
@@ -80,8 +87,10 @@ export default function useCasperWeb3Provider() {
         "signer:unlocked",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );
@@ -89,8 +98,10 @@ export default function useCasperWeb3Provider() {
         "signer:activeKeyChanged",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked)
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
             setActiveAddress(activeKey);
+            addAccount(activeKey);
+          }
           else setActiveAddress("");
         }
       );
@@ -266,12 +277,25 @@ export async function getReserves(
   const sourceContractHash = supportedTokens[sourceToken].contractHash;
   const targetContractHash = supportedTokens[targetToken].contractHash;
   if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
-    let pairContract = await routerClient.getPairFor(sourceContractHash, targetContractHash);
-    let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
-    await pairClient.setContractHash(pairContract);
-    let reserves = await pairClient.getReserves();
-    if (sourceContractHash < targetContractHash) return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
-    return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
+    let pairPackageHash = await routerClient.getPairFor(sourceContractHash, targetContractHash);
+    const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+    const { block } = await client.getLatestBlockInfo();
+    
+    if (block) {
+      const stateRootHash = block.header.state_root_hash;
+      const blockState = await client.getBlockState(
+        stateRootHash,
+        `hash-${pairPackageHash}`,
+        []
+      );
+
+      let pairContractHash = blockState.ContractPackage?.versions[blockState.ContractPackage.versions.length - 1].contractHash.slice(9);
+      let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+      await pairClient.setContractHash(pairContractHash!);
+      let reserves = await pairClient.getReserves();
+      if (sourceContractHash < targetContractHash) return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
+      return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
+    }
   }
   return [BigNumber.from(0), BigNumber.from(1)];
 }

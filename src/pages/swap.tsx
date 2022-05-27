@@ -5,12 +5,13 @@ import useLiquidityStatus, {
 } from "../store/useLiquidityStatus";
 import ActionButton from "./Swap/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../utils/utils";
+import { amountWithoutDecimals, deserialize } from "../utils/utils";
 import TokenModal from "../views/Swap/components/TokenModal";
 
-import swapImage from "../assets/images/swap/swap.svg";
+import swapImage from "../../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
-import leftHand from "../assets/images/hands/left.svg";
+import leftHand from "../../assets/images/hands/left.svg";
+import useWalletStatus from "../store/useWalletStatus";
 
 export default function Swap() {
   const {
@@ -26,6 +27,9 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
+
+  const { accountListString } = useWalletStatus();
+  console.log(deserialize(accountListString));
   const getAmountsOut = () => {
     let tempAmount = sourceAmount;
     for (var i = 0; i < reserves.length; i++) {

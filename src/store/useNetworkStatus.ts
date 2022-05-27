@@ -1,4 +1,5 @@
 import create, {State} from "zustand";
+import { configurePersist } from "zustand-persist";
 
 interface NetworkStatus extends State {
     isConnected: boolean;

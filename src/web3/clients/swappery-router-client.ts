@@ -27,7 +27,6 @@ const { DEFAULT_TTL } = constants;
 
 export class SwapperyRouterClient extends ContractClient {
     protected namedKeys?: {
-        pairContractList: string;
         pairList: string;
     };
 
@@ -37,7 +36,6 @@ export class SwapperyRouterClient extends ContractClient {
             hash,
             [
                 "pair_list",
-                "pair_contract_list",
             ]
         );
         this.contractHash = hash;
@@ -366,9 +364,9 @@ export class SwapperyRouterClient extends ContractClient {
         const result = await utils.contractDictionaryGetter(
         this.nodeAddress,
         encodedBytes,
-        this.namedKeys!.pairContractList
+        this.namedKeys!.pairList
         );
-        const pairContractHashString = Buffer.from(result).toString('hex');
+        const pairContractHashString = Buffer.from(result.data).toString('hex');
         return pairContractHashString;
     }
 }
