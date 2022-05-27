@@ -1,16 +1,16 @@
 import { useCallback, KeyboardEvent } from "react";
-import IconButton from "../../components/Button/IconButton";
+import IconButton from "../components/Button/IconButton";
 import useLiquidityStatus, {
   supportedTokens,
-} from "../../store/useLiquidityStatus";
-import ActionButton from "./actionButton";
+} from "../store/useLiquidityStatus";
+import ActionButton from "./Swap/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/utils";
-import TokenModal from "../../views/Swap/components/TokenModal";
+import { amountWithoutDecimals } from "../utils/utils";
+import TokenModal from "../views/Swap/components/TokenModal";
 
-import swapImage from "../../assets/images/swap/swap.svg";
-import chevronIcon from "../../assets/images/swap/chevron.svg";
-import leftHand from "../../assets/images/hands/left.svg";
+import swapImage from "../assets/images/swap/swap.svg";
+import ChevronIcon from "../components/Icon/Chevron";
+import leftHand from "../assets/images/hands/left.svg";
 
 export default function Swap() {
   const {
@@ -119,7 +119,7 @@ export default function Swap() {
                   <span className='text-[14px] md:text-[19px]'>
                     {supportedTokens[sourceToken].symbol}
                   </span>
-                  <img src={chevronIcon} alt='' />
+                  <ChevronIcon />
                 </label>
                 <img
                   src={supportedTokens[sourceToken].tokenSvg}
@@ -159,7 +159,7 @@ export default function Swap() {
                   <span className='text-[14px] md:text-[19px]'>
                     {supportedTokens[targetToken].symbol}
                   </span>
-                  <img src={chevronIcon} alt='' />
+                  <ChevronIcon />
                 </label>
                 <img
                   src={supportedTokens[targetToken].tokenSvg}

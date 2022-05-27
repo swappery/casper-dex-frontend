@@ -1,6 +1,6 @@
+import { ReactNode } from "react";
 import casperToken from "../../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
 import swprToken from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
-import { ReactNode } from "react";
 
 type LPTokenProps = {
   children: ReactNode;

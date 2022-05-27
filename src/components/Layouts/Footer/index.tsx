@@ -7,7 +7,7 @@ export default function Footer() {
       <div className='col-span-12 lg:col-start-2 lg:col-end-5 text-[12px] lg:text-[15px] order-last lg:order-first text-center lg:text-left'>
         © 2021 TheSwappery
       </div>
-      <div className='grid col-span-12 justify-center text-center lg:text-left lg:col-start-6 lg:col-end-9 lg:flex lg:justify-between text-[12px] lg:text-[15px]'>
+      <div className='grid col-span-12 justify-center text-center lg:text-left lg:col-start-5 lg:col-end-9 lg:flex lg:justify-around text-[12px] lg:text-[15px] lg:px-8 2xl:px-20'>
         <p className='order-last lg:order-first my-2 lg:my-0'>Documentation</p>
         <p className='order-first lg:order-last'>Audit</p>
       </div>

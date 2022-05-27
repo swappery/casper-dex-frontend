@@ -1,7 +1,8 @@
-import React from "react";
-import Home from "./Home";
-import Swap from "./Swap";
-import Liquidity from "./Liquidity";
+import Home from "./home";
+import Swap from "./swap";
+import Liquidity from "./liquidity";
+import Find from "./find";
+import Add from "./add";
 import { Routes, Route } from "react-router-dom";
 import { Header, Footer } from "../components";
 export default function Pages() {
@@ -13,8 +14,8 @@ export default function Pages() {
         <Route path='/' element={<Home />} />
         <Route path='/swap' element={<Swap />} />
         <Route path='/liquidity' element={<Liquidity />} />
-        <Route path='/add' element={<Liquidity />} />
-        <Route path='/find' element={<Liquidity />} />
+        <Route path='/add' element={<Add />} />
+        <Route path='/find' element={<Find />} />
       </Routes>
 
       <Footer />
