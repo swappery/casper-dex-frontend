@@ -46,17 +46,20 @@ export default function Home() {
                 Swap, trade, and earn crypto on the coolest decentralized
                 swappery in town.
               </p>
-              <div className='flex gap-2 lg:gap-4 font-orator-std mt-[30px] xl:mt-0 ml-[25px] xl:ml-0'>
-                <button
-                  className='text-black text-[13px] xl:text-[18px] rounded-2xl bg-lightblue py-0.5 px-3'
-                  onClick={() => activate()}>
-                  {isConnected
-                    ? shortenAddress(activeAddress)
-                    : "Connect Wallet"}
-                </button>
+              <div className='flex gap-2 lg:gap-4 mt-[30px] xl:mt-0 ml-[25px] xl:ml-0 font-orator-std'>
+                {isConnected ? (
+                  ""
+                ) : (
+                  <button
+                    className='text-black text-[13px] xl:text-[19px] rounded-2xl bg-lightblue py-0.5 px-3'
+                    onClick={() => activate()}>
+                    Connect Wallet
+                  </button>
+                )}
+
                 <NavLink
                   to='/swap'
-                  className='text-[13px] xl:text-[16px] rounded-2xl border border-neutral leading-[26px] px-3 font-medium'>
+                  className='text-[13px] xl:text-[19px] rounded-2xl border border-neutral px-3'>
                   TRADE
                 </NavLink>
               </div>
