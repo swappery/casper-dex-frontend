@@ -3,14 +3,14 @@ import IconButton from "../components/Button/IconButton";
 import useLiquidityStatus, {
   supportedTokens,
 } from "../store/useLiquidityStatus";
-import ActionButton from "./Swap/actionButton";
+import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, deserialize } from "../utils/utils";
-import TokenModal from "../views/Swap/components/TokenModal";
+import TokenModal from "../components/Modal/TokenModal";
 
-import swapImage from "../../assets/images/swap/swap.svg";
+import swapImage from "../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
-import leftHand from "../../assets/images/hands/left.svg";
+import leftHand from "../assets/images/hands/left.svg";
 import useWalletStatus from "../store/useWalletStatus";
 
 export default function Swap() {
