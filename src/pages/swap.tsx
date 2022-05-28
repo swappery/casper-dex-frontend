@@ -1,7 +1,8 @@
 import { useCallback, KeyboardEvent } from "react";
 import IconButton from "../components/Button/IconButton";
 import useLiquidityStatus, {
-  supportedTokens,
+  ExecutionType,
+  supportedTokens, TOTAL_SHARE,
 } from "../store/useLiquidityStatus";
 import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
@@ -21,6 +22,9 @@ export default function Swap() {
     targetAmount,
     reserves,
     isExactIn,
+    slippageTolerance,
+    execType,
+    setExecType,
     setSourceAmount,
     setTargetAmount,
     setExactIn,
@@ -171,7 +175,7 @@ export default function Swap() {
               </div>
             </div>
             <p className='text-center mt-3 px-8 text-neutral text-[12px] md:text-[15px]'>
-              Slippage Tolerance 1%
+              Slippage Tolerance {slippageTolerance / TOTAL_SHARE * 100}%
             </p>
             <ActionButton />
           </div>

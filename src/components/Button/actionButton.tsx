@@ -1,10 +1,11 @@
 import { FC } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useLiquidityStatus, {
+  ExecutionType,
   supportedTokens,
   TxStatus,
 } from "../../store/useLiquidityStatus";
-import useCasperWeb3Provider, { swapExactOut } from "../../web3";
+import useCasperWeb3Provider, { addLiquidity, swapExactOut } from "../../web3";
 import { swapExactIn } from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 const ActionButton: FC = () => {
@@ -22,6 +23,7 @@ const ActionButton: FC = () => {
     minAmountOut,
     maxAmountIn,
     currentStatus,
+    execType,
   } = useLiquidityStatus();
   const handleClick = async () => {
     if (isConnected) {
@@ -33,7 +35,17 @@ const ActionButton: FC = () => {
         approveSourceToken(sourceAmount);
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
-      else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn) {
+      else if (currentStatus === TxStatus.REQ_EXECUTE && execType === ExecutionType.EXE_ADD_LIQUIDITY)
+        console.log(
+          addLiquidity(
+            CLPublicKey.fromHex(activeAddress),
+            sourceToken,
+            sourceAmount,
+            targetToken,
+            targetAmount
+          )
+        );
+      else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn && execType === ExecutionType.EXE_SWAP) {
         console.log(
           swapExactIn(
             CLPublicKey.fromHex(activeAddress),
@@ -43,7 +55,7 @@ const ActionButton: FC = () => {
             minAmountOut
           )
         );
-      } else if (currentStatus === TxStatus.REQ_EXECUTE && !isExactIn) {
+      } else if (currentStatus === TxStatus.REQ_EXECUTE && !isExactIn && execType === ExecutionType.EXE_SWAP) {
         console.log(
           swapExactOut(
             CLPublicKey.fromHex(activeAddress),
@@ -68,7 +80,8 @@ const ActionButton: FC = () => {
       content = <>Approve {supportedTokens[sourceToken].symbol} Token</>;
     else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
       content = <>Approve {supportedTokens[targetToken].symbol} Token</>;
-    else if (currentStatus === TxStatus.REQ_EXECUTE) content = <>Swap</>;
+    else if (currentStatus === TxStatus.REQ_EXECUTE && execType === ExecutionType.EXE_SWAP) content = <>Swap</>;
+    else if (currentStatus === TxStatus.REQ_EXECUTE && execType === ExecutionType.EXE_ADD_LIQUIDITY) content = <>Add Liquidity</>;
     else
       content = (
         <div className='inline-flex items-center'>

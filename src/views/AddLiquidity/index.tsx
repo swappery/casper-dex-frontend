@@ -3,6 +3,7 @@ import useTheme, { Themes } from "../../hooks/useTheme";
 import { useCallback, KeyboardEvent } from "react";
 
 import useLiquidityStatus, {
+  ExecutionType,
   supportedTokens,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
@@ -19,48 +20,28 @@ import BackIcon from "../../components/Icon/Back";
 export default function AddLiquidity() {
   const { theme } = useTheme();
   const {
+    execType,
     sourceToken,
     sourceAmount,
     targetToken,
     targetAmount,
     reserves,
     isExactIn,
+    targetApproval,
+    setExactIn,
+    setExecType,
     setSourceAmount,
     setTargetAmount,
-    setExactIn,
-    setMaxAmountIn,
-    setMinAmountOut,
   } = useLiquidityStatus();
+  if(execType !== ExecutionType.EXE_ADD_LIQUIDITY)
+    setExecType(ExecutionType.EXE_ADD_LIQUIDITY);
 
-  const { accountListString } = useWalletStatus();
-  console.log(deserialize(accountListString));
-  const getAmountsOut = () => {
-    let tempAmount = sourceAmount;
-    for (var i = 0; i < reserves.length; i++) {
-      tempAmount = tempAmount
-        .mul(998)
-        .mul(reserves[i][1])
-        .div(reserves[i][0].mul(1000).add(tempAmount.mul(998)));
-    }
-    return amountWithoutDecimals(
-      tempAmount,
-      supportedTokens[targetToken].decimals
-    );
-  };
-
-  const getAmountsIn = () => {
-    let tempAmount = targetAmount;
-    for (var i = 0; i < reserves.length; i++) {
-      tempAmount = reserves[i][0]
-        .mul(tempAmount)
-        .mul(1000)
-        .div(reserves[i][1].sub(tempAmount).mul(998));
-    }
-    return amountWithoutDecimals(
-      tempAmount,
+  const withSourceLimit = ({ floatValue }: any) =>
+    floatValue <
+    amountWithoutDecimals(
+      reserves[0][0],
       supportedTokens[sourceToken].decimals
     );
-  };
 
   const withTargetLimit = ({ floatValue }: any) =>
     floatValue <
@@ -70,13 +51,13 @@ export default function AddLiquidity() {
     );
 
   const sourceValue = !isExactIn
-    ? getAmountsIn()
+    ? amountWithoutDecimals(targetAmount.mul(reserves[0][0]).div(reserves[0][1]), supportedTokens[sourceToken].decimals)
     : amountWithoutDecimals(
         sourceAmount,
         supportedTokens[sourceToken].decimals
       );
   const targetValue = isExactIn
-    ? getAmountsOut()
+    ? amountWithoutDecimals(sourceAmount.mul(reserves[0][1]).div(reserves[0][0]), supportedTokens[targetToken].decimals)
     : amountWithoutDecimals(
         targetAmount,
         supportedTokens[targetToken].decimals
@@ -114,13 +95,13 @@ export default function AddLiquidity() {
                     },
                     [isExactIn]
                   )}
+                  isAllowed={withSourceLimit}
                   onValueChange={async (values) => {
                     const { value } = values;
                     setSourceAmount(parseFloat(value) || 0);
-                    setMaxAmountIn((parseFloat(value) * 10100) / 10000);
                     console.log("source change");
                     console.log(value);
-                    console.log(isExactIn);
+                    console.log(true);
                   }}
                 />
                 <div className='flex items-center md:gap-2'>
@@ -149,20 +130,19 @@ export default function AddLiquidity() {
                   value={targetValue}
                   className='md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]'
                   thousandSeparator={false}
-                  isAllowed={withTargetLimit}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
                       setExactIn(false);
                     },
                     [isExactIn]
                   )}
+                  isAllowed={withTargetLimit}
                   onValueChange={async (values) => {
                     const { value } = values;
                     setTargetAmount(parseFloat(value) || 0);
-                    setMinAmountOut((parseFloat(value) * 10000) / 10100);
                     console.log("target change");
                     console.log(value);
-                    console.log(isExactIn);
+                    console.log(true);
                   }}
                 />
                 <div className='flex items-center md:gap-2'>

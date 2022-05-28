@@ -3,6 +3,8 @@ import create, { State } from "zustand";
 import csprToken from "../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
 import swprToken from "../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 
+export const TOTAL_SHARE = 10000;
+
 export interface TokenContext {
   name: string;
   symbol: string;
@@ -28,7 +30,7 @@ export const supportedTokens: TokenContext[] = [
     tokenSvg: swprToken,
   },
   {
-    name: "Casper",
+    name: "Casper Native Token",
     symbol: "CSPR",
     decimals: 9,
     contractHash:
@@ -67,6 +69,7 @@ interface LiquidityStatus extends State {
   minAmountOut: BigNumber;
   maxAmountIn: BigNumber;
   currentStatus: TxStatus;
+  slippageTolerance: number;
   setExecType: (execType: ExecutionType) => void;
   setSourceToken: (sourceToken: TokenType) => void;
   setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -100,10 +103,27 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
   minAmountOut: BigNumber.from(0),
   maxAmountIn: BigNumber.from(0),
   currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+  slippageTolerance: 100,
   setExecType: (execType: ExecutionType) =>
-    set(() => ({
-      execType,
-    })),
+    set(() => {
+      return {
+        execType: execType,
+        sourceToken: TokenType.CSPR,
+        sourceBalance: BigNumber.from(0),
+        sourceApproval: BigNumber.from(0),
+        sourceAmount: BigNumber.from(0),
+        targetToken: TokenType.SWPR,
+        targetBalance: BigNumber.from(0),
+        targetApproval: BigNumber.from(0),
+        targetAmount: BigNumber.from(0),
+        reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+        isExactIn: true,
+        minAmountOut: BigNumber.from(0),
+        maxAmountIn: BigNumber.from(0),
+        currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+        slippageTolerance: 100,
+      };
+    }),
   setSourceToken: (sourceToken: TokenType) =>
     set(() => ({
       sourceToken,
