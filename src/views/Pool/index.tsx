@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
 import LPTokenDetail from "./components/LPTokenDetail";
@@ -35,9 +36,11 @@ export default function Liquidity() {
                   No Liquidity Found! Don’t see a Pool You Joined?
                 </p>
                 <div className='border border-neutral rounded-[50%] w-9 h-9'></div>
-                <button className='hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6'>
+                <Link
+                  to='/find'
+                  className='hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6'>
                   Find Other LP Tokens
-                </button>
+                </Link>
               </div>
             </>
           ) : (
@@ -47,9 +50,11 @@ export default function Liquidity() {
               CONNECT WALLET TO VIEW LIQUIDITY
             </button>
           )}
-          <button className='hover:opacity-80 md:w-full text-black text-[18px] leading-[34px] border border-black rounded-xl md:rounded-3xl bg-lightgreen py-2 md:py-1.5 px-5'>
+          <Link
+            to='/add'
+            className='hover:opacity-80 md:w-full text-black text-[18px] leading-[34px] border border-black rounded-xl md:rounded-3xl bg-lightgreen py-2 md:py-1.5 px-5'>
             + ADD LIQUIDITY
-          </button>
+          </Link>
         </div>
       </div>
     </div>
