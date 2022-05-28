@@ -27,9 +27,7 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
-
-  const { accountListString } = useWalletStatus();
-  console.log(deserialize(accountListString));
+  
   const getAmountsOut = () => {
     let tempAmount = sourceAmount;
     for (var i = 0; i < reserves.length; i++) {
