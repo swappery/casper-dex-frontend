@@ -9,9 +9,21 @@ import {
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
 import useNetworkStatus from "../store/useNetworkStatus";
-import useLiquidityStatus, { supportedTokens, TokenType, TxStatus } from "../store/useLiquidityStatus";
+import useLiquidityStatus, {
+  supportedTokens,
+  TokenType,
+  TxStatus,
+} from "../store/useLiquidityStatus";
 import { BigNumber, BigNumberish } from "ethers";
-import { CHAIN_NAME, INSTALL_FEE, NODE_ADDRESS, ROUTER_CONTRACT_HASH, ROUTER_CONTRACT_PACKAGE_HASH, TRANSFER_FEE, WCSPR_CONTRACT_HASH } from "./config/constant";
+import {
+  CHAIN_NAME,
+  INSTALL_FEE,
+  NODE_ADDRESS,
+  ROUTER_CONTRACT_HASH,
+  ROUTER_CONTRACT_PACKAGE_HASH,
+  TRANSFER_FEE,
+  WCSPR_CONTRACT_HASH,
+} from "./config/constant";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
@@ -41,7 +53,7 @@ export default function useCasperWeb3Provider() {
     setReserves,
   } = useLiquidityStatus();
 
-  const {addAccount} = useWalletStatus();
+  const { addAccount } = useWalletStatus();
 
   async function activate(requireConnection = true) {
     try {
@@ -76,33 +88,30 @@ export default function useCasperWeb3Provider() {
         "signer:connected",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked) {
             setActiveAddress(activeKey);
             addAccount(activeKey);
-          }
-          else setActiveAddress("");
+          } else setActiveAddress("");
         }
       );
       window.addEventListener(
         "signer:unlocked",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked) {
             setActiveAddress(activeKey);
             addAccount(activeKey);
-          }
-          else setActiveAddress("");
+          } else setActiveAddress("");
         }
       );
       window.addEventListener(
         "signer:activeKeyChanged",
         async (event: any | CustomEvent) => {
           const { activeKey, isConnected, isUnlocked } = event.detail;
-          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked){
+          if (!!activeKey && activeKey !== "" && isConnected && isUnlocked) {
             setActiveAddress(activeKey);
             addAccount(activeKey);
-          }
-          else setActiveAddress("");
+          } else setActiveAddress("");
         }
       );
     } catch (err: any | Error) {
@@ -141,7 +150,9 @@ export default function useCasperWeb3Provider() {
     );
     const casperClient = new CasperClient(NODE_ADDRESS);
     await casperClient.getDeploy(txHash);
-    setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+    setSourceApproval(
+      await allowanceOf(supportedTokens[sourceToken].contractHash)
+    );
     toast.success("Source Approved.");
   }
 
@@ -161,7 +172,9 @@ export default function useCasperWeb3Provider() {
     );
     const casperClient = new CasperClient(NODE_ADDRESS);
     await casperClient.getDeploy(txHash);
-    setSourceApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+    setSourceApproval(
+      await allowanceOf(supportedTokens[targetToken].contractHash)
+    );
     toast.success("Target Approved.");
   }
 
@@ -173,12 +186,7 @@ export default function useCasperWeb3Provider() {
     const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await wcsprClient.setContractHash(contractHash);
     const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await wcsprClient.deposit(
-      clPK,
-      contractHash,
-      amount,
-      INSTALL_FEE
-    );
+    txHash = await wcsprClient.deposit(clPK, contractHash, amount, INSTALL_FEE);
     const casperClient = new CasperClient(NODE_ADDRESS);
     await casperClient.getDeploy(txHash);
     setSourceBalance(await balanceOf(contractHash));
@@ -193,11 +201,7 @@ export default function useCasperWeb3Provider() {
     const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await wcsprClient.setContractHash(contractHash);
     const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await wcsprClient.withdraw(
-      clPK,
-      amount,
-      INSTALL_FEE
-    );
+    txHash = await wcsprClient.withdraw(clPK, amount, INSTALL_FEE);
     const casperClient = new CasperClient(NODE_ADDRESS);
     await casperClient.getDeploy(txHash);
     toast.success("Unwrapped CSPR.");
@@ -209,18 +213,34 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeAddress() {
       if (!isConnected) return;
-      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
-      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
-      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
-      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+      setSourceBalance(
+        await balanceOf(supportedTokens[sourceToken].contractHash)
+      );
+      setSourceApproval(
+        await allowanceOf(supportedTokens[sourceToken].contractHash)
+      );
+      setTargetBalance(
+        await balanceOf(supportedTokens[targetToken].contractHash)
+      );
+      setTargetApproval(
+        await allowanceOf(supportedTokens[targetToken].contractHash)
+      );
     }
     handleChangeAddress();
   }, [activeAddress]);
 
   useEffect(() => {
     updateCurrentStatus();
-  }, [sourceToken, sourceBalance, sourceApproval, sourceAmount,
-    targetToken, targetBalance, targetApproval, targetAmount]);
+  }, [
+    sourceToken,
+    sourceBalance,
+    sourceApproval,
+    sourceAmount,
+    targetToken,
+    targetBalance,
+    targetApproval,
+    targetAmount,
+  ]);
 
   useEffect(() => {
     async function handleChangeToken() {
@@ -228,10 +248,15 @@ export default function useCasperWeb3Provider() {
         const reserves = await getReserves(sourceToken, targetToken);
         console.log(reserves[0].toNumber(), reserves[1].toNumber());
         let reservesList: BigNumber[][] = [];
-        reservesList.push([BigNumber.from(reserves[0]), BigNumber.from(reserves[1])]);
+        reservesList.push([
+          BigNumber.from(reserves[0]),
+          BigNumber.from(reserves[1]),
+        ]);
         setReserves(reservesList);
-      }
-      else if (await isPairExist(sourceToken, TokenType.CSPR) && await isPairExist(TokenType.CSPR, targetToken)) {
+      } else if (
+        (await isPairExist(sourceToken, TokenType.CSPR)) &&
+        (await isPairExist(TokenType.CSPR, targetToken))
+      ) {
         let reservesList: BigNumber[][] = [];
         const step1 = await getReserves(sourceToken, TokenType.CSPR);
         console.log(step1[0].toNumber(), step1[1].toNumber());
@@ -260,11 +285,18 @@ export async function isPairExist(
   targetToken: TokenType
 ) {
   let routerContractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(routerContractHash);
   const sourceContractHash = supportedTokens[sourceToken].contractHash;
   const targetContractHash = supportedTokens[targetToken].contractHash;
-  return await routerClient.isPairExists(sourceContractHash, targetContractHash);
+  return await routerClient.isPairExists(
+    sourceContractHash,
+    targetContractHash
+  );
 }
 
 export async function getReserves(
@@ -272,15 +304,22 @@ export async function getReserves(
   targetToken: TokenType
 ) {
   let routerContractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(routerContractHash);
   const sourceContractHash = supportedTokens[sourceToken].contractHash;
   const targetContractHash = supportedTokens[targetToken].contractHash;
   if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
-    let pairPackageHash = await routerClient.getPairFor(sourceContractHash, targetContractHash);
+    let pairPackageHash = await routerClient.getPairFor(
+      sourceContractHash,
+      targetContractHash
+    );
     const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
     const { block } = await client.getLatestBlockInfo();
-    
+
     if (block) {
       const stateRootHash = block.header.state_root_hash;
       const blockState = await client.getBlockState(
@@ -289,11 +328,19 @@ export async function getReserves(
         []
       );
 
-      let pairContractHash = blockState.ContractPackage?.versions[blockState.ContractPackage.versions.length - 1].contractHash.slice(9);
-      let pairClient = new SwapperyPairClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+      let pairContractHash =
+        blockState.ContractPackage?.versions[
+          blockState.ContractPackage.versions.length - 1
+        ].contractHash.slice(9);
+      let pairClient = new SwapperyPairClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
       await pairClient.setContractHash(pairContractHash!);
       let reserves = await pairClient.getReserves();
-      if (sourceContractHash < targetContractHash) return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
+      if (sourceContractHash < targetContractHash)
+        return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
       return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
     }
   }
@@ -308,7 +355,11 @@ export async function addLiquidity(
   targetAmount: BigNumberish
 ) {
   let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(contractHash);
   const txHash = await routerClient.addLiquidity(
     publicKey,
@@ -333,7 +384,11 @@ export async function removeLiquidity(
   liquidityAmount: BigNumberish
 ) {
   let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(contractHash);
   const txHash = await routerClient.removeLiquidity(
     publicKey,
@@ -354,10 +409,14 @@ export async function swapExactIn(
   sourceToken: TokenType,
   targetToken: TokenType,
   sourceAmount: BigNumberish,
-  targetAmountMin: BigNumberish,
+  targetAmountMin: BigNumberish
 ) {
   let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(contractHash);
   let txHash = await routerClient.swapExactIn(
     publicKey,
@@ -378,10 +437,14 @@ export async function swapExactOut(
   sourceToken: TokenType,
   targetToken: TokenType,
   sourceAmountMax: BigNumberish,
-  targetAmount: BigNumberish,
+  targetAmount: BigNumberish
 ) {
   let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+  let routerClient = new SwapperyRouterClient(
+    NODE_ADDRESS,
+    CHAIN_NAME,
+    undefined
+  );
   await routerClient.setContractHash(contractHash);
   let txHash = await routerClient.swapExactOut(
     publicKey,

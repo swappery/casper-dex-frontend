@@ -1,4 +1,3 @@
-
 export enum RouterEvents {
   AddLiquidity = "add-liquidity",
   RemoveLiquidity = "remove-liquidity",
@@ -6,18 +5,19 @@ export enum RouterEvents {
 }
 
 export const NODE_ADDRESS =
-  process.env.REACT_APP_NODE_ADDRESS || "https://picaswap.io/.netlify/functions/cors?url=http://95.217.34.115:7777/rpc";
+  process.env.REACT_APP_NODE_ADDRESS ||
+  "https://picaswap.io/.netlify/functions/cors?url=http://95.217.34.115:7777/rpc";
 
 export const CHAIN_NAME = process.env.REACT_APP_CHAIN_NAME || "casper-test";
 
 export const WCSPR_CONTRACT_HASH =
-  "d91883e9ebe885aaa16b16c10652617e1752d40bd90148aa79d971df60d93120";
+  "3d3d5301e1a1deb700fb018bc8a0d52514ff7e169bd3fe75c3f9b72440ec21f6";
 
 export const ROUTER_CONTRACT_HASH =
-  "b03d2f26752372f2169776465e891a12bcba5c4bfc5dc50ae80a0c1cd34089a0";
+  "5685f784e267c268e0cf62b8a2959c2ebd9a70507c2da5388b6bd12860a3d101";
 
 export const ROUTER_CONTRACT_PACKAGE_HASH =
-  "2ffac3a9aa396218151784d39455aee899b94fc9d916b7294fad145333cbed90";
+  "603951a86a2d185624145a81acfcf41777434ae679555c10b293641f4be53b3f";
 
 export const TRANSFER_FEE = 10 * 10 ** 9;
 export const INSTALL_FEE = 3 * 10 ** 9;

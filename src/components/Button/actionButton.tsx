@@ -27,8 +27,10 @@ const ActionButton: FC = () => {
     if (isConnected) {
       if (currentStatus === TxStatus.REQ_WRAP)
         wrapCspr(sourceAmount.sub(sourceBalance));
-      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE)
+      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE && !isExactIn)
         approveSourceToken(maxAmountIn);
+      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE && isExactIn)
+        approveSourceToken(sourceAmount);
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
       else if (currentStatus === TxStatus.REQ_EXECUTE && isExactIn) {
