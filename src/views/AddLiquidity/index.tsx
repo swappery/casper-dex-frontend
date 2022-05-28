@@ -1,6 +1,7 @@
+import { Link } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
 import { useCallback, KeyboardEvent } from "react";
-import IconButton from "../../components/Button/IconButton";
+
 import useLiquidityStatus, {
   supportedTokens,
 } from "../../store/useLiquidityStatus";
@@ -13,6 +14,7 @@ import TokenModal from "../../components/Modal/TokenModal";
 import useWalletStatus from "../../store/useWalletStatus";
 
 import ChevronIcon from "../../components/Icon/Chevron";
+import BackIcon from "../../components/Icon/Back";
 
 export default function AddLiquidity() {
   const { theme } = useTheme();
@@ -83,10 +85,18 @@ export default function AddLiquidity() {
   return (
     <div className='flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0'>
       <div className='container mx-auto grid grid-cols-12'>
-        <div className='col-span-12 md:col-start-2 md:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-4 md:pb-9'>
-          <p className='text-[35px] md:text-[43px] leading-[43px] text-neutral'>
-            add liquidity
-          </p>
+        <div className='col-span-12 md:col-start-2 md:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-9'>
+          <div className='flex items-center justify-between w-full px-1'>
+            <Link to='/liquidity' className='hover:opacity-80'>
+              <BackIcon stroke={theme === Themes.LIGHT ? "black" : "#FFF8D4"} />
+            </Link>
+
+            <p className='text-[35px] md:text-[43px] leading-[43px] text-neutral'>
+              ADD LIQUIDITY
+            </p>
+            <div className='w-[19px]'></div>
+          </div>
+
           <p className='text-[20px] md:text-[22px] text-neutral mt-3 mb-7'>
             add liquidity to receive lp tokens
           </p>

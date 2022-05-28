@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
 import LPTokenDetail from "./components/LPTokenDetail";
@@ -9,7 +10,7 @@ export default function Liquidity() {
   return (
     <div className='flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0'>
       <div className='container mx-auto grid grid-cols-12'>
-        <div className='col-span-12 md:col-start-3 md:col-end-11 xl:col-start-4 xl:col-end-10 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-4 md:pb-7'>
+        <div className='col-span-12 md:col-start-3 md:col-end-11 xl:col-start-4 xl:col-end-10 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-7'>
           <p className='text-[35px] md:text-[43px] leading-[43px] text-neutral'>
             your liquidity
           </p>
@@ -35,9 +36,11 @@ export default function Liquidity() {
                   No Liquidity Found! Don’t see a Pool You Joined?
                 </p>
                 <div className='border border-neutral rounded-[50%] w-9 h-9'></div>
-                <button className='hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6'>
+                <Link
+                  to='/find'
+                  className='hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6'>
                   Find Other LP Tokens
-                </button>
+                </Link>
               </div>
             </>
           ) : (
@@ -47,9 +50,11 @@ export default function Liquidity() {
               CONNECT WALLET TO VIEW LIQUIDITY
             </button>
           )}
-          <button className='hover:opacity-80 md:w-full text-black text-[18px] leading-[34px] border border-black rounded-xl md:rounded-3xl bg-lightgreen py-2 md:py-1.5 px-5'>
+          <Link
+            to='/add'
+            className='hover:opacity-80 md:w-full text-black text-[18px] leading-[34px] border border-black rounded-xl md:rounded-3xl bg-lightgreen py-2 md:py-1.5 px-5'>
             + ADD LIQUIDITY
-          </button>
+          </Link>
         </div>
       </div>
     </div>
