@@ -21,6 +21,7 @@ export interface Pool {
 interface AccountContext {
   poolList: Map<string, Pool>;
 }
+export type AccountList = Map<string, AccountContext>;
 
 interface WalletStatus extends State {
   accountListString: string;

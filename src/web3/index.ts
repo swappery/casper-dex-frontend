@@ -28,7 +28,7 @@ import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
-import useWalletStatus from "../store/useWalletStatus";
+import useWalletStatus, { Pool } from "../store/useWalletStatus";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -53,6 +53,8 @@ export default function useCasperWeb3Provider() {
     setReserves,
   } = useLiquidityStatus();
 
+  const { setPool } = useWalletStatus();
+
   const { addAccount } = useWalletStatus();
 
   async function activate(requireConnection = true) {
@@ -60,7 +62,7 @@ export default function useCasperWeb3Provider() {
       if (!!activeAddress && activeAddress !== "") return;
       let publicKey = await Signer.getActivePublicKey();
       setActiveAddress(publicKey);
-      // addAccount(publicKey);
+      addAccount(publicKey);
     } catch (err: any | Error) {
       if (requireConnection) {
         Signer.sendConnectionRequest();
@@ -252,6 +254,21 @@ export default function useCasperWeb3Provider() {
           BigNumber.from(reserves[0]),
           BigNumber.from(reserves[1]),
         ]);
+        const pool: Pool = {
+          contractPackageHash:
+            "b668ea36f96d191f3f79a4295c78c372f15797900cab4bed031cf79e0151c094",
+          contractHash:
+            "5500b88f980d28c101a6dc87030c5fa3cf3fb7c1651976b154047fd0a64050ae",
+          tokens: [supportedTokens[sourceToken], supportedTokens[targetToken]],
+          decimals: 9,
+          totalSupply: BigNumber.from(223642944977),
+          reserves: reservesList[0],
+          balance: BigNumber.from(223642944977),
+        };
+        // setPool(
+        //   "01d29b3abef3b25d4f43519bfaef6b6ec71cd9f115fcdb005bb287f54f67c57071",
+        //   pool
+        // );
         setReserves(reservesList);
       } else if (
         (await isPairExist(sourceToken, TokenType.CSPR)) &&
