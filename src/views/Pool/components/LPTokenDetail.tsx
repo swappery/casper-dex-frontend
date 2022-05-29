@@ -10,7 +10,6 @@ type LPTokenProps = {
 };
 
 const LPTokenDetail = ({ poolInfo }: LPTokenProps) => {
-  console.log(poolInfo);
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     poolInfo.decimals

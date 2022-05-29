@@ -6,8 +6,6 @@ import { TokenContext } from "./useLiquidityStatus";
 import { deserialize } from "../utils/utils";
 import serialize from "serialize-javascript";
 
-// const serialize = require('serialize-javascript');
-
 export interface Pool {
   contractPackageHash: string;
   contractHash: string;

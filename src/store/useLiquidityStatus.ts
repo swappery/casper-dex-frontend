@@ -2,6 +2,7 @@ import { BigNumber, BigNumberish } from "ethers";
 import create, { State } from "zustand";
 import csprToken from "../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
 import swprToken from "../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import { devtools } from "zustand/middleware";
 
 export const TOTAL_SHARE = 10000;
 
@@ -88,138 +89,147 @@ interface LiquidityStatus extends State {
   switchToken: () => void;
 }
 
-const useLiquidityStatus = create<LiquidityStatus>((set) => ({
-  execType: ExecutionType.EXE_SWAP,
-  sourceToken: TokenType.CSPR,
-  sourceBalance: BigNumber.from(0),
-  sourceApproval: BigNumber.from(0),
-  sourceAmount: BigNumber.from(0),
-  targetToken: TokenType.SWPR,
-  targetBalance: BigNumber.from(0),
-  targetApproval: BigNumber.from(0),
-  targetAmount: BigNumber.from(0),
-  reserves: [[BigNumber.from(1), BigNumber.from(1)]],
-  isExactIn: true,
-  minAmountOut: BigNumber.from(0),
-  maxAmountIn: BigNumber.from(0),
-  currentStatus: TxStatus.REQ_SOURCE_APPROVE,
-  slippageTolerance: 100,
-  setExecType: (execType: ExecutionType) =>
-    set(() => {
-      return {
-        execType: execType,
-        sourceToken: TokenType.CSPR,
-        sourceBalance: BigNumber.from(0),
-        sourceApproval: BigNumber.from(0),
-        sourceAmount: BigNumber.from(0),
-        targetToken: TokenType.SWPR,
-        targetBalance: BigNumber.from(0),
-        targetApproval: BigNumber.from(0),
-        targetAmount: BigNumber.from(0),
-        reserves: [[BigNumber.from(1), BigNumber.from(1)]],
-        isExactIn: true,
-        minAmountOut: BigNumber.from(0),
-        maxAmountIn: BigNumber.from(0),
-        currentStatus: TxStatus.REQ_SOURCE_APPROVE,
-        slippageTolerance: 100,
-      };
-    }),
-  setSourceToken: (sourceToken: TokenType) =>
-    set(() => ({
-      sourceToken,
-    })),
-  setSourceBalance: (sourceBalance: BigNumberish) =>
-    set(() => ({
-      sourceBalance: BigNumber.from(sourceBalance),
-    })),
-  setSourceApproval: (sourceApproval: BigNumberish) =>
-    set(() => ({
-      sourceApproval: BigNumber.from(sourceApproval),
-    })),
-  setSourceAmount: (sourceAmount: number) =>
-    set((state) => ({
-      sourceAmount: BigNumber.from(
-        (
-          sourceAmount *
-          10 ** supportedTokens[state.sourceToken].decimals
-        ).toFixed()
-      ),
-    })),
-  setTargetToken: (targetToken: TokenType) =>
-    set(() => ({
-      targetToken,
-    })),
-  setTargetBalance: (targetBalance: BigNumberish) =>
-    set(() => ({
-      targetBalance: BigNumber.from(targetBalance),
-    })),
-  setTargetApproval: (targetApproval: BigNumberish) =>
-    set(() => ({
-      targetApproval: BigNumber.from(targetApproval),
-    })),
-  setTargetAmount: (targetAmount: number) =>
-    set((state) => ({
-      targetAmount: BigNumber.from(
-        (
-          targetAmount *
-          10 ** supportedTokens[state.targetToken].decimals
-        ).toFixed()
-      ),
-    })),
-  setReserves: (reserves: BigNumber[][]) =>
-    set(() => ({
-      reserves,
-    })),
-  setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
-  setMinAmountOut: (minAmountOut: number) =>
-    set((state) => ({
-      minAmountOut: BigNumber.from(
-        (
-          minAmountOut *
-          10 ** supportedTokens[state.targetToken].decimals
-        ).toFixed()
-      ),
-    })),
-  setMaxAmountIn: (maxAmountIn: number) =>
-    set((state) => ({
-      maxAmountIn: BigNumber.from(
-        (
-          maxAmountIn *
-          10 ** supportedTokens[state.sourceToken].decimals
-        ).toFixed()
-      ),
-    })),
-  setCurrentStatus: (currentStatus: TxStatus) => set(() => ({ currentStatus })),
-  updateCurrentStatus: () =>
-    set((state) => {
-      if (
-        state.sourceBalance.lt(state.sourceAmount) &&
-        supportedTokens[state.sourceToken].isNative
-      )
+const useLiquidityStatus = create<LiquidityStatus>(
+  devtools((set) => ({
+    execType: ExecutionType.EXE_SWAP,
+    sourceToken: TokenType.CSPR,
+    sourceBalance: BigNumber.from(0),
+    sourceApproval: BigNumber.from(0),
+    sourceAmount: BigNumber.from(0),
+    targetToken: TokenType.SWPR,
+    targetBalance: BigNumber.from(0),
+    targetApproval: BigNumber.from(0),
+    targetAmount: BigNumber.from(0),
+    reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+    isExactIn: true,
+    minAmountOut: BigNumber.from(0),
+    maxAmountIn: BigNumber.from(0),
+    currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+    slippageTolerance: 100,
+    setExecType: (execType: ExecutionType) =>
+      set(() => {
         return {
-          currentStatus: TxStatus.REQ_WRAP,
-        };
-      else if (
-        (state.sourceApproval.lt(state.maxAmountIn) && !state.isExactIn) ||
-        (state.sourceApproval.lt(state.sourceAmount) && state.isExactIn)
-      )
-        return {
+          execType: execType,
+          sourceToken: TokenType.CSPR,
+          sourceBalance: BigNumber.from(0),
+          sourceApproval: BigNumber.from(0),
+          sourceAmount: BigNumber.from(0),
+          targetToken: TokenType.SWPR,
+          targetBalance: BigNumber.from(0),
+          targetApproval: BigNumber.from(0),
+          targetAmount: BigNumber.from(0),
+          reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+          isExactIn: true,
+          minAmountOut: BigNumber.from(0),
+          maxAmountIn: BigNumber.from(0),
           currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+          slippageTolerance: 100,
         };
-      else if (
-        state.targetApproval.lt(state.targetAmount) &&
-        state.execType === ExecutionType.EXE_ADD_LIQUIDITY
-      )
+      }),
+    setSourceToken: (sourceToken: TokenType) =>
+      set(() => ({
+        sourceToken,
+      })),
+    setSourceBalance: (sourceBalance: BigNumberish) =>
+      set(() => ({
+        sourceBalance: BigNumber.from(sourceBalance),
+      })),
+    setSourceApproval: (sourceApproval: BigNumberish) =>
+      set(() => ({
+        sourceApproval: BigNumber.from(sourceApproval),
+      })),
+    setSourceAmount: (sourceAmount: number) =>
+      set((state) => ({
+        sourceAmount: BigNumber.from(
+          (
+            sourceAmount *
+            10 ** supportedTokens[state.sourceToken].decimals
+          ).toFixed()
+        ),
+      })),
+    setTargetToken: (targetToken: TokenType) =>
+      set(() => ({
+        targetToken,
+      })),
+    setTargetBalance: (targetBalance: BigNumberish) =>
+      set(() => ({
+        targetBalance: BigNumber.from(targetBalance),
+      })),
+    setTargetApproval: (targetApproval: BigNumberish) =>
+      set(() => ({
+        targetApproval: BigNumber.from(targetApproval),
+      })),
+    setTargetAmount: (targetAmount: number) =>
+      set((state) => ({
+        targetAmount: BigNumber.from(
+          (
+            targetAmount *
+            10 ** supportedTokens[state.targetToken].decimals
+          ).toFixed()
+        ),
+      })),
+    setReserves: (reserves: BigNumber[][]) =>
+      set(() => ({
+        reserves,
+      })),
+    setExactIn: (isExactIn: boolean) => set(() => ({ isExactIn })),
+    setMinAmountOut: (minAmountOut: number) =>
+      set((state) => ({
+        minAmountOut: BigNumber.from(
+          (
+            minAmountOut *
+            10 ** supportedTokens[state.targetToken].decimals
+          ).toFixed()
+        ),
+      })),
+    setMaxAmountIn: (maxAmountIn: number) =>
+      set((state) => ({
+        maxAmountIn: BigNumber.from(
+          (
+            maxAmountIn *
+            10 ** supportedTokens[state.sourceToken].decimals
+          ).toFixed()
+        ),
+      })),
+    setCurrentStatus: (currentStatus: TxStatus) =>
+      set(() => ({ currentStatus })),
+    updateCurrentStatus: () =>
+      set((state) => {
+        if (
+          state.sourceBalance.lt(state.sourceAmount) &&
+          supportedTokens[state.sourceToken].isNative
+        )
+          return {
+            currentStatus: TxStatus.REQ_WRAP,
+          };
+        else if (
+          (state.sourceApproval.lt(state.maxAmountIn) && !state.isExactIn) ||
+          (state.sourceApproval.lt(state.sourceAmount) && state.isExactIn)
+        )
+          return {
+            currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+          };
+        else if (
+          state.targetApproval.lt(state.targetAmount) &&
+          state.execType === ExecutionType.EXE_ADD_LIQUIDITY
+        )
+          return {
+            currentStatus: TxStatus.REQ_TARGET_APPROVE,
+          };
         return {
-          currentStatus: TxStatus.REQ_TARGET_APPROVE,
+          currentStatus: TxStatus.REQ_EXECUTE,
         };
-      return {
-        currentStatus: TxStatus.REQ_EXECUTE,
-      };
-    }),
-  switchToken: () =>
-    set((state) => {
-      if (state.isExactIn)
+      }),
+    switchToken: () =>
+      set((state) => {
+        if (state.isExactIn)
+          return {
+            sourceToken: state.targetToken,
+            targetToken: state.sourceToken,
+            isExactIn: !state.isExactIn,
+            sourceAmount: state.targetAmount,
+            targetAmount: state.sourceAmount,
+          };
         return {
           sourceToken: state.targetToken,
           targetToken: state.sourceToken,
@@ -227,14 +237,8 @@ const useLiquidityStatus = create<LiquidityStatus>((set) => ({
           sourceAmount: state.targetAmount,
           targetAmount: state.sourceAmount,
         };
-      return {
-        sourceToken: state.targetToken,
-        targetToken: state.sourceToken,
-        isExactIn: !state.isExactIn,
-        sourceAmount: state.targetAmount,
-        targetAmount: state.sourceAmount,
-      };
-    }),
-}));
+      }),
+  }))
+);
 
 export default useLiquidityStatus;

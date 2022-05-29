@@ -10,10 +10,12 @@ export default function Liquidity() {
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { accountListString } = useWalletStatus();
-  const poolMap = useMemo(() => {
-    const accountList: AccountList = deserialize(accountListString);
-    return accountList.get(activeAddress)?.poolList;
-  }, []);
+  // const poolMap = useMemo(() => {
+  //   const accountList: AccountList = deserialize(accountListString);
+  //   return accountList.get(activeAddress)?.poolList;
+  // }, []);
+  const accountList: AccountList = deserialize(accountListString);
+  const poolMap = accountList.get(activeAddress)?.poolList;
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
@@ -30,12 +32,21 @@ export default function Liquidity() {
             <>
               {poolMap &&
                 Array.from(poolMap.values()!).map((pool) => {
-                  return <LPTokenDetail poolInfo={pool} />;
+                  return (
+                    <LPTokenDetail
+                      poolInfo={pool}
+                      key={pool.contractPackageHash}
+                    />
+                  );
                 })}
 
               <div className="grid justify-items-center w-full">
                 <p className="w-full bg-lightred px-2 py-2 text-[18px] leading-[24px] md:leading-[30px] text-black border border-black mt-4 md:mt-6">
-                  No Liquidity Found! Don’t see a Pool You Joined?
+                  {poolMap && Array.from(poolMap.values()!).length > 0 ? (
+                    <>Don’t see a Pool You Joined?</>
+                  ) : (
+                    <>No Liquidity Found! Don’t see a Pool You Joined?</>
+                  )}
                 </p>
                 <div className="border border-neutral rounded-[50%] w-9 h-9"></div>
                 <Link
