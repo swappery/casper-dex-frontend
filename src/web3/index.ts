@@ -10,6 +10,7 @@ import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
 import useNetworkStatus from "../store/useNetworkStatus";
 import useLiquidityStatus, {
+  ExecutionType,
   supportedTokens,
   TokenType,
   TxStatus,
@@ -44,6 +45,7 @@ export default function useCasperWeb3Provider() {
     targetApproval,
     targetAmount,
     currentStatus,
+    liquidityBalance,
     updateCurrentStatus,
     setCurrentStatus,
     setSourceBalance,
@@ -51,6 +53,7 @@ export default function useCasperWeb3Provider() {
     setTargetBalance,
     setTargetApproval,
     setReserves,
+    setLiquidityBalance,
   } = useLiquidityStatus();
 
   const { setPool } = useWalletStatus();
@@ -242,6 +245,7 @@ export default function useCasperWeb3Provider() {
     targetBalance,
     targetApproval,
     targetAmount,
+    liquidityBalance,
   ]);
 
   useEffect(() => {
@@ -254,21 +258,6 @@ export default function useCasperWeb3Provider() {
           BigNumber.from(reserves[0]),
           BigNumber.from(reserves[1]),
         ]);
-        const pool: Pool = {
-          contractPackageHash:
-            "b668ea36f96d191f3f79a4295c78c372f15797900cab4bed031cf79e0151c094",
-          contractHash:
-            "5500b88f980d28c101a6dc87030c5fa3cf3fb7c1651976b154047fd0a64050ae",
-          tokens: [supportedTokens[sourceToken], supportedTokens[targetToken]],
-          decimals: 9,
-          totalSupply: BigNumber.from(223642944977),
-          reserves: reservesList[0],
-          balance: BigNumber.from(223642944977),
-        };
-        // setPool(
-        //   "01d29b3abef3b25d4f43519bfaef6b6ec71cd9f115fcdb005bb287f54f67c57071",
-        //   pool
-        // );
         setReserves(reservesList);
       } else if (
         (await isPairExist(sourceToken, TokenType.CSPR)) &&
@@ -285,6 +274,50 @@ export default function useCasperWeb3Provider() {
     }
     handleChangeToken();
   }, [sourceToken, targetToken]);
+
+  useEffect(() => {
+    async function handleSetLiquidityBalance() {
+      if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
+        if (await isPairExist(sourceToken, targetToken)) {
+          let routerContractHash = ROUTER_CONTRACT_HASH;
+          let routerClient = new SwapperyRouterClient(
+            NODE_ADDRESS,
+            CHAIN_NAME,
+            undefined
+          );
+          await routerClient.setContractHash(routerContractHash);
+          const sourceContractHash = supportedTokens[sourceToken].contractHash;
+          const targetContractHash = supportedTokens[targetToken].contractHash;
+          let pairPackageHash = await routerClient.getPairFor(
+            sourceContractHash,
+            targetContractHash
+          );
+          const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+          const { block } = await client.getLatestBlockInfo();
+
+          if (block) {
+            const stateRootHash = block.header.state_root_hash;
+            const blockState = await client.getBlockState(
+              stateRootHash,
+              `hash-${pairPackageHash}`,
+              []
+            );
+            let pairContractHash =
+              blockState.ContractPackage?.versions[
+                blockState.ContractPackage.versions.length - 1
+              ].contractHash.slice(9);
+            try {
+              const liquidity = await balanceOf(pairContractHash!);
+              setLiquidityBalance(liquidity);
+            } catch (err: any | Error) {
+              // console.error(err);
+            }
+          }
+        }
+      }
+    }
+    handleSetLiquidityBalance();
+  }, [sourceToken, targetToken, activeAddress]);
 
   return {
     activate,

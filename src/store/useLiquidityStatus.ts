@@ -44,6 +44,7 @@ export const supportedTokens: TokenContext[] = [
 export enum ExecutionType {
   EXE_ADD_LIQUIDITY = "ADD_LIQUIDITY",
   EXE_REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
+  EXE_FIND_LIQUIDITY = "FIND_LIQUIDITY",
   EXE_SWAP = "SWAP",
 }
 
@@ -52,6 +53,7 @@ export enum TxStatus {
   REQ_SOURCE_APPROVE = "REQ_SOURCE_APPROVE",
   REQ_TARGET_APPROVE = "REQ_TARGET_APPROVE",
   REQ_EXECUTE = "REQ_EXECUTE",
+  REQ_ADD_LIQUIDITY = "REQ_ADD_LIQUIDITY",
   PENDING = "PENDING",
 }
 
@@ -71,6 +73,7 @@ interface LiquidityStatus extends State {
   maxAmountIn: BigNumber;
   currentStatus: TxStatus;
   slippageTolerance: number;
+  liquidityBalance: BigNumber;
   setExecType: (execType: ExecutionType) => void;
   setSourceToken: (sourceToken: TokenType) => void;
   setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -87,6 +90,7 @@ interface LiquidityStatus extends State {
   setMaxAmountIn: (maxAmountIn: number) => void;
   updateCurrentStatus: () => void;
   switchToken: () => void;
+  setLiquidityBalance: (liquidityBalance: BigNumberish) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
@@ -106,6 +110,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
     maxAmountIn: BigNumber.from(0),
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
     slippageTolerance: 100,
+    liquidityBalance: BigNumber.from(0),
     setExecType: (execType: ExecutionType) =>
       set(() => {
         return {
@@ -124,6 +129,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
           maxAmountIn: BigNumber.from(0),
           currentStatus: TxStatus.REQ_SOURCE_APPROVE,
           slippageTolerance: 100,
+          liquidityBalance: BigNumber.from(0),
         };
       }),
     setSourceToken: (sourceToken: TokenType) =>
@@ -216,6 +222,13 @@ const useLiquidityStatus = create<LiquidityStatus>(
           return {
             currentStatus: TxStatus.REQ_TARGET_APPROVE,
           };
+        else if (
+          state.execType === ExecutionType.EXE_FIND_LIQUIDITY &&
+          state.liquidityBalance.eq(0)
+        )
+          return {
+            currentStatus: TxStatus.REQ_ADD_LIQUIDITY,
+          };
         return {
           currentStatus: TxStatus.REQ_EXECUTE,
         };
@@ -238,6 +251,10 @@ const useLiquidityStatus = create<LiquidityStatus>(
           targetAmount: state.sourceAmount,
         };
       }),
+    setLiquidityBalance: (liquidityBalance: BigNumberish) =>
+      set(() => ({
+        liquidityBalance: BigNumber.from(liquidityBalance),
+      })),
   }))
 );
 

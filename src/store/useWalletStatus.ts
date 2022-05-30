@@ -32,60 +32,60 @@ const { persist } = configurePersist({
 });
 
 const useWalletStatus = create<WalletStatus>(
-  devtools(
-    persist(
-      {
-        key: "wallets",
-        allowlist: ["accountListString"],
-      },
-      (set) => ({
-        accountListString: serialize(new Map<string, AccountContext>()),
+  // devtools(
+  persist(
+    {
+      key: "wallets",
+      allowlist: ["accountListString"],
+    },
+    (set) => ({
+      accountListString: serialize(new Map<string, AccountContext>()),
 
-        addAccount: (publicKey: string) =>
-          set((state) => {
-            let accountList = deserialize(state.accountListString);
+      addAccount: (publicKey: string) =>
+        set((state) => {
+          let accountList = deserialize(state.accountListString);
 
-            if (accountList.has(publicKey))
-              return {
-                accountListString: state.accountListString,
-              };
-            else
-              return {
-                accountListString: serialize(
-                  accountList.set(publicKey, {
-                    poolList: new Map<string, Pool>(),
-                  })
-                ),
-              };
-          }),
-        setPool: (publicKey: string, pool: Pool) =>
-          set((state) => {
-            let accountList = deserialize(state.accountListString);
+          if (accountList.has(publicKey))
+            return {
+              accountListString: state.accountListString,
+            };
+          else
+            return {
+              accountListString: serialize(
+                accountList.set(publicKey, {
+                  poolList: new Map<string, Pool>(),
+                })
+              ),
+            };
+        }),
+      setPool: (publicKey: string, pool: Pool) =>
+        set((state) => {
+          let accountList = deserialize(state.accountListString);
 
-            if (!accountList.has(publicKey))
-              return {
-                accountListString: serialize(
-                  accountList.set(publicKey, {
-                    poolList: new Map<string, Pool>().set(
-                      pool.contractPackageHash,
-                      pool
-                    ),
-                  })
-                ),
-              };
-            else
-              return {
-                accountListString: serialize(
-                  accountList.set(publicKey, {
-                    poolList: accountList
-                      .get(publicKey)
-                      ?.poolList.set(pool.contractPackageHash, pool)!,
-                  })
-                ),
-              };
-          }),
-      })
-    )
+          if (!accountList.has(publicKey))
+            return {
+              accountListString: serialize(
+                accountList.set(publicKey, {
+                  poolList: new Map<string, Pool>().set(
+                    pool.contractPackageHash,
+                    pool
+                  ),
+                })
+              ),
+            };
+          else
+            return {
+              accountListString: serialize(
+                accountList.set(publicKey, {
+                  poolList: accountList
+                    .get(publicKey)
+                    ?.poolList.set(pool.contractPackageHash, pool)!,
+                })
+              ),
+            };
+        }),
+    })
+    // )
   )
 );
 
