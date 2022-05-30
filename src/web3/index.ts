@@ -30,7 +30,7 @@ import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus, { Pool } from "../store/useWalletStatus";
-import { deserialize } from "../utils/utils";
+import { deserialize, getDeploy } from "../utils/utils";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -45,7 +45,9 @@ export default function useCasperWeb3Provider() {
     targetBalance,
     targetApproval,
     targetAmount,
-    liquidityBalance,
+    hasImported,
+    isBusy,
+    currentPool,
     updateCurrentStatus,
     setCurrentStatus,
     setSourceBalance,
@@ -53,8 +55,9 @@ export default function useCasperWeb3Provider() {
     setTargetBalance,
     setTargetApproval,
     setReserves,
-    setLiquidityBalance,
     setHasImported,
+    setBusy,
+    setCurrentPool,
   } = useLiquidityStatus();
 
   const { addAccount, accountListString } = useWalletStatus();
@@ -140,76 +143,287 @@ export default function useCasperWeb3Provider() {
 
   async function approveSourceToken(amount: BigNumberish) {
     if (!isConnected) return;
-    let txHash;
-    setCurrentStatus(TxStatus.PENDING);
+    let txHash = "";
+    setBusy(true);
     const contractHash = supportedTokens[sourceToken].contractHash;
     const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await erc20.setContractHash(contractHash);
     const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await erc20.approveWithSigner(
-      clPK,
-      amount,
-      CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
-      TRANSFER_FEE
-    );
-    const casperClient = new CasperClient(NODE_ADDRESS);
-    await casperClient.getDeploy(txHash);
+    try {
+      txHash = await erc20.approveWithSigner(
+        clPK,
+        amount,
+        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash);
     setSourceApproval(
       await allowanceOf(supportedTokens[sourceToken].contractHash)
     );
-    toast.success("Source Approved.");
+    setBusy(false);
+    return txHash;
   }
 
   async function approveTargetToken(amount: BigNumberish) {
     if (!isConnected) return;
     let txHash;
-    setCurrentStatus(TxStatus.PENDING);
+    setBusy(true);
     const contractHash = supportedTokens[targetToken].contractHash;
     const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await erc20.setContractHash(contractHash);
     const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await erc20.approveWithSigner(
-      clPK,
-      amount,
-      CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
-      TRANSFER_FEE
-    );
-    const casperClient = new CasperClient(NODE_ADDRESS);
-    await casperClient.getDeploy(txHash);
+    try {
+      txHash = await erc20.approveWithSigner(
+        clPK,
+        amount,
+        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash);
     setSourceApproval(
       await allowanceOf(supportedTokens[targetToken].contractHash)
     );
-    toast.success("Target Approved.");
+    setBusy(false);
+    return txHash;
   }
 
   async function wrapCspr(amount: BigNumberish) {
     if (!isConnected) return;
     let txHash = "";
-    setCurrentStatus(TxStatus.PENDING);
+    setBusy(true);
     const contractHash = WCSPR_CONTRACT_HASH;
     const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await wcsprClient.setContractHash(contractHash);
     const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await wcsprClient.deposit(clPK, contractHash, amount, INSTALL_FEE);
-    const casperClient = new CasperClient(NODE_ADDRESS);
-    await casperClient.getDeploy(txHash);
+    try {
+      txHash = await wcsprClient.deposit(clPK, contractHash, amount, INSTALL_FEE);
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash);
     setSourceBalance(await balanceOf(contractHash));
-    toast.success("Wrapped CSPR.");
+    setBusy(false);
+    return txHash;
   }
 
-  async function unWrapCspr(amount: BigNumberish) {
-    if (!isConnected) return;
-    let txHash = "";
-    setCurrentStatus(TxStatus.PENDING);
-    const contractHash = WCSPR_CONTRACT_HASH;
-    const wcsprClient = new WCSPRClient(NODE_ADDRESS, CHAIN_NAME, undefined);
-    await wcsprClient.setContractHash(contractHash);
-    const clPK = CLPublicKey.fromHex(activeAddress);
-    txHash = await wcsprClient.withdraw(clPK, amount, INSTALL_FEE);
-    const casperClient = new CasperClient(NODE_ADDRESS);
-    await casperClient.getDeploy(txHash);
-    toast.success("Unwrapped CSPR.");
+  async function isPairExist(
+    sourceToken: TokenType,
+    targetToken: TokenType
+  ) {
+    let routerContractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(routerContractHash);
+    const sourceContractHash = supportedTokens[sourceToken].contractHash;
+    const targetContractHash = supportedTokens[targetToken].contractHash;
+    return await routerClient.isPairExists(
+      sourceContractHash,
+      targetContractHash
+    );
   }
+
+  async function getReserves(
+    sourceToken: TokenType,
+    targetToken: TokenType
+  ) {
+    let routerContractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(routerContractHash);
+    const sourceContractHash = supportedTokens[sourceToken].contractHash;
+    const targetContractHash = supportedTokens[targetToken].contractHash;
+    if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
+      let pairPackageHash = await routerClient.getPairFor(
+        sourceContractHash,
+        targetContractHash
+      );
+      const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+      const { block } = await client.getLatestBlockInfo();
+
+      if (block) {
+        const stateRootHash = block.header.state_root_hash;
+        const blockState = await client.getBlockState(
+          stateRootHash,
+          `hash-${pairPackageHash}`,
+          []
+        );
+
+        let pairContractHash =
+          blockState.ContractPackage?.versions[
+            blockState.ContractPackage.versions.length - 1
+          ].contractHash.slice(9);
+        let pairClient = new SwapperyPairClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await pairClient.setContractHash(pairContractHash!);
+        let reserves = await pairClient.getReserves();
+        if (sourceContractHash < targetContractHash)
+          return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
+        return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
+      }
+    }
+    return [BigNumber.from(0), BigNumber.from(1)];
+  }
+
+  async function addLiquidity(
+    publicKey: CLPublicKey,
+    sourceToken: TokenType,
+    sourceAmount: BigNumberish,
+    targetToken: TokenType,
+    targetAmount: BigNumberish
+  ) {
+    if (!isConnected) return;
+    setBusy(true);
+    let txHash;
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(contractHash);
+    try {
+      txHash = await routerClient.addLiquidity(
+        publicKey,
+        supportedTokens[sourceToken].contractHash,
+        supportedTokens[targetToken].contractHash,
+        sourceAmount,
+        targetAmount,
+        0,
+        0,
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash!);
+    setBusy(false);
+    return txHash;
+  }
+
+  async function removeLiquidity(
+    publicKey: CLPublicKey,
+    sourceToken: TokenType,
+    targetToken: TokenType,
+    liquidityAmount: BigNumberish
+  ) {
+    if (!isConnected) return;
+    setBusy(true);
+    let txHash;
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(contractHash);
+    try {
+      txHash = await routerClient.removeLiquidity(
+        publicKey,
+        supportedTokens[sourceToken].contractHash,
+        supportedTokens[targetToken].contractHash,
+        liquidityAmount,
+        0,
+        0,
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash);
+    setBusy(false);
+    return txHash;
+  }
+
+  async function swapExactIn(
+    publicKey: CLPublicKey,
+    sourceToken: TokenType,
+    targetToken: TokenType,
+    sourceAmount: BigNumberish,
+    targetAmountMin: BigNumberish
+  ) {
+    if (!isConnected) return;
+    setBusy(true);
+    let txHash;
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(contractHash);
+    try {
+      txHash = await routerClient.swapExactIn(
+        publicKey,
+        supportedTokens[sourceToken].contractHash,
+        supportedTokens[targetToken].contractHash,
+        sourceAmount,
+        targetAmountMin,
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash!);
+    setBusy(false);
+    return txHash;
+  }
+
+  async function swapExactOut(
+    publicKey: CLPublicKey,
+    sourceToken: TokenType,
+    targetToken: TokenType,
+    sourceAmountMax: BigNumberish,
+    targetAmount: BigNumberish
+  ) {
+    if (!isConnected) return;
+    setBusy(true);
+    let txHash;
+    let contractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(contractHash);
+    try {
+      txHash = await routerClient.swapExactOut(
+        publicKey,
+        supportedTokens[sourceToken].contractHash,
+        supportedTokens[targetToken].contractHash,
+        targetAmount,
+        sourceAmountMax,
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      setBusy(false);
+      return;
+    }
+    await getDeploy(NODE_ADDRESS, txHash!);
+    setBusy(false);
+    return txHash;
+  }
+
   useEffect(() => {
     initialize();
   }, []);
@@ -244,7 +458,9 @@ export default function useCasperWeb3Provider() {
     targetBalance,
     targetApproval,
     targetAmount,
-    liquidityBalance,
+    currentPool,
+    hasImported,
+    isBusy,
   ]);
 
   useEffect(() => {
@@ -275,8 +491,9 @@ export default function useCasperWeb3Provider() {
   }, [sourceToken, targetToken]);
 
   useEffect(() => {
-    async function handleSetLiquidityBalance() {
+    async function handleSetCurrentPoolInfo() {
       if (!isConnected) return;
+      setBusy(true);
       if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
         if (await isPairExist(sourceToken, targetToken)) {
           let routerContractHash = ROUTER_CONTRACT_HASH;
@@ -298,6 +515,7 @@ export default function useCasperWeb3Provider() {
             const poolList = accountList.get(activeAddress).poolList;
             if (poolList.has(pairPackageHash)) {
               setHasImported(true);
+              setBusy(false);
             } else {
               setHasImported(false);
             }
@@ -319,18 +537,46 @@ export default function useCasperWeb3Provider() {
               blockState.ContractPackage?.versions[
                 blockState.ContractPackage.versions.length - 1
               ].contractHash.slice(9);
-            try {
-              const liquidity = await balanceOf(pairContractHash!);
-              setLiquidityBalance(liquidity);
-            } catch (err: any | Error) {
-              // console.error(err);
-            }
+            let pairClient = new SwapperyPairClient(
+              NODE_ADDRESS,
+              CHAIN_NAME,
+              undefined
+            );
+            await pairClient.setContractHash(pairContractHash!);
+              let reserves_res = await pairClient.getReserves();
+            let reserves;
+            if (sourceContractHash < targetContractHash)
+              reserves = [
+                BigNumber.from(reserves_res[0]),
+                BigNumber.from(reserves_res[1]),
+              ];
+            else
+              reserves = [
+                BigNumber.from(reserves_res[1]),
+                BigNumber.from(reserves_res[0]),
+              ];
+            const pool: Pool = {
+              contractPackageHash: pairPackageHash,
+              contractHash: pairContractHash!,
+              tokens: [
+                supportedTokens[sourceToken],
+                supportedTokens[targetToken],
+              ],
+              decimals: await pairClient.decimals(),
+              totalSupply: await pairClient.totalSupply(),
+              reserves: reserves,
+              balance: BigNumber.from(
+                await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
+              ),
+            };
+            setCurrentPool(pool);
           }
         }
       }
+      setBusy(false);
     }
-    handleSetLiquidityBalance();
-  }, [sourceToken, targetToken, activeAddress]);
+    handleSetCurrentPoolInfo();
+  }, [sourceToken, targetToken, activeAddress, accountListString]);
 
   return {
     activate,
@@ -339,186 +585,11 @@ export default function useCasperWeb3Provider() {
     approveSourceToken,
     approveTargetToken,
     wrapCspr,
-    unWrapCspr,
+    isPairExist,
+    getReserves,
+    addLiquidity,
+    removeLiquidity,
+    swapExactIn,
+    swapExactOut,
   };
-}
-
-export async function isPairExist(
-  sourceToken: TokenType,
-  targetToken: TokenType
-) {
-  let routerContractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(routerContractHash);
-  const sourceContractHash = supportedTokens[sourceToken].contractHash;
-  const targetContractHash = supportedTokens[targetToken].contractHash;
-  return await routerClient.isPairExists(
-    sourceContractHash,
-    targetContractHash
-  );
-}
-
-export async function getReserves(
-  sourceToken: TokenType,
-  targetToken: TokenType
-) {
-  let routerContractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(routerContractHash);
-  const sourceContractHash = supportedTokens[sourceToken].contractHash;
-  const targetContractHash = supportedTokens[targetToken].contractHash;
-  if (await routerClient.isPairExists(sourceContractHash, targetContractHash)) {
-    let pairPackageHash = await routerClient.getPairFor(
-      sourceContractHash,
-      targetContractHash
-    );
-    const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
-    const { block } = await client.getLatestBlockInfo();
-
-    if (block) {
-      const stateRootHash = block.header.state_root_hash;
-      const blockState = await client.getBlockState(
-        stateRootHash,
-        `hash-${pairPackageHash}`,
-        []
-      );
-
-      let pairContractHash =
-        blockState.ContractPackage?.versions[
-          blockState.ContractPackage.versions.length - 1
-        ].contractHash.slice(9);
-      let pairClient = new SwapperyPairClient(
-        NODE_ADDRESS,
-        CHAIN_NAME,
-        undefined
-      );
-      await pairClient.setContractHash(pairContractHash!);
-      let reserves = await pairClient.getReserves();
-      if (sourceContractHash < targetContractHash)
-        return [BigNumber.from(reserves[0]), BigNumber.from(reserves[1])];
-      return [BigNumber.from(reserves[1]), BigNumber.from(reserves[0])];
-    }
-  }
-  return [BigNumber.from(0), BigNumber.from(1)];
-}
-
-export async function addLiquidity(
-  publicKey: CLPublicKey,
-  sourceToken: TokenType,
-  sourceAmount: BigNumberish,
-  targetToken: TokenType,
-  targetAmount: BigNumberish
-) {
-  let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(contractHash);
-  const txHash = await routerClient.addLiquidity(
-    publicKey,
-    supportedTokens[sourceToken].contractHash,
-    supportedTokens[targetToken].contractHash,
-    sourceAmount,
-    targetAmount,
-    0,
-    0,
-    TRANSFER_FEE
-  );
-  if (txHash === undefined) return;
-  const casperClient = new CasperClient(NODE_ADDRESS);
-  await casperClient.getDeploy(txHash);
-  return txHash;
-}
-
-export async function removeLiquidity(
-  publicKey: CLPublicKey,
-  sourceToken: TokenType,
-  targetToken: TokenType,
-  liquidityAmount: BigNumberish
-) {
-  let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(contractHash);
-  const txHash = await routerClient.removeLiquidity(
-    publicKey,
-    supportedTokens[sourceToken].contractHash,
-    supportedTokens[targetToken].contractHash,
-    liquidityAmount,
-    0,
-    0,
-    TRANSFER_FEE
-  );
-  const casperClient = new CasperClient(NODE_ADDRESS);
-  await casperClient.getDeploy(txHash);
-  return txHash;
-}
-
-export async function swapExactIn(
-  publicKey: CLPublicKey,
-  sourceToken: TokenType,
-  targetToken: TokenType,
-  sourceAmount: BigNumberish,
-  targetAmountMin: BigNumberish
-) {
-  let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(contractHash);
-  let txHash = await routerClient.swapExactIn(
-    publicKey,
-    supportedTokens[sourceToken].contractHash,
-    supportedTokens[targetToken].contractHash,
-    sourceAmount,
-    targetAmountMin,
-    TRANSFER_FEE
-  );
-  if (txHash === undefined) return;
-  let casperClient = new CasperClient(NODE_ADDRESS);
-  await casperClient.getDeploy(txHash);
-  return txHash;
-}
-
-export async function swapExactOut(
-  publicKey: CLPublicKey,
-  sourceToken: TokenType,
-  targetToken: TokenType,
-  sourceAmountMax: BigNumberish,
-  targetAmount: BigNumberish
-) {
-  let contractHash = ROUTER_CONTRACT_HASH;
-  let routerClient = new SwapperyRouterClient(
-    NODE_ADDRESS,
-    CHAIN_NAME,
-    undefined
-  );
-  await routerClient.setContractHash(contractHash);
-  let txHash = await routerClient.swapExactOut(
-    publicKey,
-    supportedTokens[sourceToken].contractHash,
-    supportedTokens[targetToken].contractHash,
-    targetAmount,
-    sourceAmountMax,
-    TRANSFER_FEE
-  );
-  if (txHash === undefined) return;
-  let casperClient = new CasperClient(NODE_ADDRESS);
-  await casperClient.getDeploy(txHash);
-  return txHash;
 }

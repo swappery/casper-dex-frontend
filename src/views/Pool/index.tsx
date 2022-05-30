@@ -67,7 +67,7 @@ export default function Liquidity() {
           )}
           <Link
             to="/add"
-            className="hover:opacity-80 md:w-full text-black text-[18px] leading-[34px] border border-black rounded-xl md:rounded-3xl bg-lightgreen py-2 md:py-1.5 px-5"
+            className="hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6"
           >
             + ADD LIQUIDITY
           </Link>

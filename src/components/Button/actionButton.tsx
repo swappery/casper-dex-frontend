@@ -5,22 +5,23 @@ import useLiquidityStatus, {
   supportedTokens,
   TxStatus,
 } from "../../store/useLiquidityStatus";
-import useCasperWeb3Provider, { addLiquidity, swapExactOut } from "../../web3";
-import { swapExactIn } from "../../web3";
-import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
-import { BigNumber } from "ethers";
-import useWalletStatus, { Pool } from "../../store/useWalletStatus";
-import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
-import {
-  CHAIN_NAME,
-  NODE_ADDRESS,
-  ROUTER_CONTRACT_HASH,
-} from "../../web3/config/constant";
-import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
+import useCasperWeb3Provider from "../../web3";
+// import { swapExactIn } from "../../web3";
+import { CLPublicKey } from "casper-js-sdk";
+import Spinner from "../../assets/images/spinner/swappery-loading_64px.gif";
+import useWalletStatus from "../../store/useWalletStatus";
+
 const ActionButton: FC = () => {
   const { isConnected, activeAddress } = useNetworkStatus();
-  const { activate, wrapCspr, approveSourceToken, approveTargetToken } =
-    useCasperWeb3Provider();
+  const {
+    activate,
+    wrapCspr,
+    approveSourceToken,
+    approveTargetToken,
+    addLiquidity,
+    swapExactIn,
+    swapExactOut,
+  } = useCasperWeb3Provider();
 
   const {
     sourceToken,
@@ -33,9 +34,11 @@ const ActionButton: FC = () => {
     maxAmountIn,
     currentStatus,
     execType,
+    currentPool,
   } = useLiquidityStatus();
 
   const { setPool } = useWalletStatus();
+
   const handleClick = async () => {
     if (isConnected) {
       if (currentStatus === TxStatus.REQ_WRAP)
@@ -91,68 +94,7 @@ const ActionButton: FC = () => {
         currentStatus === TxStatus.REQ_EXECUTE &&
         execType === ExecutionType.EXE_FIND_LIQUIDITY
       ) {
-        const routerContractHash = ROUTER_CONTRACT_HASH;
-        let routerClient = new SwapperyRouterClient(
-          NODE_ADDRESS,
-          CHAIN_NAME,
-          undefined
-        );
-        await routerClient.setContractHash(routerContractHash);
-        const sourceContractHash = supportedTokens[sourceToken].contractHash;
-        const targetContractHash = supportedTokens[targetToken].contractHash;
-        const pairContractPackageHash = await routerClient.getPairFor(
-          sourceContractHash,
-          targetContractHash
-        );
-        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
-        const { block } = await client.getLatestBlockInfo();
-
-        if (block) {
-          const stateRootHash = block.header.state_root_hash;
-          const blockState = await client.getBlockState(
-            stateRootHash,
-            `hash-${pairContractPackageHash}`,
-            []
-          );
-
-          let pairContractHash =
-            blockState.ContractPackage?.versions[
-              blockState.ContractPackage.versions.length - 1
-            ].contractHash.slice(9);
-          let pairClient = new SwapperyPairClient(
-            NODE_ADDRESS,
-            CHAIN_NAME,
-            undefined
-          );
-          await pairClient.setContractHash(pairContractHash!);
-          let reserves_res = await pairClient.getReserves();
-          let reserves;
-          if (sourceContractHash < targetContractHash)
-            reserves = [
-              BigNumber.from(reserves_res[0]),
-              BigNumber.from(reserves_res[1]),
-            ];
-          else
-            reserves = [
-              BigNumber.from(reserves_res[1]),
-              BigNumber.from(reserves_res[0]),
-            ];
-          const pool: Pool = {
-            contractPackageHash: pairContractPackageHash,
-            contractHash: pairContractHash!,
-            tokens: [
-              supportedTokens[sourceToken],
-              supportedTokens[targetToken],
-            ],
-            decimals: await pairClient.decimals(),
-            totalSupply: await pairClient.totalSupply(),
-            reserves: reserves,
-            balance: BigNumber.from(
-              await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
-            ),
-          };
-          setPool(activeAddress, pool);
-        }
+        setPool(activeAddress, currentPool);
       }
     } else {
       activate();
@@ -211,6 +153,7 @@ const ActionButton: FC = () => {
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
             ></path>
           </svg>
+          <img src={Spinner} className="w-6 h-6" alt="" />
           Pending
         </div>
       );

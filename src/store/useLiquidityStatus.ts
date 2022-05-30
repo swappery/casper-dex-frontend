@@ -3,6 +3,7 @@ import create, { State } from "zustand";
 import csprToken from "../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
 import swprToken from "../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 import { devtools } from "zustand/middleware";
+import { Pool } from "./useWalletStatus";
 
 export const TOTAL_SHARE = 10000;
 
@@ -73,8 +74,9 @@ interface LiquidityStatus extends State {
   maxAmountIn: BigNumber;
   currentStatus: TxStatus;
   slippageTolerance: number;
-  liquidityBalance: BigNumber;
   hasImported: boolean;
+  isBusy: boolean;
+  currentPool: Pool;
   setExecType: (execType: ExecutionType) => void;
   setSourceToken: (sourceToken: TokenType) => void;
   setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -91,8 +93,9 @@ interface LiquidityStatus extends State {
   setMaxAmountIn: (maxAmountIn: number) => void;
   updateCurrentStatus: () => void;
   switchToken: () => void;
-  setLiquidityBalance: (liquidityBalance: BigNumberish) => void;
   setHasImported: (hasImported: boolean) => void;
+  setBusy: (isBusy: boolean) => void;
+  setCurrentPool: (currentPool: Pool) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
@@ -112,8 +115,17 @@ const useLiquidityStatus = create<LiquidityStatus>(
     maxAmountIn: BigNumber.from(0),
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
     slippageTolerance: 100,
-    liquidityBalance: BigNumber.from(0),
     hasImported: false,
+    isBusy: false,
+    currentPool: {
+      contractPackageHash: "",
+      contractHash: "",
+      tokens: [],
+      decimals: BigNumber.from(0),
+      totalSupply: BigNumber.from(0),
+      reserves: [],
+      balance: BigNumber.from(0),
+    },
     setExecType: (execType: ExecutionType) =>
       set(() => {
         return {
@@ -132,7 +144,6 @@ const useLiquidityStatus = create<LiquidityStatus>(
           maxAmountIn: BigNumber.from(0),
           currentStatus: TxStatus.REQ_SOURCE_APPROVE,
           slippageTolerance: 100,
-          liquidityBalance: BigNumber.from(0),
         };
       }),
     setSourceToken: (sourceToken: TokenType) =>
@@ -204,7 +215,8 @@ const useLiquidityStatus = create<LiquidityStatus>(
       set(() => ({ currentStatus })),
     updateCurrentStatus: () =>
       set((state) => {
-        if (
+        if (state.isBusy) return {currentStatus: TxStatus.PENDING,};
+        else if (
           state.sourceBalance.lt(state.sourceAmount) &&
           supportedTokens[state.sourceToken].isNative
         )
@@ -227,7 +239,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
           };
         else if (
           state.execType === ExecutionType.EXE_FIND_LIQUIDITY && 
-          (state.liquidityBalance.eq(0) || state.hasImported )
+          (state.currentPool.balance.eq(0) || state.hasImported )
         )
           return {
             currentStatus: TxStatus.REQ_ADD_LIQUIDITY,
@@ -254,11 +266,9 @@ const useLiquidityStatus = create<LiquidityStatus>(
           targetAmount: state.sourceAmount,
         };
       }),
-    setLiquidityBalance: (liquidityBalance: BigNumberish) =>
-      set(() => ({
-        liquidityBalance: BigNumber.from(liquidityBalance),
-      })),
     setHasImported: (hasImported: boolean) => set(() => ({ hasImported })),
+    setBusy: (isBusy: boolean) => set(() => ({ isBusy })),
+    setCurrentPool: (currentPool: Pool) => set(() => ({ currentPool })),
   }))
 );
 
