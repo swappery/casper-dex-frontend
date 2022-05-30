@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import create, { State } from "zustand";
 import { configurePersist } from "zustand-persist";
-// import { devtools } from "zustand/middleware";
+import { devtools } from "zustand/middleware";
 import { TokenContext } from "./useLiquidityStatus";
 import { deserialize } from "../utils/utils";
 import serialize from "serialize-javascript";
@@ -32,7 +32,7 @@ const { persist } = configurePersist({
 });
 
 const useWalletStatus = create<WalletStatus>(
-  // devtools(
+  devtools(
   persist(
     {
       key: "wallets",
@@ -85,7 +85,7 @@ const useWalletStatus = create<WalletStatus>(
             };
         }),
     })
-    // )
+    )
   )
 );
 
