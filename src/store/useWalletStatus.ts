@@ -1,7 +1,7 @@
 import { BigNumber } from "ethers";
 import create, { State } from "zustand";
 import { configurePersist } from "zustand-persist";
-import { devtools } from "zustand/middleware";
+// import { devtools } from "zustand/middleware";
 import { TokenContext } from "./useLiquidityStatus";
 import { deserialize } from "../utils/utils";
 import serialize from "serialize-javascript";
@@ -10,7 +10,7 @@ export interface Pool {
   contractPackageHash: string;
   contractHash: string;
   tokens: TokenContext[];
-  decimals: number;
+  decimals: BigNumber;
   totalSupply: BigNumber;
   reserves: BigNumber[];
   balance: BigNumber;

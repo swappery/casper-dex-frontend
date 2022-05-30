@@ -5,7 +5,7 @@ export enum RouterEvents {
 }
 
 export const NODE_ADDRESS =
-  process.env.REACT_APP_NODE_ADDRESS ||
+  process.env.REACT_APP_CASPER_NODE_ADDRESS ||
   "https://picaswap.io/.netlify/functions/cors?url=http://95.217.34.115:7777/rpc";
 
 export const CHAIN_NAME = process.env.REACT_APP_CHAIN_NAME || "casper-test";

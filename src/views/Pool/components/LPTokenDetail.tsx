@@ -1,6 +1,3 @@
-import { ReactNode } from "react";
-import casperToken from "../../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
-import swprToken from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
@@ -12,22 +9,22 @@ type LPTokenProps = {
 const LPTokenDetail = ({ poolInfo }: LPTokenProps) => {
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
-    poolInfo.decimals
+    BigNumber.from(poolInfo.decimals).toNumber()
   );
   const shareOfPool =
     (amountWithoutDecimals(
       BigNumber.from(poolInfo.balance),
-      poolInfo.decimals
+      BigNumber.from(poolInfo.decimals).toNumber()
     ) /
       amountWithoutDecimals(
         BigNumber.from(poolInfo.totalSupply),
-        poolInfo.decimals
+        BigNumber.from(poolInfo.decimals).toNumber()
       )) *
     100;
   const pooledToken0 =
     (amountWithoutDecimals(
       BigNumber.from(poolInfo.reserves[0]),
-      poolInfo.tokens[0].decimals
+      BigNumber.from(poolInfo.decimals).toNumber()
     ) *
       shareOfPool) /
     100;

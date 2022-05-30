@@ -7,9 +7,16 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import useCasperWeb3Provider, { addLiquidity, swapExactOut } from "../../web3";
 import { swapExactIn } from "../../web3";
-import { CLPublicKey } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import useWalletStatus, { Pool } from "../../store/useWalletStatus";
+import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
+import {
+  CHAIN_NAME,
+  NODE_ADDRESS,
+  ROUTER_CONTRACT_HASH,
+} from "../../web3/config/constant";
+import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
 const ActionButton: FC = () => {
   const { isConnected, activeAddress } = useNetworkStatus();
   const { activate, wrapCspr, approveSourceToken, approveTargetToken } =
@@ -84,21 +91,68 @@ const ActionButton: FC = () => {
         currentStatus === TxStatus.REQ_EXECUTE &&
         execType === ExecutionType.EXE_FIND_LIQUIDITY
       ) {
-        // const pool: Pool = {
-        //   contractPackageHash:
-        //     "b668ea36f96d191f3f79a4295c78c372f15797900cab4bed031cf79e0151c094",
-        //   contractHash:
-        //     "5500b88f980d28c101a6dc87030c5fa3cf3fb7c1651976b154047fd0a64050ae",
-        //   tokens: [supportedTokens[sourceToken], supportedTokens[targetToken]],
-        //   decimals: 9,
-        //   totalSupply: BigNumber.from(223642944977),
-        //   reserves: reservesList[0],
-        //   balance: BigNumber.from(223642944977),
-        // };
-        // setPool(
-        //   "01d29b3abef3b25d4f43519bfaef6b6ec71cd9f115fcdb005bb287f54f67c57071",
-        //   pool
-        // );
+        const routerContractHash = ROUTER_CONTRACT_HASH;
+        let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await routerClient.setContractHash(routerContractHash);
+        const sourceContractHash = supportedTokens[sourceToken].contractHash;
+        const targetContractHash = supportedTokens[targetToken].contractHash;
+        const pairContractPackageHash = await routerClient.getPairFor(
+          sourceContractHash,
+          targetContractHash
+        );
+        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+        if (block) {
+          const stateRootHash = block.header.state_root_hash;
+          const blockState = await client.getBlockState(
+            stateRootHash,
+            `hash-${pairContractPackageHash}`,
+            []
+          );
+
+          let pairContractHash =
+            blockState.ContractPackage?.versions[
+              blockState.ContractPackage.versions.length - 1
+            ].contractHash.slice(9);
+          let pairClient = new SwapperyPairClient(
+            NODE_ADDRESS,
+            CHAIN_NAME,
+            undefined
+          );
+          await pairClient.setContractHash(pairContractHash!);
+          let reserves_res = await pairClient.getReserves();
+          let reserves;
+          if (sourceContractHash < targetContractHash)
+            reserves = [
+              BigNumber.from(reserves_res[0]),
+              BigNumber.from(reserves_res[1]),
+            ];
+          else
+            reserves = [
+              BigNumber.from(reserves_res[1]),
+              BigNumber.from(reserves_res[0]),
+            ];
+          const pool: Pool = {
+            contractPackageHash: pairContractPackageHash,
+            contractHash: pairContractHash!,
+            tokens: [
+              supportedTokens[sourceToken],
+              supportedTokens[targetToken],
+            ],
+            decimals: await pairClient.decimals(),
+            totalSupply: await pairClient.totalSupply(),
+            reserves: reserves,
+            balance: BigNumber.from(
+              await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
+            ),
+          };
+          setPool(activeAddress, pool);
+        }
       }
     } else {
       activate();
@@ -134,7 +188,7 @@ const ActionButton: FC = () => {
       execType === ExecutionType.EXE_FIND_LIQUIDITY
     )
       content = <>+ Add Liquidity</>;
-    else
+    else if (currentStatus === TxStatus.PENDING)
       content = (
         <div className="inline-flex items-center">
           <svg

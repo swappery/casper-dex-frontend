@@ -7,13 +7,12 @@ import useLiquidityStatus, {
 } from "../store/useLiquidityStatus";
 import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals, deserialize } from "../utils/utils";
+import { amountWithoutDecimals } from "../utils/utils";
 import TokenModal from "../components/Modal/TokenModal";
 
 import swapImage from "../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
 import leftHand from "../assets/images/hands/left.svg";
-import useWalletStatus from "../store/useWalletStatus";
 
 export default function Swap() {
   const {

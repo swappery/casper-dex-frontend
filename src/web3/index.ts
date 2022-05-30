@@ -30,6 +30,7 @@ import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus, { Pool } from "../store/useWalletStatus";
+import { deserialize } from "../utils/utils";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -44,7 +45,6 @@ export default function useCasperWeb3Provider() {
     targetBalance,
     targetApproval,
     targetAmount,
-    currentStatus,
     liquidityBalance,
     updateCurrentStatus,
     setCurrentStatus,
@@ -54,11 +54,10 @@ export default function useCasperWeb3Provider() {
     setTargetApproval,
     setReserves,
     setLiquidityBalance,
+    setHasImported,
   } = useLiquidityStatus();
 
-  const { setPool } = useWalletStatus();
-
-  const { addAccount } = useWalletStatus();
+  const { addAccount, accountListString } = useWalletStatus();
 
   async function activate(requireConnection = true) {
     try {
@@ -292,6 +291,17 @@ export default function useCasperWeb3Provider() {
             sourceContractHash,
             targetContractHash
           );
+
+          const accountList = deserialize(accountListString);
+          if (accountList.has(activeAddress)) {
+            const poolList = accountList.get(activeAddress).poolList;
+            if (poolList.has(pairPackageHash)) {
+              setHasImported(true);
+              return;
+            }
+          }
+          setHasImported(false);
+          
           const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
           const { block } = await client.getLatestBlockInfo();
 

@@ -74,6 +74,7 @@ interface LiquidityStatus extends State {
   currentStatus: TxStatus;
   slippageTolerance: number;
   liquidityBalance: BigNumber;
+  hasImported: boolean;
   setExecType: (execType: ExecutionType) => void;
   setSourceToken: (sourceToken: TokenType) => void;
   setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -91,6 +92,7 @@ interface LiquidityStatus extends State {
   updateCurrentStatus: () => void;
   switchToken: () => void;
   setLiquidityBalance: (liquidityBalance: BigNumberish) => void;
+  setHasImported: (hasImported: boolean) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
@@ -111,6 +113,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
     currentStatus: TxStatus.REQ_SOURCE_APPROVE,
     slippageTolerance: 100,
     liquidityBalance: BigNumber.from(0),
+    hasImported: false,
     setExecType: (execType: ExecutionType) =>
       set(() => {
         return {
@@ -223,8 +226,8 @@ const useLiquidityStatus = create<LiquidityStatus>(
             currentStatus: TxStatus.REQ_TARGET_APPROVE,
           };
         else if (
-          state.execType === ExecutionType.EXE_FIND_LIQUIDITY &&
-          state.liquidityBalance.eq(0)
+          (state.execType === ExecutionType.EXE_FIND_LIQUIDITY &&
+          state.liquidityBalance.eq(0)) || state.hasImported
         )
           return {
             currentStatus: TxStatus.REQ_ADD_LIQUIDITY,
@@ -255,6 +258,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
       set(() => ({
         liquidityBalance: BigNumber.from(liquidityBalance),
       })),
+    setHasImported: (hasImported: boolean) => set(() => ({ hasImported })),
   }))
 );
 
