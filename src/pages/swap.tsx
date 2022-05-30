@@ -13,6 +13,7 @@ import TokenModal from "../components/Modal/TokenModal";
 import swapImage from "../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
 import leftHand from "../assets/images/hands/left.svg";
+import { useSearchParams } from "react-router-dom";
 
 export default function Swap() {
   const {
@@ -31,6 +32,12 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
+  const [searchParams] = useSearchParams();
+
+  const params = Object.fromEntries(searchParams.entries());
+  const inputCurrency = params["inputCurrency"];
+  const outputCurrency = params["outputCurrency"];
+  console.log([inputCurrency, outputCurrency]);
   if (execType !== ExecutionType.EXE_SWAP) setExecType(ExecutionType.EXE_SWAP);
 
   const getAmountsOut = () => {
@@ -108,6 +115,7 @@ export default function Swap() {
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(true);
                   },
+                  // eslint-disable-next-line react-hooks/exhaustive-deps
                   [isExactIn]
                 )}
                 onValueChange={async (values) => {
@@ -146,6 +154,7 @@ export default function Swap() {
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(false);
                   },
+                  // eslint-disable-next-line react-hooks/exhaustive-deps
                   [isExactIn]
                 )}
                 onValueChange={async (values) => {

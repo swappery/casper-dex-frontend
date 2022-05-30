@@ -3,10 +3,11 @@ import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
 
 type LPTokenProps = {
+  isManage: boolean;
   poolInfo: Pool;
 };
 
-const LPTokenDetail = ({ poolInfo }: LPTokenProps) => {
+const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     BigNumber.from(poolInfo.decimals).toNumber()
@@ -73,14 +74,18 @@ const LPTokenDetail = ({ poolInfo }: LPTokenProps) => {
           <span>{pooledToken1}</span>
         </p>
       </div>
-      <div className="font-orator-std grid gap-4 text-black mt-7">
-        <button className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl">
-          Remove
-        </button>
-        <button className="hover:opacity-80 p-[9px] text-[15px] leading-[18px] bg-lightgreen border border-black rounded-3xl">
-          + ADD LIQUIDITY INSTEAD
-        </button>
-      </div>
+      {isManage ? (
+        <div className="font-orator-std grid gap-4 text-black mt-7">
+          <button className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl">
+            Remove
+          </button>
+          <button className="hover:opacity-80 p-[9px] text-[15px] leading-[18px] bg-lightgreen border border-black rounded-3xl">
+            + ADD LIQUIDITY INSTEAD
+          </button>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };

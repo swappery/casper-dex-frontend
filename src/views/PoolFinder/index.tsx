@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
-import swprToken from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import useLiquidityStatus, {
@@ -84,6 +83,7 @@ export default function PoolFinder() {
           {currentPool.balance &&
           !BigNumber.from(currentPool.balance).eq(BigNumber.from(0)) ? (
             <LPTokenDetail
+              isManage={false}
               poolInfo={currentPool}
               key={currentPool.contractPackageHash}
             />

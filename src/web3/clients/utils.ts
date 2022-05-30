@@ -1,14 +1,10 @@
-import { ERC20Client } from "casper-erc20-js-client";
-import { constants, helpers, utils } from "casper-js-client-helper";
+import { utils } from "casper-js-client-helper";
 import {
-  decodeBase16,
   Signer,
   RuntimeArgs,
-  CLValueBuilder,
   CasperClient,
   DeployUtil,
   CLPublicKey,
-  CLValue,
   Keys
 } from "casper-js-sdk";
 import { Deploy } from "casper-js-sdk/dist/lib/DeployUtil";

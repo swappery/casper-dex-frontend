@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useWalletStatus, { AccountList } from "../../store/useWalletStatus";
@@ -34,6 +33,7 @@ export default function Liquidity() {
                 Array.from(poolMap.values()!).map((pool) => {
                   return (
                     <LPTokenDetail
+                      isManage={true}
                       poolInfo={pool}
                       key={pool.contractPackageHash}
                     />

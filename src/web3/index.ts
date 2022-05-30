@@ -1,5 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
-  CasperClient,
   Signer,
   CLPublicKey,
   CLValueBuilder,
@@ -13,7 +13,6 @@ import useLiquidityStatus, {
   ExecutionType,
   supportedTokens,
   TokenType,
-  TxStatus,
 } from "../store/useLiquidityStatus";
 import { BigNumber, BigNumberish } from "ethers";
 import {
@@ -25,7 +24,6 @@ import {
   TRANSFER_FEE,
   WCSPR_CONTRACT_HASH,
 } from "./config/constant";
-import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
@@ -49,7 +47,6 @@ export default function useCasperWeb3Provider() {
     isBusy,
     currentPool,
     updateCurrentStatus,
-    setCurrentStatus,
     setSourceBalance,
     setSourceApproval,
     setTargetBalance,

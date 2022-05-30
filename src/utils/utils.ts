@@ -10,6 +10,7 @@ export function amountWithoutDecimals(amount: BigNumber, decimals: number) {
 }
 
 export function deserialize(serializedString: string) {
+    // eslint-disable-next-line no-eval
     return eval('(' + serializedString + ')');
 }
 
