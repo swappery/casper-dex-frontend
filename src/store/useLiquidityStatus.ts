@@ -226,8 +226,8 @@ const useLiquidityStatus = create<LiquidityStatus>(
             currentStatus: TxStatus.REQ_TARGET_APPROVE,
           };
         else if (
-          (state.execType === ExecutionType.EXE_FIND_LIQUIDITY &&
-          state.liquidityBalance.eq(0)) || state.hasImported
+          state.execType === ExecutionType.EXE_FIND_LIQUIDITY && 
+          (state.liquidityBalance.eq(0) || state.hasImported )
         )
           return {
             currentStatus: TxStatus.REQ_ADD_LIQUIDITY,

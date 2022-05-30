@@ -276,6 +276,7 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     async function handleSetLiquidityBalance() {
+      if (!isConnected) return;
       if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
         if (await isPairExist(sourceToken, targetToken)) {
           let routerContractHash = ROUTER_CONTRACT_HASH;
@@ -297,10 +298,12 @@ export default function useCasperWeb3Provider() {
             const poolList = accountList.get(activeAddress).poolList;
             if (poolList.has(pairPackageHash)) {
               setHasImported(true);
-              return;
+            } else {
+              setHasImported(false);
             }
+          } else {
+            setHasImported(false);
           }
-          setHasImported(false);
           
           const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
           const { block } = await client.getLatestBlockInfo();
