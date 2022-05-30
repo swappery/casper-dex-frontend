@@ -9,10 +9,13 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 import TokenModal from "../../components/Modal/TokenModal";
+import LPTokenDetail from "../Pool/components/LPTokenDetail";
+import { BigNumber } from "ethers";
 
 export default function PoolFinder() {
   const { theme } = useTheme();
-  const { execType, sourceToken, targetToken, currentStatus, setExecType } =
+  const { currentPool } = useLiquidityStatus();
+  const { execType, sourceToken, targetToken, setExecType } =
     useLiquidityStatus();
 
   if (execType !== ExecutionType.EXE_FIND_LIQUIDITY)
@@ -78,6 +81,15 @@ export default function PoolFinder() {
               />
             </label>
           </div>
+          {currentPool.balance &&
+          !BigNumber.from(currentPool.balance).eq(BigNumber.from(0)) ? (
+            <LPTokenDetail
+              poolInfo={currentPool}
+              key={currentPool.contractPackageHash}
+            />
+          ) : (
+            <></>
+          )}
           <ActionButton />
           <p className="text-base md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO FIND LIQUIDITY

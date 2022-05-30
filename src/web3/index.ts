@@ -72,7 +72,7 @@ export default function useCasperWeb3Provider() {
       if (requireConnection) {
         Signer.sendConnectionRequest();
       }
-      console.error(err);
+      // console.error(err);
     }
   }
 
