@@ -1,4 +1,4 @@
-import { Token } from "../dist/token";
+import { Token } from "../sdk/token";
 import { ChainName } from "./types";
 
 const { MAINNET, TESTNET } = ChainName;

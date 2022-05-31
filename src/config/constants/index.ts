@@ -1,5 +1,5 @@
 import { ChainName } from "./types";
-import { Token } from "../dist/token";
+import { Token } from "../sdk/token";
 import { mainnetTokens, testnetTokens } from "./tokens";
 
 // a list of tokens by chain

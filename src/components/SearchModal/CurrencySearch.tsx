@@ -7,9 +7,9 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { Currency } from "../../config/dist/currency";
+import { Currency } from "../../config/sdk/currency";
 import { ChainName } from "../../config/constants/types";
-import { Token } from "../../config/dist/token";
+import { Token } from "../../config/sdk/token";
 import { Text, Input, Box } from "@swappery/uikit";
 import { FixedSizeList } from "react-window";
 // import { isAddress } from "../../utils";
