@@ -13,7 +13,7 @@ import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, deserialize } from "../../utils/utils";
-import TokenModal from "../../components/Modal/TokenModal";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import useWalletStatus from "../../store/useWalletStatus";
 
@@ -213,8 +213,8 @@ export default function AddLiquidity() {
           </p>
         </div>
       </div>
-      <TokenModal modalId="currentTokenModal" />
-      <TokenModal modalId="targetTokenModal" />
+      <CurrencySearchModal modalId="currentTokenModal" />
+      <CurrencySearchModal modalId="targetTokenModal" />
     </div>
   );
 }

@@ -9,8 +9,8 @@ import useLiquidityStatus, {
 } from "../store/useLiquidityStatus";
 import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../utils/utils";
-import TokenModal from "../components/Modal/TokenModal";
+import { amountWithoutDecimals, deserialize } from "../utils/utils";
+import CurrencySearchModal from "../components/SearchModal/CurrencySearchModalOld";
 
 import swapImage from "../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
@@ -103,7 +103,7 @@ export default function Swap() {
         <div className="col-span-12 md:col-span-4 lg:col-start-2 lg:col-end-5 border relative bg-success py-1 md:py-0">
           <img
             src={leftHand}
-            className="hidden md:block absolute top-[112px] -left-[130px] xl:top-[50px] xl:-left-[145px] z-10"
+            className="hidden md:block absolute top-[112px] -left-[130px] xl:top-[50px] xl:-left-[145px] z-20"
             alt="Left Hand"
           />
           <div className="hidden lg:block absolute w-[500px] top-[132px] -left-[462px] h-[46px] xl:w-[2000px] xl:h-[57px] xl:-left-[1933px] xl:top-[76px] border-t border-b border-black bg-white z-20]"></div>
@@ -194,8 +194,8 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <TokenModal modalId="currentTokenModal" />
-      <TokenModal modalId="targetTokenModal" />
+      <CurrencySearchModal modalId="currentTokenModal" />
+      <CurrencySearchModal modalId="targetTokenModal" />
     </div>
   );
 }
