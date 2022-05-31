@@ -6,7 +6,7 @@ export function shortenAddress(address: string) {
     return address.slice(0, 5) + "..." + address.slice(-4);
 }
 export function amountWithoutDecimals(amount: BigNumber, decimals: number) {
-    return amount.div(10 ** decimals).toNumber() + amount.mod(10 ** decimals).toNumber() / 10 ** decimals;
+    return BigNumber.from(amount).div(10 ** decimals).toNumber() + BigNumber.from(amount).mod(10 ** decimals).toNumber() / 10 ** decimals;
 }
 
 export function deserialize(serializedString: string) {
@@ -22,7 +22,6 @@ export const getDeploy = async (NODE_URL: string, deployHash: string) => {
     if (raw.execution_results.length !== 0) {
       // @ts-ignore
       if (raw.execution_results[0].result.Success) {
-        console.log(deploy);
         return deploy;
       } else {
         // @ts-ignore

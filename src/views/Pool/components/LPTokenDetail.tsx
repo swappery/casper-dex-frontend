@@ -87,7 +87,6 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
             className="hover:opacity-80 p-[9px] text-[15px] leading-[18px] bg-lightgreen border border-black rounded-3xl"
             onClick={() => {
               setBusy(false);
-              console.log(poolInfo);
               navigate({
                 pathname: "/add",
                 search: createSearchParams({
