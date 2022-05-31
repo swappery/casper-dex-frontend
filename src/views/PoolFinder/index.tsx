@@ -7,7 +7,7 @@ import useLiquidityStatus, {
   supportedTokens,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
-import TokenModal from "../../components/Modal/TokenModal";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 
@@ -96,8 +96,8 @@ export default function PoolFinder() {
           </p>
         </div>
       </div>
-      <TokenModal modalId="currentTokenModal" />
-      <TokenModal modalId="targetTokenModal" />
+      <CurrencySearchModal modalId="currentTokenModal" />
+      <CurrencySearchModal modalId="targetTokenModal" />
     </div>
   );
 }

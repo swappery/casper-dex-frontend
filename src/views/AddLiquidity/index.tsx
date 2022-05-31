@@ -53,12 +53,10 @@ export default function AddLiquidity() {
   if (execType !== ExecutionType.EXE_ADD_LIQUIDITY && isConnected) {
     const accountList = deserialize(accountListString);
     let reserves = [[BigNumber.from(1), BigNumber.from(1)]];
-    console.log(activeAddress);
-    console.log(accountList.get(activeAddress).poolList.has(poolAddress));
     if (accountList.has(activeAddress)) {
       if (accountList.get(activeAddress).poolList.has(poolAddress)) {
         reserves = [
-          accountList.get(accountList).poolList.get(poolAddress).reserves,
+          accountList.get(activeAddress).poolList.get(poolAddress).reserves,
         ];
       }
     }
