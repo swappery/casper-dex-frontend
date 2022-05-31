@@ -1,8 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, KeyboardEvent } from "react";
 import IconButton from "../components/Button/IconButton";
 import useLiquidityStatus, {
   ExecutionType,
   supportedTokens,
+  TokenType,
   TOTAL_SHARE,
 } from "../store/useLiquidityStatus";
 import ActionButton from "../components/Button/actionButton";
@@ -25,7 +27,7 @@ export default function Swap() {
     isExactIn,
     slippageTolerance,
     execType,
-    setExecType,
+    setExecTypeWithCurrency,
     setSourceAmount,
     setTargetAmount,
     setExactIn,
@@ -35,10 +37,17 @@ export default function Swap() {
   const [searchParams] = useSearchParams();
 
   const params = Object.fromEntries(searchParams.entries());
-  const inputCurrency = params["inputCurrency"];
-  const outputCurrency = params["outputCurrency"];
-  console.log([inputCurrency, outputCurrency]);
-  if (execType !== ExecutionType.EXE_SWAP) setExecType(ExecutionType.EXE_SWAP);
+
+  let inputCurrency =
+    params["inputCurrency"] || supportedTokens[TokenType.CSPR].contractHash;
+  let outputCurrency =
+    params["outputCurrency"] || supportedTokens[TokenType.SWPR].contractHash;
+  if (execType !== ExecutionType.EXE_SWAP && inputCurrency && outputCurrency)
+    setExecTypeWithCurrency(
+      ExecutionType.EXE_SWAP,
+      inputCurrency,
+      outputCurrency
+    );
 
   const getAmountsOut = () => {
     let tempAmount = sourceAmount;
@@ -115,7 +124,6 @@ export default function Swap() {
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(true);
                   },
-                  // eslint-disable-next-line react-hooks/exhaustive-deps
                   [isExactIn]
                 )}
                 onValueChange={async (values) => {
@@ -154,7 +162,6 @@ export default function Swap() {
                   (e: KeyboardEvent<HTMLInputElement>) => {
                     setExactIn(false);
                   },
-                  // eslint-disable-next-line react-hooks/exhaustive-deps
                   [isExactIn]
                 )}
                 onValueChange={async (values) => {

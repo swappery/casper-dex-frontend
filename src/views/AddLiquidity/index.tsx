@@ -1,10 +1,13 @@
-import { Link } from "react-router-dom";
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Link, useSearchParams } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
 import { useCallback, KeyboardEvent } from "react";
 
 import useLiquidityStatus, {
   ExecutionType,
   supportedTokens,
+  TokenType,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 
@@ -32,9 +35,20 @@ export default function AddLiquidity() {
     setExecType,
     setSourceAmount,
     setTargetAmount,
+    setExecTypeWithCurrency,
   } = useLiquidityStatus();
+  const [searchParams] = useSearchParams();
+
+  const params = Object.fromEntries(searchParams.entries());
+
+  let inputCurrency = params["inputCurrency"];
+  let outputCurrency = params["outputCurrency"];
   if (execType !== ExecutionType.EXE_ADD_LIQUIDITY)
-    setExecType(ExecutionType.EXE_ADD_LIQUIDITY);
+    setExecTypeWithCurrency(
+      ExecutionType.EXE_ADD_LIQUIDITY,
+      inputCurrency,
+      outputCurrency
+    );
 
   const withSourceLimit = ({ floatValue }: any) =>
     floatValue <
@@ -117,11 +131,15 @@ export default function AddLiquidity() {
                     </span>
                     <ChevronIcon />
                   </label>
-                  <img
-                    src={supportedTokens[sourceToken].tokenSvg}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt="CSPR Token"
-                  />
+                  {supportedTokens[sourceToken].tokenSvg !== "" ? (
+                    <img
+                      src={supportedTokens[sourceToken].tokenSvg}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               <div className="flex justify-center">
@@ -156,11 +174,15 @@ export default function AddLiquidity() {
                     </span>
                     <ChevronIcon />
                   </label>
-                  <img
-                    src={supportedTokens[targetToken].tokenSvg}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt="SWPR Token"
-                  />
+                  {supportedTokens[targetToken].tokenSvg !== "" ? (
+                    <img
+                      src={supportedTokens[targetToken].tokenSvg}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               <ActionButton />

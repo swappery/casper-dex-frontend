@@ -126,16 +126,28 @@ export default function useCasperWeb3Provider() {
   async function allowanceOf(contractHash: string) {
     const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await erc20.setContractHash(contractHash);
-    return await erc20.allowances(
-      CLPublicKey.fromHex(activeAddress),
-      CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH))
-    );
+    let allowance;
+    try {
+      allowance = await erc20.allowances(
+        CLPublicKey.fromHex(activeAddress),
+        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH))
+      );
+    } catch (error) {
+      return 0;
+    }
+    return allowance;
   }
 
   async function balanceOf(contractHash: string) {
     const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await erc20.setContractHash(contractHash);
-    return await erc20.balanceOf(CLPublicKey.fromHex(activeAddress));
+    let balance;
+    try {
+      balance = await erc20.balanceOf(CLPublicKey.fromHex(activeAddress));
+    } catch (error) {
+      return 0;
+    }
+    return balance;
   }
 
   async function approveSourceToken(amount: BigNumberish) {
@@ -428,6 +440,15 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeAddress() {
       if (!isConnected) return;
+      setCurrentPool({
+        contractPackageHash: "",
+        contractHash: "",
+        tokens: [],
+        decimals: BigNumber.from(0),
+        totalSupply: BigNumber.from(0),
+        reserves: [],
+        balance: BigNumber.from(0),
+      });
       setSourceBalance(
         await balanceOf(supportedTokens[sourceToken].contractHash)
       );
@@ -552,6 +573,15 @@ export default function useCasperWeb3Provider() {
                 BigNumber.from(reserves_res[1]),
                 BigNumber.from(reserves_res[0]),
               ];
+            let balance;
+            try {
+              balance = await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
+            } catch (error) {
+              setBusy(false); return;
+            }
+            if (BigNumber.from(balance).eq(BigNumber.from(0))) {
+              setBusy(false); return;
+            }
             const pool: Pool = {
               contractPackageHash: pairPackageHash,
               contractHash: pairContractHash!,
@@ -562,9 +592,7 @@ export default function useCasperWeb3Provider() {
               decimals: await pairClient.decimals(),
               totalSupply: await pairClient.totalSupply(),
               reserves: reserves,
-              balance: BigNumber.from(
-                await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
-              ),
+              balance: BigNumber.from(balance),
             };
             setCurrentPool(pool);
           }

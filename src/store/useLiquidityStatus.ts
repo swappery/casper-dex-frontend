@@ -19,6 +19,7 @@ export interface TokenContext {
 export enum TokenType {
   SWPR,
   CSPR,
+  EMPTY,
 }
 
 export const supportedTokens: TokenContext[] = [
@@ -40,6 +41,14 @@ export const supportedTokens: TokenContext[] = [
     isNative: true,
     tokenSvg: csprToken,
   },
+  {
+    name: "",
+    symbol: "Select Currency",
+    decimals: 0,
+    contractHash: "",
+    isNative: false,
+    tokenSvg: "",
+  },
 ];
 
 export enum ExecutionType {
@@ -47,6 +56,7 @@ export enum ExecutionType {
   EXE_REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
   EXE_FIND_LIQUIDITY = "FIND_LIQUIDITY",
   EXE_SWAP = "SWAP",
+  EXE_HOME = "HOME",
 }
 
 export enum TxStatus {
@@ -96,16 +106,17 @@ interface LiquidityStatus extends State {
   setHasImported: (hasImported: boolean) => void;
   setBusy: (isBusy: boolean) => void;
   setCurrentPool: (currentPool: Pool) => void;
+  setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
   devtools((set) => ({
-    execType: ExecutionType.EXE_SWAP,
-    sourceToken: TokenType.CSPR,
+    execType: ExecutionType.EXE_HOME,
+    sourceToken: TokenType.EMPTY,
     sourceBalance: BigNumber.from(0),
     sourceApproval: BigNumber.from(0),
     sourceAmount: BigNumber.from(0),
-    targetToken: TokenType.SWPR,
+    targetToken: TokenType.EMPTY,
     targetBalance: BigNumber.from(0),
     targetApproval: BigNumber.from(0),
     targetAmount: BigNumber.from(0),
@@ -269,6 +280,36 @@ const useLiquidityStatus = create<LiquidityStatus>(
     setHasImported: (hasImported: boolean) => set(() => ({ hasImported })),
     setBusy: (isBusy: boolean) => set(() => ({ isBusy })),
     setCurrentPool: (currentPool: Pool) => set(() => ({ currentPool })),
+    setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined) =>
+      set(() => {
+        let sourceToken = TokenType.EMPTY, targetToken = TokenType.EMPTY;
+        supportedTokens.forEach((tokenContext, index) => {
+          if (tokenContext.contractHash === inputCurrency) {
+            sourceToken = index;
+          }
+          if (tokenContext.contractHash === outputCurrency) {
+            targetToken = index;
+          }
+        })
+
+        return {
+          execType: execType,
+          sourceToken: sourceToken,
+          sourceBalance: BigNumber.from(0),
+          sourceApproval: BigNumber.from(0),
+          sourceAmount: BigNumber.from(0),
+          targetToken: targetToken,
+          targetBalance: BigNumber.from(0),
+          targetApproval: BigNumber.from(0),
+          targetAmount: BigNumber.from(0),
+          reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+          isExactIn: true,
+          minAmountOut: BigNumber.from(0),
+          maxAmountIn: BigNumber.from(0),
+          currentStatus: TxStatus.REQ_SOURCE_APPROVE,
+          slippageTolerance: 100,
+        };
+      }),
   }))
 );
 

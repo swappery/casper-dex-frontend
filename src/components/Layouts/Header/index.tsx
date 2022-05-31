@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState } from "react";
-import { NavLink, useSearchParams } from "react-router-dom";
+import { createSearchParams, NavLink, useNavigate } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
 import { shortenAddress } from "../../../utils/utils";
@@ -17,7 +17,7 @@ export default function Header() {
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const [navbarOpen, setNavbarOpen] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   document.documentElement.setAttribute("data-theme", theme);
 
@@ -28,9 +28,12 @@ export default function Header() {
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
     event.preventDefault();
-    setSearchParams({
-      inputCurrency: supportedTokens[TokenType.CSPR].contractHash,
-      // outputCurrency: supportedTokens[TokenType.SWPR].contractHash,
+    navigate({
+      pathname: "/swap",
+      search: createSearchParams({
+        inputCurrency: supportedTokens[TokenType.CSPR].contractHash,
+        outputCurrency: supportedTokens[TokenType.SWPR].contractHash,
+      }).toString(),
     });
   };
 

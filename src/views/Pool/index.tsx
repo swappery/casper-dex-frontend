@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { createSearchParams, Link, useNavigate } from "react-router-dom";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useWalletStatus, { AccountList } from "../../store/useWalletStatus";
 import { deserialize } from "../../utils/utils";
@@ -9,10 +9,8 @@ export default function Liquidity() {
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { accountListString } = useWalletStatus();
-  // const poolMap = useMemo(() => {
-  //   const accountList: AccountList = deserialize(accountListString);
-  //   return accountList.get(activeAddress)?.poolList;
-  // }, []);
+  const navigate = useNavigate();
+
   const accountList: AccountList = deserialize(accountListString);
   const poolMap = accountList.get(activeAddress)?.poolList;
 
@@ -65,12 +63,20 @@ export default function Liquidity() {
               CONNECT WALLET TO VIEW LIQUIDITY
             </button>
           )}
-          <Link
-            to="/add"
+          <button
             className="hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6"
+            onClick={(
+              event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+            ) => {
+              event.preventDefault();
+              navigate({
+                pathname: "/add",
+                search: createSearchParams({}).toString(),
+              });
+            }}
           >
             + ADD LIQUIDITY
-          </Link>
+          </button>
         </div>
       </div>
     </div>
