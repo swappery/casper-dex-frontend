@@ -4,8 +4,8 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Currency } from "../../config/dist/currency";
-import { Token, currencyEquals } from "../../config/dist/token";
+import { Currency } from "../../config/sdk/currency";
+import { Token, currencyEquals } from "../../config/sdk/token";
 import { Text } from "@swappery/uikit";
 import styled from "styled-components";
 import { FixedSizeList } from "react-window";

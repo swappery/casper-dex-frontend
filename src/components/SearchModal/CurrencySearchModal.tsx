@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { Currency } from "../../config/dist/currency";
+import { Currency } from "../../config/sdk/currency";
 import {
   ModalContainer,
   ModalHeader,

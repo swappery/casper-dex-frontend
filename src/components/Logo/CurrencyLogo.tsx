@@ -1,5 +1,5 @@
-import { Currency } from "../../config/dist/currency";
-import { Token } from "../../config/dist/token";
+import { Currency } from "../../config/sdk/currency";
+import { Token } from "../../config/sdk/token";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import getTokenLogoURL from "../../utils/getTokenLogoURL";

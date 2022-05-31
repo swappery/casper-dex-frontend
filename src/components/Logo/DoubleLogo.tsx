@@ -1,4 +1,4 @@
-import { Currency } from "../../config/dist/currency";
+import { Currency } from "../../config/sdk/currency";
 import React from "react";
 import styled from "styled-components";
 import Circle from "../Circle";

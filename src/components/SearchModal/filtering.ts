@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { Token } from "../../config/dist/token";
+import { Token } from "../../config/sdk/token";
 // import { isAddress } from "../../utils";
 
 export function filterTokens(tokens: Token[], search: string): Token[] {

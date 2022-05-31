@@ -1,5 +1,5 @@
 import React from "react";
-import { Currency } from "../../config/dist/currency";
+import { Currency } from "../../config/sdk/currency";
 import { Button, ChevronDownIcon, useModal, Flex, Box } from "@swappery/uikit";
 import styled from "styled-components";
 import CurrencySearchModal from "../SearchModal/CurrencySearchModal";
