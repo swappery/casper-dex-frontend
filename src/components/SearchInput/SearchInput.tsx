@@ -1,9 +1,4 @@
 import { useState, useEffect, ChangeEvent } from "react";
-import SWPR from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
-import USDT from "../../assets/images/tokens/0xf063b26bBaa7B71B65Ddd954cB0b289bBb7AA95b.png";
-import WCSPR from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.png";
-import CSPD from "../../assets/images/tokens/0xef9481115ff33e94d3e28a52d3a8f642bf3521e5.png";
-
 interface TokenItem {
   tokenAddress: string;
   name: string;
@@ -64,7 +59,7 @@ const SearchInput = () => {
           <div
             key={item.name}
             className='py-1 px-6 flex items-center gap-1 hover:bg-accent cursor-pointer'>
-            <img src={SWPR} className='w-9 h-9' alt='Token' />
+            {/* <img src={SWPR} className='w-9 h-9' alt='Token' /> */}
             <div className='font-orator-std'>
               <p className='text-[18px] text-neutral'>{item.name}</p>
               <p className='text-[14px]'>{item.description}</p>

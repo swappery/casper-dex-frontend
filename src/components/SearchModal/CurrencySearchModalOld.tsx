@@ -1,10 +1,18 @@
 import SearchInput from "../SearchInput/SearchInput";
 
-interface TokenModalProps {
+interface CurrencySearchModalProps {
   modalId: string;
+  selectedCurrency?: string | null;
+  otherSelectedCurrency?: string | null;
+  showCommonBases?: boolean;
 }
 
-export default function TokenModal({ modalId }: TokenModalProps) {
+export default function CurrencySearchModal({
+  modalId,
+  selectedCurrency,
+  otherSelectedCurrency,
+  showCommonBases = false,
+}: CurrencySearchModalProps) {
   return (
     <>
       <input type='checkbox' id={modalId} className='modal-toggle' />

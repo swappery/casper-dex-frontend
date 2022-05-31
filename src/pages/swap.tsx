@@ -6,7 +6,7 @@ import useLiquidityStatus, {
 import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, deserialize } from "../utils/utils";
-import TokenModal from "../components/Modal/TokenModal";
+import CurrencySearchModal from "../components/SearchModal/CurrencySearchModalOld";
 
 import swapImage from "../assets/images/swap/swap.svg";
 import ChevronIcon from "../components/Icon/Chevron";
@@ -27,7 +27,7 @@ export default function Swap() {
     setMaxAmountIn,
     setMinAmountOut,
   } = useLiquidityStatus();
-  
+
   const getAmountsOut = () => {
     let tempAmount = sourceAmount;
     for (var i = 0; i < reserves.length; i++) {
@@ -177,8 +177,8 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <TokenModal modalId='currentTokenModal' />
-      <TokenModal modalId='targetTokenModal' />
+      <CurrencySearchModal modalId='currentTokenModal' />
+      <CurrencySearchModal modalId='targetTokenModal' />
     </div>
   );
 }

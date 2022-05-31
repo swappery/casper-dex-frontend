@@ -47,9 +47,7 @@ export default function Home() {
                 swappery in town.
               </p>
               <div className='flex gap-2 lg:gap-4 mt-[30px] xl:mt-0 ml-[25px] xl:ml-0 font-orator-std'>
-                {isConnected ? (
-                  ""
-                ) : (
+                {isConnected ? null : (
                   <button
                     className='text-black text-[13px] xl:text-[19px] rounded-2xl bg-lightblue py-0.5 px-3'
                     onClick={() => activate()}>
