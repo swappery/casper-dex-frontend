@@ -13,7 +13,7 @@ import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, deserialize } from "../../utils/utils";
-import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 
 import useWalletStatus from "../../store/useWalletStatus";
 
@@ -21,6 +21,8 @@ import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import { BigNumber } from "ethers";
 import useNetworkStatus from "../../store/useNetworkStatus";
+import CurrencyInputPanel from "../../components/CurrencyInputPanel";
+import { Currency } from "../../config/sdk/currency";
 
 export default function AddLiquidity() {
   const { theme } = useTheme();
@@ -41,7 +43,7 @@ export default function AddLiquidity() {
     setExecTypeWithCurrency,
     setReserves,
   } = useLiquidityStatus();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { accountListString } = useWalletStatus();
   const { isConnected, activeAddress } = useNetworkStatus();
 
@@ -82,7 +84,31 @@ export default function AddLiquidity() {
       supportedTokens[targetToken].decimals
     );
 
-  const sourceValue = !isExactIn
+  const onFieldAInput = (val: string) => {
+    setSourceAmount(parseFloat(val) || 0);
+  };
+
+  const handleCurrencyASelect = (currencyA_: Currency) => {
+    const newCurrencyIdA = currencyA_.address;
+    console.log(newCurrencyIdA);
+    if (newCurrencyIdA === supportedTokens[targetToken].contractHash) {
+      setSearchParams({
+        inputCurrency: supportedTokens[targetToken].contractHash,
+        outputCurrency: newCurrencyIdA,
+      });
+    } else if (targetToken !== TokenType.EMPTY) {
+      setSearchParams({
+        inputCurrency: newCurrencyIdA,
+        outputCurrency: supportedTokens[targetToken].contractHash,
+      });
+    } else {
+      setSearchParams({
+        inputCurrency: newCurrencyIdA,
+      });
+    }
+  };
+
+  const sourceValue: number = !isExactIn
     ? amountWithoutDecimals(
         targetAmount.mul(reserves[0][0]).div(reserves[0][1]),
         supportedTokens[sourceToken].decimals
@@ -160,6 +186,13 @@ export default function AddLiquidity() {
                   )}
                 </div>
               </div>
+              <CurrencyInputPanel
+                value={sourceValue.toString()}
+                onUserInput={onFieldAInput}
+                onCurrencySelect={handleCurrencyASelect}
+                id="add-liquidity-input-tokena"
+                showCommonBases
+              />
               <div className="flex justify-center">
                 <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral">
                   +
@@ -211,8 +244,6 @@ export default function AddLiquidity() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal modalId="currentTokenModal" />
-      <CurrencySearchModal modalId="targetTokenModal" />
     </div>
   );
 }

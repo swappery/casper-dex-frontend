@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import { Currency } from "../../config/sdk/currency";
 import { ChainName } from "../../config/constants/types";
-import { Token } from "../../config/sdk/token";
 import { Text, Input, Box } from "@swappery/uikit";
 import { FixedSizeList } from "react-window";
 // import { isAddress } from "../../utils";
@@ -40,7 +39,7 @@ function CurrencySearch({
 
   const allTokens = SUGGESTED_BASES[ChainName.TESTNET];
 
-  const filteredTokens: Token[] = useMemo(() => {
+  const filteredTokens: Currency[] = useMemo(() => {
     return filterTokens(Object.values(allTokens), searchQuery);
   }, [allTokens, searchQuery]);
 
@@ -81,13 +80,13 @@ function CurrencySearch({
   return (
     <>
       <div>
-        <AutoColumn gap='16px'>
+        <AutoColumn gap="16px">
           <Row>
             <Input
-              id='token-search-input'
+              id="token-search-input"
               placeholder={"Search name or paste address"}
-              scale='lg'
-              autoComplete='off'
+              scale="lg"
+              autoComplete="off"
               value={searchQuery}
               ref={inputRef as RefObject<HTMLInputElement>}
               onChange={handleInput}
@@ -103,7 +102,7 @@ function CurrencySearch({
           )} */}
         </AutoColumn>
         {filteredTokens?.length > 0 ? (
-          <Box margin='24px -24px'>
+          <Box margin="24px -24px">
             <CurrencyList
               height={390}
               showETH={false}
@@ -117,7 +116,7 @@ function CurrencySearch({
           </Box>
         ) : (
           <Column style={{ padding: "20px", height: "100%" }}>
-            <Text color='textSubtle' textAlign='center' mb='20px'>
+            <Text color="textSubtle" textAlign="center" mb="20px">
               No results found.
             </Text>
           </Column>

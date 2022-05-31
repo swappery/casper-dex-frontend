@@ -55,15 +55,6 @@ const TokenSymbol = styled.div`
   color: black;
 `;
 
-const InputRow = styled.div<{ selected: boolean }>`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: flex-end;
-  padding: ${({ selected }) =>
-    selected ? "0.75rem 0.5rem 0.75rem 1rem" : "0.75rem 0.75rem 0.75rem 1rem"};
-`;
-
 interface CurrencyInputPanelProps {
   value: string;
   onUserInput: (value: string) => void;
@@ -97,25 +88,26 @@ export default function CurrencyInputPanel({
       <InputPanel>
         <Container>
           <NumericalInput
-            className='token-amount-input'
+            className="token-amount-input"
             value={value}
             onUserInput={(val) => {
               onUserInput(val);
             }}
           />
 
-          <Flex alignItems='center'>
+          <Flex alignItems="center">
             <CurrencySelectButton
-              className='open-currency-select-button'
+              className="open-currency-select-button"
               selected={!!currency}
               onClick={() => {
                 if (!disableCurrencySelect) {
                   onPresentCurrencyModal();
                 }
-              }}>
-              <Flex alignItems='center'>
+              }}
+            >
+              <Flex alignItems="center">
                 <TokenSymbolContainer>
-                  <TokenSymbol id='pair'>
+                  <TokenSymbol id="pair">
                     {(currency && currency.symbol && currency.symbol.length > 20
                       ? `${currency.symbol.slice(
                           0,
@@ -126,13 +118,13 @@ export default function CurrencyInputPanel({
                         )}`
                       : currency?.symbol) || "Select a currency"}
                   </TokenSymbol>
-                  {!disableCurrencySelect && <ChevronDownIcon color='black' />}
+                  {!disableCurrencySelect && <ChevronDownIcon color="black" />}
                 </TokenSymbolContainer>
 
                 {currency ? (
                   <CurrencyLogo
                     currency={currency}
-                    size='24px'
+                    size="24px"
                     style={{ marginRight: "8px" }}
                   />
                 ) : null}

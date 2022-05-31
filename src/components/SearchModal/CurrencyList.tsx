@@ -4,8 +4,7 @@ import React, {
   useCallback,
   useMemo,
 } from "react";
-import { Currency } from "../../config/sdk/currency";
-import { Token, currencyEquals } from "../../config/sdk/token";
+import { Currency, currencyEquals } from "../../config/sdk/currency";
 import { Text } from "@swappery/uikit";
 import styled from "styled-components";
 import { FixedSizeList } from "react-window";
@@ -14,7 +13,7 @@ import { RowBetween } from "../Layout/Row";
 import CurrencyLogo from "../Logo/CurrencyLogo";
 
 function currencyKey(currency: Currency): string {
-  return currency instanceof Token ? currency.address : "";
+  return currency.address;
 }
 
 const MenuItem = styled(RowBetween)<{ disabled: boolean; selected: boolean }>`
@@ -54,11 +53,12 @@ function CurrencyRow({
       className={`token-item-${key}`}
       onClick={() => (isSelected ? null : onSelect())}
       disabled={isSelected}
-      selected={otherSelected}>
-      <CurrencyLogo currency={currency} size='24px' />
+      selected={otherSelected}
+    >
+      <CurrencyLogo currency={currency} size="24px" />
       <Column>
         <Text bold>{currency.symbol}</Text>
-        <Text color='textSubtle' small ellipsis maxWidth='200px'>
+        <Text color="textSubtle" small ellipsis maxWidth="200px">
           {currency.name}
         </Text>
       </Column>
@@ -86,9 +86,7 @@ export default function CurrencyList({
   breakIndex: number | undefined;
 }) {
   const itemData: (Currency | undefined)[] = useMemo(() => {
-    let formatted: (Currency | undefined)[] = showETH
-      ? [Currency.ETHER, ...currencies]
-      : currencies;
+    let formatted: (Currency | undefined)[] = currencies;
     if (breakIndex !== undefined) {
       formatted = [
         ...formatted.slice(0, breakIndex),
@@ -140,11 +138,12 @@ export default function CurrencyList({
     <FixedSizeList
       height={height}
       ref={fixedListRef as any}
-      width='100%'
+      width="100%"
       itemData={itemData}
       itemCount={itemData.length}
       itemSize={56}
-      itemKey={itemKey}>
+      itemKey={itemKey}
+    >
       {Row}
     </FixedSizeList>
   );

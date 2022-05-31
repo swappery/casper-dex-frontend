@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { Token } from "../../config/sdk/token";
+import { Currency } from "../../config/sdk/currency";
 // import { isAddress } from "../../utils";
 
-export function filterTokens(tokens: Token[], search: string): Token[] {
+export function filterTokens(tokens: Currency[], search: string): Currency[] {
   if (search.length === 0) return tokens;
 
   // const searchingAddress = isAddress(search);
@@ -40,9 +40,9 @@ export function filterTokens(tokens: Token[], search: string): Token[] {
 }
 
 export function useSortedTokensByQuery(
-  tokens: Token[] | undefined,
+  tokens: Currency[] | undefined,
   searchQuery: string
-): Token[] {
+): Currency[] {
   return useMemo(() => {
     if (!tokens) {
       return [];
@@ -57,9 +57,9 @@ export function useSortedTokensByQuery(
       return tokens;
     }
 
-    const exactMatches: Token[] = [];
-    const symbolSubstrings: Token[] = [];
-    const rest: Token[] = [];
+    const exactMatches: Currency[] = [];
+    const symbolSubstrings: Currency[] = [];
+    const rest: Currency[] = [];
 
     // sort tokens by exact match -> substring on symbol match -> rest
     tokens.forEach((token) => {

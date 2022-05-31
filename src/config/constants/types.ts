@@ -1,4 +1,4 @@
-export declare enum ChainName {
+export enum ChainName {
   MAINNET = "casper",
   TESTNET = "casper-test",
 }

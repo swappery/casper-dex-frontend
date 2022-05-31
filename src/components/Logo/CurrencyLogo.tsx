@@ -1,5 +1,4 @@
 import { Currency } from "../../config/sdk/currency";
-import { Token } from "../../config/sdk/token";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import getTokenLogoURL from "../../utils/getTokenLogoURL";
@@ -23,13 +22,10 @@ export default function CurrencyLogo({
   style?: React.CSSProperties;
 }) {
   const srcs: string[] = useMemo(() => {
-    if (currency instanceof Token) {
-      return [
-        getTestTokenLogoURL(currency.address),
-        getTokenLogoURL(currency.address),
-      ];
-    }
-    return [];
+    return [
+      getTestTokenLogoURL(currency!.address),
+      getTokenLogoURL(currency!.address),
+    ];
   }, [currency]);
 
   return (
