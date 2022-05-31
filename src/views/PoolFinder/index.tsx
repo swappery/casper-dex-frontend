@@ -5,20 +5,34 @@ import BackIcon from "../../components/Icon/Back";
 import useLiquidityStatus, {
   ExecutionType,
   supportedTokens,
+  TokenType,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
+import useCasperWeb3Provider from "../../web3";
+import useNetworkStatus from "../../store/useNetworkStatus";
 
 export default function PoolFinder() {
   const { theme } = useTheme();
-  const { currentPool } = useLiquidityStatus();
-  const { execType, sourceToken, targetToken, setExecType } =
-    useLiquidityStatus();
+  const { activate } = useCasperWeb3Provider();
+  const { isConnected } = useNetworkStatus();
+  const {
+    execType,
+    sourceToken,
+    targetToken,
+    currentPool,
+    setExecTypeWithCurrency,
+  } = useLiquidityStatus();
 
+  if (!isConnected) activate();
   if (execType !== ExecutionType.EXE_FIND_LIQUIDITY)
-    setExecType(ExecutionType.EXE_FIND_LIQUIDITY);
+    setExecTypeWithCurrency(
+      ExecutionType.EXE_FIND_LIQUIDITY,
+      supportedTokens[TokenType.CSPR].contractHash,
+      supportedTokens[TokenType.SWPR].contractHash
+    );
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">

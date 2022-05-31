@@ -512,6 +512,7 @@ export default function useCasperWeb3Provider() {
     async function handleSetCurrentPoolInfo() {
       if (!isConnected) return;
       if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
+        console.log("busy");
         setBusy(true);
         if (await isPairExist(sourceToken, targetToken)) {
           let routerContractHash = ROUTER_CONTRACT_HASH;

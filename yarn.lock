@@ -3996,7 +3996,7 @@ casper-erc20-js-client@^0.2.0:
 
 casper-js-client-helper@^1.0.1:
   version "1.0.1"
-  resolved "https://registry.npmjs.org/casper-js-client-helper/-/casper-js-client-helper-1.0.1.tgz"
+  resolved "https://registry.yarnpkg.com/casper-js-client-helper/-/casper-js-client-helper-1.0.1.tgz#364245d2fc938a0b53fa2086895b647829d2ae43"
   integrity sha512-NN4DNEiIq6hW2B8k4mbfFXFRWyZqQ6EvI972bGnw2/4BT0/aNWhy0zjRED9KiAQ60gwkKGMQbucPctrnUCHp3g==
   dependencies:
     casper-js-sdk "2.9.1"

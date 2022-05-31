@@ -311,6 +311,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
           maxAmountIn: BigNumber.from(0),
           currentStatus: TxStatus.REQ_SOURCE_APPROVE,
           slippageTolerance: 100,
+          isBusy: false,
         };
       }),
   }))
