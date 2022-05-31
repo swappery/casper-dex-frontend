@@ -439,7 +439,7 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     async function handleChangeAddress() {
-      if (!isConnected) return;
+      if (!isConnected || sourceToken === TokenType.EMPTY || targetToken === TokenType.EMPTY) return;
       setCurrentPool({
         contractPackageHash: "",
         contractHash: "",
@@ -463,7 +463,7 @@ export default function useCasperWeb3Provider() {
       );
     }
     handleChangeAddress();
-  }, [activeAddress]);
+  }, [activeAddress, sourceToken, targetToken]);
 
   useEffect(() => {
     updateCurrentStatus();
@@ -482,7 +482,7 @@ export default function useCasperWeb3Provider() {
   ]);
 
   useEffect(() => {
-    async function handleChangeToken() {
+    async function handleGetReserves() {
       if (await isPairExist(sourceToken, targetToken)) {
         const reserves = await getReserves(sourceToken, targetToken);
         console.log(reserves[0].toNumber(), reserves[1].toNumber());
@@ -505,14 +505,14 @@ export default function useCasperWeb3Provider() {
         setReserves(reservesList);
       }
     }
-    handleChangeToken();
+    handleGetReserves();
   }, [sourceToken, targetToken]);
 
   useEffect(() => {
     async function handleSetCurrentPoolInfo() {
       if (!isConnected) return;
-      setBusy(true);
       if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
+        setBusy(true);
         if (await isPairExist(sourceToken, targetToken)) {
           let routerContractHash = ROUTER_CONTRACT_HASH;
           let routerClient = new SwapperyRouterClient(
@@ -597,8 +597,8 @@ export default function useCasperWeb3Provider() {
             setCurrentPool(pool);
           }
         }
+        setBusy(false);
       }
-      setBusy(false);
     }
     handleSetCurrentPoolInfo();
   }, [sourceToken, targetToken, activeAddress, accountListString]);

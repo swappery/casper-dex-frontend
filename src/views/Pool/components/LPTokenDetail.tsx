@@ -1,6 +1,8 @@
 import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
+import { createSearchParams, useNavigate } from "react-router-dom";
+import useLiquidityStatus from "../../../store/useLiquidityStatus";
 
 type LPTokenProps = {
   isManage: boolean;
@@ -8,6 +10,8 @@ type LPTokenProps = {
 };
 
 const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
+  const navigate = useNavigate();
+  const { setBusy } = useLiquidityStatus();
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     BigNumber.from(poolInfo.decimals).toNumber()
@@ -79,7 +83,21 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
           <button className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl">
             Remove
           </button>
-          <button className="hover:opacity-80 p-[9px] text-[15px] leading-[18px] bg-lightgreen border border-black rounded-3xl">
+          <button
+            className="hover:opacity-80 p-[9px] text-[15px] leading-[18px] bg-lightgreen border border-black rounded-3xl"
+            onClick={() => {
+              setBusy(false);
+              console.log(poolInfo);
+              navigate({
+                pathname: "/add",
+                search: createSearchParams({
+                  inputCurrency: poolInfo.tokens[0].contractHash,
+                  outputCurrency: poolInfo.tokens[1].contractHash,
+                  poolAddress: poolInfo.contractPackageHash,
+                }).toString(),
+              });
+            }}
+          >
             + ADD LIQUIDITY INSTEAD
           </button>
         </div>

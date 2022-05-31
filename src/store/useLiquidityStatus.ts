@@ -65,6 +65,7 @@ export enum TxStatus {
   REQ_TARGET_APPROVE = "REQ_TARGET_APPROVE",
   REQ_EXECUTE = "REQ_EXECUTE",
   REQ_ADD_LIQUIDITY = "REQ_ADD_LIQUIDITY",
+  REQ_SELECT_CURRENCY = "REQ_SELECT_CURRENCY",
   PENDING = "PENDING",
 }
 
@@ -106,7 +107,7 @@ interface LiquidityStatus extends State {
   setHasImported: (hasImported: boolean) => void;
   setBusy: (isBusy: boolean) => void;
   setCurrentPool: (currentPool: Pool) => void;
-  setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined) => void;
+  setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined, reserves?: BigNumber[][]) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
@@ -227,6 +228,8 @@ const useLiquidityStatus = create<LiquidityStatus>(
     updateCurrentStatus: () =>
       set((state) => {
         if (state.isBusy) return {currentStatus: TxStatus.PENDING,};
+        else if (state.sourceToken === TokenType.EMPTY || state.targetToken === TokenType.EMPTY)
+          return { currentStatus: TxStatus.REQ_SELECT_CURRENCY, };
         else if (
           state.sourceBalance.lt(state.sourceAmount) &&
           supportedTokens[state.sourceToken].isNative
@@ -280,7 +283,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
     setHasImported: (hasImported: boolean) => set(() => ({ hasImported })),
     setBusy: (isBusy: boolean) => set(() => ({ isBusy })),
     setCurrentPool: (currentPool: Pool) => set(() => ({ currentPool })),
-    setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined) =>
+    setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined, reserves = [[BigNumber.from(1), BigNumber.from(1)]]) =>
       set(() => {
         let sourceToken = TokenType.EMPTY, targetToken = TokenType.EMPTY;
         supportedTokens.forEach((tokenContext, index) => {
@@ -302,7 +305,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
           targetBalance: BigNumber.from(0),
           targetApproval: BigNumber.from(0),
           targetAmount: BigNumber.from(0),
-          reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+          reserves: reserves,
           isExactIn: true,
           minAmountOut: BigNumber.from(0),
           maxAmountIn: BigNumber.from(0),

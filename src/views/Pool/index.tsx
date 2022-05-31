@@ -1,4 +1,7 @@
 import { createSearchParams, Link, useNavigate } from "react-router-dom";
+import useLiquidityStatus, {
+  ExecutionType,
+} from "../../store/useLiquidityStatus";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useWalletStatus, { AccountList } from "../../store/useWalletStatus";
 import { deserialize } from "../../utils/utils";
@@ -10,9 +13,11 @@ export default function Liquidity() {
   const { isConnected, activeAddress } = useNetworkStatus();
   const { accountListString } = useWalletStatus();
   const navigate = useNavigate();
+  const { execType, setExecType } = useLiquidityStatus();
 
   const accountList: AccountList = deserialize(accountListString);
   const poolMap = accountList.get(activeAddress)?.poolList;
+  if (execType !== ExecutionType.EXE_HOME) setExecType(ExecutionType.EXE_HOME);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">

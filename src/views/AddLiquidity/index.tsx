@@ -19,6 +19,8 @@ import useWalletStatus from "../../store/useWalletStatus";
 
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
+import { BigNumber } from "ethers";
+import useNetworkStatus from "../../store/useNetworkStatus";
 
 export default function AddLiquidity() {
   const { theme } = useTheme();
@@ -31,24 +33,42 @@ export default function AddLiquidity() {
     reserves,
     isExactIn,
     targetApproval,
+    currentPool,
     setExactIn,
     setExecType,
     setSourceAmount,
     setTargetAmount,
     setExecTypeWithCurrency,
+    setReserves,
   } = useLiquidityStatus();
   const [searchParams] = useSearchParams();
+  const { accountListString } = useWalletStatus();
+  const { isConnected, activeAddress } = useNetworkStatus();
 
   const params = Object.fromEntries(searchParams.entries());
 
   let inputCurrency = params["inputCurrency"];
   let outputCurrency = params["outputCurrency"];
-  if (execType !== ExecutionType.EXE_ADD_LIQUIDITY)
+  let poolAddress = params["poolAddress"];
+  if (execType !== ExecutionType.EXE_ADD_LIQUIDITY && isConnected) {
+    const accountList = deserialize(accountListString);
+    let reserves = [[BigNumber.from(1), BigNumber.from(1)]];
+    console.log(activeAddress);
+    console.log(accountList.get(activeAddress).poolList.has(poolAddress));
+    if (accountList.has(activeAddress)) {
+      if (accountList.get(activeAddress).poolList.has(poolAddress)) {
+        reserves = [
+          accountList.get(accountList).poolList.get(poolAddress).reserves,
+        ];
+      }
+    }
     setExecTypeWithCurrency(
       ExecutionType.EXE_ADD_LIQUIDITY,
       inputCurrency,
-      outputCurrency
+      outputCurrency,
+      reserves
     );
+  }
 
   const withSourceLimit = ({ floatValue }: any) =>
     floatValue <
