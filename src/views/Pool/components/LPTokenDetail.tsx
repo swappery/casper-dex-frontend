@@ -79,7 +79,18 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
       </div>
       {isManage ? (
         <div className="font-orator-std grid gap-4 text-black mt-7">
-          <button className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl">
+          <button
+            className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl"
+            onClick={() => {
+              navigate({
+                pathname: "/remove",
+                search: createSearchParams({
+                  inputCurrency: poolInfo.tokens[0].contractHash,
+                  outputCurrency: poolInfo.tokens[1].contractHash,
+                }).toString(),
+              });
+            }}
+          >
             Remove
           </button>
           <button

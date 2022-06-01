@@ -2,104 +2,21 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Link, useSearchParams } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
-import { useCallback, KeyboardEvent } from "react";
 
-import useLiquidityStatus, {
-  ExecutionType,
-  supportedTokens,
-  TokenType,
-} from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals, deserialize } from "../../utils/utils";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
-
-import useWalletStatus from "../../store/useWalletStatus";
 
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
-import { BigNumber } from "ethers";
 import useNetworkStatus from "../../store/useNetworkStatus";
+import csprToken from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
+import swprToken from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
 
 export default function RemoveLiquidity() {
   const { theme } = useTheme();
-  const {
-    execType,
-    sourceToken,
-    sourceAmount,
-    targetToken,
-    targetAmount,
-    reserves,
-    isExactIn,
-    targetApproval,
-    currentPool,
-    setExactIn,
-    setExecType,
-    setSourceAmount,
-    setTargetAmount,
-    setExecTypeWithCurrency,
-    setReserves,
-  } = useLiquidityStatus();
-  const [searchParams] = useSearchParams();
-  const { accountListString } = useWalletStatus();
   const { isConnected, activeAddress } = useNetworkStatus();
-
-  const params = Object.fromEntries(searchParams.entries());
-
-  let inputCurrency = params["inputCurrency"];
-  let outputCurrency = params["outputCurrency"];
-  let poolAddress = params["poolAddress"];
-  if (execType !== ExecutionType.EXE_ADD_LIQUIDITY && isConnected) {
-    const accountList = deserialize(accountListString);
-    let reserves = [[BigNumber.from(1), BigNumber.from(1)]];
-    if (accountList.has(activeAddress)) {
-      if (accountList.get(activeAddress).poolList.has(poolAddress)) {
-        reserves = [
-          accountList.get(activeAddress).poolList.get(poolAddress).reserves,
-        ];
-      }
-    }
-    setExecTypeWithCurrency(
-      ExecutionType.EXE_ADD_LIQUIDITY,
-      inputCurrency,
-      outputCurrency,
-      reserves
-    );
-  }
-
-  const withSourceLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      reserves[0][0],
-      supportedTokens[sourceToken].decimals
-    );
-
-  const withTargetLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      reserves[reserves.length - 1][1],
-      supportedTokens[targetToken].decimals
-    );
-
-  const sourceValue = !isExactIn
-    ? amountWithoutDecimals(
-        targetAmount.mul(reserves[0][0]).div(reserves[0][1]),
-        supportedTokens[sourceToken].decimals
-      )
-    : amountWithoutDecimals(
-        sourceAmount,
-        supportedTokens[sourceToken].decimals
-      );
-  const targetValue = isExactIn
-    ? amountWithoutDecimals(
-        sourceAmount.mul(reserves[0][1]).div(reserves[0][0]),
-        supportedTokens[targetToken].decimals
-      )
-    : amountWithoutDecimals(
-        targetAmount,
-        supportedTokens[targetToken].decimals
-      );
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
@@ -111,53 +28,65 @@ export default function RemoveLiquidity() {
             </Link>
 
             <p className="text-[35px] md:text-[43px] leading-[43px] text-neutral">
-              ADD LIQUIDITY
+              REMOVE LIQUIDITY
             </p>
             <div className="w-[19px]"></div>
           </div>
 
           <p className="text-[20px] md:text-[22px] text-neutral mt-3 mb-7">
-            add liquidity to receive lp tokens
+            remove liquidity to receive tokens back
           </p>
 
           <div className="border bg-success w-full">
             <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
               <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
-                  value={sourceValue}
+                  value={0}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(true);
-                    },
-                    [isExactIn]
-                  )}
-                  isAllowed={withSourceLimit}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    setSourceAmount(parseFloat(value) || 0);
-                  }}
+                />
+                <div className="flex items-center">
+                  <label className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                    <span className="text-[14px] md:text-[19px]">
+                      CSPR:SWPR
+                    </span>
+                    <ChevronIcon />
+                  </label>
+                  <img
+                    src={csprToken}
+                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                    alt=""
+                  />
+                  <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
+                  <img
+                    src={swprToken}
+                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                    alt=""
+                  />
+                </div>
+              </div>
+              <div className="flex justify-center">
+                <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
+              </div>
+              <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
+                <NumberFormat
+                  value={0}
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  thousandSeparator={false}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
                     htmlFor="currentTokenModal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">
-                      {supportedTokens[sourceToken].symbol}
-                    </span>
+                    <span className="text-[14px] md:text-[19px]">CSPR</span>
                     <ChevronIcon />
                   </label>
-                  {sourceToken !== TokenType.EMPTY ? (
-                    <img
-                      src={supportedTokens[sourceToken].tokenSvg}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                      alt=""
-                    />
-                  ) : (
-                    <></>
-                  )}
+                  <img
+                    src={csprToken}
+                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                    alt=""
+                  />
                 </div>
               </div>
               <div className="flex justify-center">
@@ -167,78 +96,37 @@ export default function RemoveLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
-                  value={targetValue}
+                  value={0}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(false);
-                    },
-                    [isExactIn]
-                  )}
-                  isAllowed={withTargetLimit}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    setTargetAmount(parseFloat(value) || 0);
-                  }}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
                     htmlFor="targetTokenModal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">
-                      {supportedTokens[targetToken].symbol}
-                    </span>
+                    <span className="text-[14px] md:text-[19px]">SWPR</span>
                     <ChevronIcon />
                   </label>
-                  {targetToken !== TokenType.EMPTY ? (
-                    <img
-                      src={supportedTokens[targetToken].tokenSvg}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                      alt=""
-                    />
-                  ) : (
-                    <></>
-                  )}
+                  <img
+                    src={swprToken}
+                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                    alt=""
+                  />
                 </div>
               </div>
-              <ActionButton />
+              <button className="hover:opacity-80 mt-4 bg-lightgreen border border-black rounded-3xl px-4 py-2 w-full text-[14px] md:text-[18px] text-black font-orator-std">
+                Remove Liquidity
+              </button>
             </div>
           </div>
           <p className="text-base md:text-[18px] text-neutral mt-7">
-            SELECT A TOKEN TO FIND LIQUIDITY
+            SELECT A TOKEN TO REMOVE LIQUIDITY
           </p>
         </div>
       </div>
-      <CurrencySearchModal
-        modalId="currentTokenModal"
-        selectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        isSourceSelect={true}
-      />
-      <CurrencySearchModal
-        modalId="targetTokenModal"
-        selectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        isSourceSelect={false}
-      />
+      <CurrencySearchModal modalId="currentTokenModal" isSourceSelect={true} />
+      <CurrencySearchModal modalId="targetTokenModal" isSourceSelect={false} />
     </div>
   );
 }
