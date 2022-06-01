@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";

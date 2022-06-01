@@ -264,14 +264,6 @@ const useLiquidityStatus = create<LiquidityStatus>(
       }),
     switchToken: () =>
       set((state) => {
-        if (state.isExactIn)
-          return {
-            sourceToken: state.targetToken,
-            targetToken: state.sourceToken,
-            isExactIn: !state.isExactIn,
-            sourceAmount: state.targetAmount,
-            targetAmount: state.sourceAmount,
-          };
         return {
           sourceToken: state.targetToken,
           targetToken: state.sourceToken,

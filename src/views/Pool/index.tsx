@@ -1,6 +1,8 @@
-import { createSearchParams, Link, useNavigate } from "react-router-dom";
+import { createSearchParams, useNavigate } from "react-router-dom";
 import useLiquidityStatus, {
   ExecutionType,
+  supportedTokens,
+  TokenType,
 } from "../../store/useLiquidityStatus";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useWalletStatus, { AccountList } from "../../store/useWalletStatus";
@@ -52,12 +54,23 @@ export default function Liquidity() {
                   )}
                 </p>
                 <div className="border border-neutral rounded-[50%] w-9 h-9"></div>
-                <Link
-                  to="/find"
+                <button
                   className="hover:opacity-80 w-full text-black text-[18px] md:text-[22px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5 mb-4 md:mb-6"
+                  onClick={(
+                    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+                  ) => {
+                    event.preventDefault();
+                    navigate({
+                      pathname: "/find",
+                      search: createSearchParams({
+                        inputCurrency:
+                          supportedTokens[TokenType.SWPR].contractHash,
+                      }).toString(),
+                    });
+                  }}
                 >
                   Find Other LP Tokens
-                </Link>
+                </button>
               </div>
             </>
           ) : (

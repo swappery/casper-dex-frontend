@@ -1,9 +1,23 @@
-import useLiquidityStatus from "../../store/useLiquidityStatus";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useSearchParams } from "react-router-dom";
+import useLiquidityStatus, {
+  supportedTokens,
+} from "../../store/useLiquidityStatus";
 
 export default function IconButton() {
-  const { switchToken } = useLiquidityStatus();
+  // const { switchToken } = useLiquidityStatus();
+  const { sourceToken, targetToken } = useLiquidityStatus();
+  const [searchParams, setSearchParams] = useSearchParams();
   return (
-    <button className="hover:opacity-80" onClick={switchToken}>
+    <button
+      className="hover:opacity-80"
+      onClick={() => {
+        setSearchParams({
+          inputCurrency: supportedTokens[targetToken].contractHash,
+          outputCurrency: supportedTokens[sourceToken].contractHash,
+        });
+      }}
+    >
       <svg
         width="38"
         height="39"

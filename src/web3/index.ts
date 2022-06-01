@@ -29,6 +29,7 @@ import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus, { Pool } from "../store/useWalletStatus";
 import { deserialize, getDeploy } from "../utils/utils";
+import { useSearchParams } from "react-router-dom";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -55,11 +56,13 @@ export default function useCasperWeb3Provider() {
     setHasImported,
     setBusy,
     setCurrentPool,
+    setExecTypeWithCurrency,
   } = useLiquidityStatus();
 
   const { addAccount, accountListString } = useWalletStatus();
+  const [searchParams] = useSearchParams();
 
-  async function activate(requireConnection = true) {
+  async function activate(requireConnection = true): Promise<void> {
     try {
       if (!!activeAddress && activeAddress !== "") return;
       let publicKey = await Signer.getActivePublicKey();
@@ -483,6 +486,7 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     async function handleGetReserves() {
+      if (execType !== ExecutionType.EXE_FIND_LIQUIDITY) setBusy(true);
       if (await isPairExist(sourceToken, targetToken)) {
         const reserves = await getReserves(sourceToken, targetToken);
         console.log(reserves[0].toNumber(), reserves[1].toNumber());
@@ -492,6 +496,7 @@ export default function useCasperWeb3Provider() {
           BigNumber.from(reserves[1]),
         ]);
         setReserves(reservesList);
+        if (execType !== ExecutionType.EXE_FIND_LIQUIDITY) setBusy(false);
       } else if (
         (await isPairExist(sourceToken, TokenType.CSPR)) &&
         (await isPairExist(TokenType.CSPR, targetToken))
@@ -503,6 +508,7 @@ export default function useCasperWeb3Provider() {
         const step2 = await getReserves(TokenType.CSPR, targetToken);
         reservesList.push([BigNumber.from(step2[0]), BigNumber.from(step2[1])]);
         setReserves(reservesList);
+        if (execType !== ExecutionType.EXE_FIND_LIQUIDITY) setBusy(false);
       }
     }
     handleGetReserves();
@@ -511,8 +517,7 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleSetCurrentPoolInfo() {
       if (!isConnected) return;
-      if (execType === ExecutionType.EXE_FIND_LIQUIDITY) {
-        console.log("busy");
+      if (execType === ExecutionType.EXE_FIND_LIQUIDITY && sourceToken !== TokenType.EMPTY && targetToken !== TokenType.EMPTY) {
         setBusy(true);
         if (await isPairExist(sourceToken, targetToken)) {
           let routerContractHash = ROUTER_CONTRACT_HASH;
@@ -603,6 +608,13 @@ export default function useCasperWeb3Provider() {
     }
     handleSetCurrentPoolInfo();
   }, [sourceToken, targetToken, activeAddress, accountListString]);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+    const inputCurrency = params["inputCurrency"];
+    const outputCurrency = params["outputCurrency"];
+    setExecTypeWithCurrency(execType, inputCurrency, outputCurrency);
+  }, [searchParams]);
 
   return {
     activate,

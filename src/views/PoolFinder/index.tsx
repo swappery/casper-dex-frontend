@@ -1,4 +1,5 @@
-import { Link } from "react-router-dom";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { Link, useSearchParams } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
@@ -13,6 +14,7 @@ import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
 import useNetworkStatus from "../../store/useNetworkStatus";
+import { useMemo } from "react";
 
 export default function PoolFinder() {
   const { theme } = useTheme();
@@ -25,13 +27,23 @@ export default function PoolFinder() {
     currentPool,
     setExecTypeWithCurrency,
   } = useLiquidityStatus();
+  const [searchParams] = useSearchParams();
 
-  if (!isConnected) activate();
+  // if (!isConnected) activate();
+
+  const params = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
+
+  const inputCurrency =
+    params["inputCurrency"] || supportedTokens[TokenType.SWPR].contractHash;
+  const outputCurrency = params["outputCurrency"];
+
   if (execType !== ExecutionType.EXE_FIND_LIQUIDITY)
     setExecTypeWithCurrency(
       ExecutionType.EXE_FIND_LIQUIDITY,
-      supportedTokens[TokenType.CSPR].contractHash,
-      supportedTokens[TokenType.SWPR].contractHash
+      inputCurrency,
+      outputCurrency
     );
 
   return (
@@ -58,11 +70,15 @@ export default function PoolFinder() {
               className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2"
             >
               <p className="flex items-center gap-2">
-                <img
-                  src={supportedTokens[sourceToken].tokenSvg}
-                  className="w-[28px] h-[28px]"
-                  alt=""
-                />
+                {sourceToken !== TokenType.EMPTY ? (
+                  <img
+                    src={supportedTokens[sourceToken].tokenSvg}
+                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                    alt=""
+                  />
+                ) : (
+                  <div className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></div>
+                )}
                 <span className="text-[19px] text-black">
                   {supportedTokens[sourceToken].symbol}
                 </span>
@@ -80,11 +96,15 @@ export default function PoolFinder() {
                 {/* <img src={swprToken} className='w-[28px] h-[28px]' alt='' /> */}
                 {/* <div className="w-[28px] h-[28px] border border-neutral rounded-[50%]"></div>
                 <span className="text-[19px]">select a token</span> */}
-                <img
-                  src={supportedTokens[targetToken].tokenSvg}
-                  className="w-[28px] h-[28px]"
-                  alt=""
-                />
+                {targetToken !== TokenType.EMPTY ? (
+                  <img
+                    src={supportedTokens[targetToken].tokenSvg}
+                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                    alt=""
+                  />
+                ) : (
+                  <div className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></div>
+                )}
                 <span className="text-[19px] text-black">
                   {supportedTokens[targetToken].symbol}
                 </span>
@@ -110,8 +130,34 @@ export default function PoolFinder() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal modalId="currentTokenModal" />
-      <CurrencySearchModal modalId="targetTokenModal" />
+      <CurrencySearchModal
+        modalId="currentTokenModal"
+        selectedCurrency={
+          sourceToken !== TokenType.EMPTY
+            ? supportedTokens[sourceToken].contractHash
+            : null
+        }
+        otherSelectedCurrency={
+          targetToken !== TokenType.EMPTY
+            ? supportedTokens[targetToken].contractHash
+            : null
+        }
+        isSourceSelect={true}
+      />
+      <CurrencySearchModal
+        modalId="targetTokenModal"
+        selectedCurrency={
+          targetToken !== TokenType.EMPTY
+            ? supportedTokens[targetToken].contractHash
+            : null
+        }
+        otherSelectedCurrency={
+          sourceToken !== TokenType.EMPTY
+            ? supportedTokens[sourceToken].contractHash
+            : null
+        }
+        isSourceSelect={false}
+      />
     </div>
   );
 }

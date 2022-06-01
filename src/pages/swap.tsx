@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, KeyboardEvent } from "react";
+import { useCallback, KeyboardEvent, useMemo } from "react";
 import IconButton from "../components/Button/IconButton";
 import useLiquidityStatus, {
   ExecutionType,
@@ -9,7 +9,7 @@ import useLiquidityStatus, {
 } from "../store/useLiquidityStatus";
 import ActionButton from "../components/Button/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals, deserialize } from "../utils/utils";
+import { amountWithoutDecimals } from "../utils/utils";
 import CurrencySearchModal from "../components/SearchModal/CurrencySearchModalOld";
 
 import swapImage from "../assets/images/swap/swap.svg";
@@ -36,11 +36,13 @@ export default function Swap() {
   } = useLiquidityStatus();
   const [searchParams] = useSearchParams();
 
-  const params = Object.fromEntries(searchParams.entries());
+  const params = useMemo(() => {
+    return Object.fromEntries(searchParams.entries());
+  }, [searchParams]);
 
-  let inputCurrency =
+  const inputCurrency =
     params["inputCurrency"] || supportedTokens[TokenType.CSPR].contractHash;
-  let outputCurrency =
+  const outputCurrency =
     params["outputCurrency"] || supportedTokens[TokenType.SWPR].contractHash;
   if (execType !== ExecutionType.EXE_SWAP && inputCurrency && outputCurrency)
     setExecTypeWithCurrency(
@@ -129,7 +131,10 @@ export default function Swap() {
                 onValueChange={async (values) => {
                   const { value } = values;
                   setSourceAmount(parseFloat(value) || 0);
-                  setMaxAmountIn((parseFloat(value) * 10100) / 10000);
+                  setMaxAmountIn(
+                    (parseFloat(value) * (TOTAL_SHARE + slippageTolerance)) /
+                      TOTAL_SHARE
+                  );
                 }}
               />
               <div className="flex items-center md:gap-2">
@@ -167,7 +172,10 @@ export default function Swap() {
                 onValueChange={async (values) => {
                   const { value } = values;
                   setTargetAmount(parseFloat(value) || 0);
-                  setMinAmountOut((parseFloat(value) * 10000) / 10100);
+                  setMinAmountOut(
+                    (parseFloat(value) * TOTAL_SHARE) /
+                      (TOTAL_SHARE + slippageTolerance)
+                  );
                 }}
               />
               <div className="flex items-center md:gap-2">
@@ -194,8 +202,18 @@ export default function Swap() {
           </div>
         </div>
       </div>
-      <CurrencySearchModal modalId="currentTokenModal" />
-      <CurrencySearchModal modalId="targetTokenModal" />
+      <CurrencySearchModal
+        modalId="currentTokenModal"
+        selectedCurrency={supportedTokens[sourceToken].contractHash}
+        otherSelectedCurrency={supportedTokens[targetToken].contractHash}
+        isSourceSelect={true}
+      />
+      <CurrencySearchModal
+        modalId="targetTokenModal"
+        selectedCurrency={supportedTokens[targetToken].contractHash}
+        otherSelectedCurrency={supportedTokens[sourceToken].contractHash}
+        isSourceSelect={false}
+      />
     </div>
   );
 }

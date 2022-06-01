@@ -149,7 +149,7 @@ export default function AddLiquidity() {
                     </span>
                     <ChevronIcon />
                   </label>
-                  {supportedTokens[sourceToken].tokenSvg !== "" ? (
+                  {sourceToken !== TokenType.EMPTY ? (
                     <img
                       src={supportedTokens[sourceToken].tokenSvg}
                       className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
@@ -192,7 +192,7 @@ export default function AddLiquidity() {
                     </span>
                     <ChevronIcon />
                   </label>
-                  {supportedTokens[targetToken].tokenSvg !== "" ? (
+                  {targetToken !== TokenType.EMPTY ? (
                     <img
                       src={supportedTokens[targetToken].tokenSvg}
                       className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
@@ -211,8 +211,34 @@ export default function AddLiquidity() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal modalId="currentTokenModal" />
-      <CurrencySearchModal modalId="targetTokenModal" />
+      <CurrencySearchModal
+        modalId="currentTokenModal"
+        selectedCurrency={
+          sourceToken !== TokenType.EMPTY
+            ? supportedTokens[sourceToken].contractHash
+            : null
+        }
+        otherSelectedCurrency={
+          targetToken !== TokenType.EMPTY
+            ? supportedTokens[targetToken].contractHash
+            : null
+        }
+        isSourceSelect={true}
+      />
+      <CurrencySearchModal
+        modalId="targetTokenModal"
+        selectedCurrency={
+          targetToken !== TokenType.EMPTY
+            ? supportedTokens[targetToken].contractHash
+            : null
+        }
+        otherSelectedCurrency={
+          sourceToken !== TokenType.EMPTY
+            ? supportedTokens[sourceToken].contractHash
+            : null
+        }
+        isSourceSelect={false}
+      />
     </div>
   );
 }
