@@ -231,15 +231,27 @@ const useLiquidityStatus = create<LiquidityStatus>(
         else if (state.sourceToken === TokenType.EMPTY || state.targetToken === TokenType.EMPTY)
           return { currentStatus: TxStatus.REQ_SELECT_CURRENCY, };
         else if (
-          state.sourceBalance.lt(state.sourceAmount) &&
-          supportedTokens[state.sourceToken].isNative
+          state.execType === ExecutionType.EXE_SWAP &&
+          supportedTokens[state.sourceToken].isNative &&
+          ((state.sourceBalance.lt(state.sourceAmount) && state.isExactIn) ||
+          (state.sourceBalance.lt(state.maxAmountIn) && !state.isExactIn))
         )
           return {
             currentStatus: TxStatus.REQ_WRAP,
           };
         else if (
-          (state.sourceApproval.lt(state.maxAmountIn) && !state.isExactIn) ||
-          (state.sourceApproval.lt(state.sourceAmount) && state.isExactIn)
+          state.execType === ExecutionType.EXE_ADD_LIQUIDITY &&
+          ((supportedTokens[state.sourceToken].isNative && state.sourceBalance.lt(state.sourceAmount)) ||
+          (supportedTokens[state.targetToken].isNative && state.targetBalance.lt(state.targetAmount)))
+        )  
+          return {
+            currentStatus: TxStatus.REQ_WRAP,
+          };
+        else if (
+          (state.execType === ExecutionType.EXE_SWAP &&
+          ((state.sourceApproval.lt(state.maxAmountIn) && !state.isExactIn) ||
+          (state.sourceApproval.lt(state.sourceAmount) && state.isExactIn))) ||
+          (state.execType === ExecutionType.EXE_ADD_LIQUIDITY && state.sourceApproval.lt(state.sourceAmount))
         )
           return {
             currentStatus: TxStatus.REQ_SOURCE_APPROVE,

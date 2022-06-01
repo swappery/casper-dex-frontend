@@ -10,6 +10,7 @@ import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 import Spinner from "../../assets/images/spinner/swappery-loading_64px.gif";
 import useWalletStatus from "../../store/useWalletStatus";
+import { createSearchParams, useNavigate } from "react-router-dom";
 
 const ActionButton: FC = () => {
   const { isConnected, activeAddress } = useNetworkStatus();
@@ -29,6 +30,7 @@ const ActionButton: FC = () => {
     sourceAmount,
     targetToken,
     targetAmount,
+    targetBalance,
     isExactIn,
     minAmountOut,
     maxAmountIn,
@@ -38,14 +40,50 @@ const ActionButton: FC = () => {
   } = useLiquidityStatus();
 
   const { setPool } = useWalletStatus();
+  const navigate = useNavigate();
 
   const handleClick = async () => {
     if (isConnected) {
-      if (currentStatus === TxStatus.REQ_WRAP)
+      if (
+        execType === ExecutionType.EXE_SWAP &&
+        currentStatus === TxStatus.REQ_WRAP &&
+        !isExactIn
+      )
+        wrapCspr(maxAmountIn.sub(sourceBalance));
+      else if (
+        execType === ExecutionType.EXE_SWAP &&
+        currentStatus === TxStatus.REQ_WRAP &&
+        isExactIn
+      )
         wrapCspr(sourceAmount.sub(sourceBalance));
-      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE && !isExactIn)
+      else if (
+        execType === ExecutionType.EXE_ADD_LIQUIDITY &&
+        currentStatus === TxStatus.REQ_WRAP &&
+        supportedTokens[sourceToken].isNative
+      )
+        wrapCspr(sourceAmount.sub(sourceBalance));
+      else if (
+        execType === ExecutionType.EXE_ADD_LIQUIDITY &&
+        currentStatus === TxStatus.REQ_WRAP &&
+        supportedTokens[targetToken].isNative
+      )
+        wrapCspr(targetAmount.sub(targetBalance));
+      else if (
+        execType === ExecutionType.EXE_SWAP &&
+        currentStatus === TxStatus.REQ_SOURCE_APPROVE &&
+        !isExactIn
+      )
         approveSourceToken(maxAmountIn);
-      else if (currentStatus === TxStatus.REQ_SOURCE_APPROVE && isExactIn)
+      else if (
+        execType === ExecutionType.EXE_SWAP &&
+        currentStatus === TxStatus.REQ_SOURCE_APPROVE &&
+        isExactIn
+      )
+        approveSourceToken(sourceAmount);
+      else if (
+        execType === ExecutionType.EXE_ADD_LIQUIDITY &&
+        currentStatus === TxStatus.REQ_SOURCE_APPROVE
+      )
         approveSourceToken(sourceAmount);
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
@@ -95,6 +133,17 @@ const ActionButton: FC = () => {
         execType === ExecutionType.EXE_FIND_LIQUIDITY
       ) {
         setPool(activeAddress, currentPool);
+      } else if (
+        currentStatus === TxStatus.REQ_ADD_LIQUIDITY &&
+        execType === ExecutionType.EXE_FIND_LIQUIDITY
+      ) {
+        navigate({
+          pathname: "/add",
+          search: createSearchParams({
+            inputCurrency: supportedTokens[sourceToken].contractHash,
+            outputCurrency: supportedTokens[targetToken].contractHash,
+          }).toString(),
+        });
       }
     } else {
       activate();

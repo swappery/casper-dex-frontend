@@ -77,7 +77,7 @@ export default function PoolFinder() {
                     alt=""
                   />
                 ) : (
-                  <div className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></div>
+                  <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
                 )}
                 <span className="text-[19px] text-black">
                   {supportedTokens[sourceToken].symbol}
@@ -103,7 +103,7 @@ export default function PoolFinder() {
                     alt=""
                   />
                 ) : (
-                  <div className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></div>
+                  <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
                 )}
                 <span className="text-[19px] text-black">
                   {supportedTokens[targetToken].symbol}

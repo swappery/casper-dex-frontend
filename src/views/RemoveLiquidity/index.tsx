@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Link, useSearchParams } from "react-router-dom";
 import useTheme, { Themes } from "../../hooks/useTheme";
 import { useCallback, KeyboardEvent } from "react";
@@ -12,14 +12,17 @@ import useLiquidityStatus, {
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/utils";
+import { amountWithoutDecimals, deserialize } from "../../utils/utils";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+
+import useWalletStatus from "../../store/useWalletStatus";
 
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
+import { BigNumber } from "ethers";
 import useNetworkStatus from "../../store/useNetworkStatus";
 
-export default function AddLiquidity() {
+export default function RemoveLiquidity() {
   const { theme } = useTheme();
   const {
     execType,
@@ -29,24 +32,39 @@ export default function AddLiquidity() {
     targetAmount,
     reserves,
     isExactIn,
+    targetApproval,
     currentPool,
     setExactIn,
+    setExecType,
     setSourceAmount,
     setTargetAmount,
     setExecTypeWithCurrency,
+    setReserves,
   } = useLiquidityStatus();
   const [searchParams] = useSearchParams();
-  const { isConnected } = useNetworkStatus();
+  const { accountListString } = useWalletStatus();
+  const { isConnected, activeAddress } = useNetworkStatus();
 
   const params = Object.fromEntries(searchParams.entries());
 
   let inputCurrency = params["inputCurrency"];
   let outputCurrency = params["outputCurrency"];
+  let poolAddress = params["poolAddress"];
   if (execType !== ExecutionType.EXE_ADD_LIQUIDITY && isConnected) {
+    const accountList = deserialize(accountListString);
+    let reserves = [[BigNumber.from(1), BigNumber.from(1)]];
+    if (accountList.has(activeAddress)) {
+      if (accountList.get(activeAddress).poolList.has(poolAddress)) {
+        reserves = [
+          accountList.get(activeAddress).poolList.get(poolAddress).reserves,
+        ];
+      }
+    }
     setExecTypeWithCurrency(
       ExecutionType.EXE_ADD_LIQUIDITY,
       inputCurrency,
-      outputCurrency
+      outputCurrency,
+      reserves
     );
   }
 

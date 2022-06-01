@@ -245,6 +245,26 @@ export default function useCasperWeb3Provider() {
       targetContractHash
     );
   }
+  async function getPairFor(
+    sourceContractHash: string,
+    targetContractHash: string
+  ) {
+    let routerContractHash = ROUTER_CONTRACT_HASH;
+    let routerClient = new SwapperyRouterClient(
+      NODE_ADDRESS,
+      CHAIN_NAME,
+      undefined
+    );
+    await routerClient.setContractHash(routerContractHash);
+    if (await routerClient.isPairExists(sourceContractHash, targetContractHash)){
+      let pairPackageHash = await routerClient.getPairFor(
+        sourceContractHash,
+        targetContractHash
+      );
+      return pairPackageHash;
+    }
+    return;
+  }
 
   async function getReserves(
     sourceToken: TokenType,
@@ -443,15 +463,6 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     async function handleChangeAddress() {
       if (!isConnected || sourceToken === TokenType.EMPTY || targetToken === TokenType.EMPTY) return;
-      setCurrentPool({
-        contractPackageHash: "",
-        contractHash: "",
-        tokens: [],
-        decimals: BigNumber.from(0),
-        totalSupply: BigNumber.from(0),
-        reserves: [],
-        balance: BigNumber.from(0),
-      });
       setSourceBalance(
         await balanceOf(supportedTokens[sourceToken].contractHash)
       );
@@ -486,6 +497,7 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     async function handleGetReserves() {
+      if (!isConnected || sourceToken === TokenType.EMPTY || targetToken === TokenType.EMPTY) return;
       if (execType !== ExecutionType.EXE_FIND_LIQUIDITY) setBusy(true);
       if (await isPairExist(sourceToken, targetToken)) {
         const reserves = await getReserves(sourceToken, targetToken);
@@ -512,99 +524,98 @@ export default function useCasperWeb3Provider() {
       }
     }
     handleGetReserves();
-  }, [sourceToken, targetToken]);
+  }, [sourceToken, targetToken, activeAddress]);
 
   useEffect(() => {
     async function handleSetCurrentPoolInfo() {
-      if (!isConnected) return;
-      if (execType === ExecutionType.EXE_FIND_LIQUIDITY && sourceToken !== TokenType.EMPTY && targetToken !== TokenType.EMPTY) {
-        setBusy(true);
-        if (await isPairExist(sourceToken, targetToken)) {
-          let routerContractHash = ROUTER_CONTRACT_HASH;
-          let routerClient = new SwapperyRouterClient(
+      if (!isConnected || execType !== ExecutionType.EXE_FIND_LIQUIDITY || sourceToken === TokenType.EMPTY || targetToken === TokenType.EMPTY) return;
+      setBusy(true);
+      if (await isPairExist(sourceToken, targetToken)) {
+        let routerContractHash = ROUTER_CONTRACT_HASH;
+        let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await routerClient.setContractHash(routerContractHash);
+        const sourceContractHash = supportedTokens[sourceToken].contractHash;
+        const targetContractHash = supportedTokens[targetToken].contractHash;
+        let pairPackageHash = await routerClient.getPairFor(
+          sourceContractHash,
+          targetContractHash
+        );
+
+        const accountList = deserialize(accountListString);
+        if (accountList.has(activeAddress)) {
+          const poolList = accountList.get(activeAddress).poolList;
+          if (poolList.has(pairPackageHash)) {
+            setHasImported(true);
+            setBusy(false);
+            return;
+          } else {
+            setHasImported(false);
+          }
+        } else {
+          setHasImported(false);
+        }
+        
+        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+        if (block) {
+          const stateRootHash = block.header.state_root_hash;
+          const blockState = await client.getBlockState(
+            stateRootHash,
+            `hash-${pairPackageHash}`,
+            []
+          );
+          let pairContractHash =
+            blockState.ContractPackage?.versions[
+              blockState.ContractPackage.versions.length - 1
+            ].contractHash.slice(9);
+          let pairClient = new SwapperyPairClient(
             NODE_ADDRESS,
             CHAIN_NAME,
             undefined
           );
-          await routerClient.setContractHash(routerContractHash);
-          const sourceContractHash = supportedTokens[sourceToken].contractHash;
-          const targetContractHash = supportedTokens[targetToken].contractHash;
-          let pairPackageHash = await routerClient.getPairFor(
-            sourceContractHash,
-            targetContractHash
-          );
-
-          const accountList = deserialize(accountListString);
-          if (accountList.has(activeAddress)) {
-            const poolList = accountList.get(activeAddress).poolList;
-            if (poolList.has(pairPackageHash)) {
-              setHasImported(true);
-              setBusy(false);
-            } else {
-              setHasImported(false);
-            }
-          } else {
-            setHasImported(false);
+          await pairClient.setContractHash(pairContractHash!);
+            let reserves_res = await pairClient.getReserves();
+          let reserves;
+          if (sourceContractHash < targetContractHash)
+            reserves = [
+              BigNumber.from(reserves_res[0]),
+              BigNumber.from(reserves_res[1]),
+            ];
+          else
+            reserves = [
+              BigNumber.from(reserves_res[1]),
+              BigNumber.from(reserves_res[0]),
+            ];
+          let balance;
+          try {
+            balance = await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
+          } catch (error) {
+            setBusy(false); return;
           }
-          
-          const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
-          const { block } = await client.getLatestBlockInfo();
-
-          if (block) {
-            const stateRootHash = block.header.state_root_hash;
-            const blockState = await client.getBlockState(
-              stateRootHash,
-              `hash-${pairPackageHash}`,
-              []
-            );
-            let pairContractHash =
-              blockState.ContractPackage?.versions[
-                blockState.ContractPackage.versions.length - 1
-              ].contractHash.slice(9);
-            let pairClient = new SwapperyPairClient(
-              NODE_ADDRESS,
-              CHAIN_NAME,
-              undefined
-            );
-            await pairClient.setContractHash(pairContractHash!);
-              let reserves_res = await pairClient.getReserves();
-            let reserves;
-            if (sourceContractHash < targetContractHash)
-              reserves = [
-                BigNumber.from(reserves_res[0]),
-                BigNumber.from(reserves_res[1]),
-              ];
-            else
-              reserves = [
-                BigNumber.from(reserves_res[1]),
-                BigNumber.from(reserves_res[0]),
-              ];
-            let balance;
-            try {
-              balance = await pairClient.balanceOf(CLPublicKey.fromHex(activeAddress))
-            } catch (error) {
-              setBusy(false); return;
-            }
-            if (BigNumber.from(balance).eq(BigNumber.from(0))) {
-              setBusy(false); return;
-            }
-            const pool: Pool = {
-              contractPackageHash: pairPackageHash,
-              contractHash: pairContractHash!,
-              tokens: [
-                supportedTokens[sourceToken],
-                supportedTokens[targetToken],
-              ],
-              decimals: await pairClient.decimals(),
-              totalSupply: await pairClient.totalSupply(),
-              reserves: reserves,
-              balance: BigNumber.from(balance),
-            };
-            setCurrentPool(pool);
+          if (BigNumber.from(balance).eq(BigNumber.from(0))) {
+            setBusy(false); return;
           }
+          const pool: Pool = {
+            contractPackageHash: pairPackageHash,
+            contractHash: pairContractHash!,
+            tokens: [
+              supportedTokens[sourceToken],
+              supportedTokens[targetToken],
+            ],
+            decimals: await pairClient.decimals(),
+            totalSupply: await pairClient.totalSupply(),
+            reserves: reserves,
+            balance: BigNumber.from(balance),
+          };
+          setCurrentPool(pool);
         }
-        setBusy(false);
       }
+      setBusy(false);
     }
     handleSetCurrentPoolInfo();
   }, [sourceToken, targetToken, activeAddress, accountListString]);
@@ -624,6 +635,7 @@ export default function useCasperWeb3Provider() {
     approveTargetToken,
     wrapCspr,
     isPairExist,
+    getPairFor,
     getReserves,
     addLiquidity,
     removeLiquidity,

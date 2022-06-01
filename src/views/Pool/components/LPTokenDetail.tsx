@@ -3,7 +3,6 @@ import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
 import { createSearchParams, useNavigate } from "react-router-dom";
-import useLiquidityStatus from "../../../store/useLiquidityStatus";
 
 type LPTokenProps = {
   isManage: boolean;
@@ -12,7 +11,6 @@ type LPTokenProps = {
 
 const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
   const navigate = useNavigate();
-  const { setBusy } = useLiquidityStatus();
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     BigNumber.from(poolInfo.decimals).toNumber()
@@ -92,7 +90,6 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
                 search: createSearchParams({
                   inputCurrency: poolInfo.tokens[0].contractHash,
                   outputCurrency: poolInfo.tokens[1].contractHash,
-                  poolAddress: poolInfo.contractPackageHash,
                 }).toString(),
               });
             }}
