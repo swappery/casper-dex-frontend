@@ -5,7 +5,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
-import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+// import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
@@ -100,13 +100,13 @@ export default function RemoveLiquidity() {
                     <ChevronIcon />
                   </label>
                   <img
-                    src={currentPool.tokens[0].tokenSvg}
+                    src={currentPool.tokens[0].logo}
                     className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
                     alt=""
                   />
                   <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
                   <img
-                    src={currentPool.tokens[1].tokenSvg}
+                    src={currentPool.tokens[1].logo}
                     className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
                     alt=""
                   />
@@ -132,7 +132,7 @@ export default function RemoveLiquidity() {
                     <ChevronIcon />
                   </label>
                   <img
-                    src={currentPool.tokens[0].tokenSvg}
+                    src={currentPool.tokens[0].logo}
                     className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                     alt=""
                   />
@@ -160,13 +160,13 @@ export default function RemoveLiquidity() {
                     <ChevronIcon />
                   </label>
                   <img
-                    src={currentPool.tokens[1].tokenSvg}
+                    src={currentPool.tokens[1].logo}
                     className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                     alt=""
                   />
                 </div>
               </div>
-              <ActionButton />
+              {/* <ActionButton /> */}
             </div>
           </div>
           <p className="text-base md:text-[18px] text-neutral mt-7">
@@ -174,8 +174,8 @@ export default function RemoveLiquidity() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal modalId="currentTokenModal" isSourceSelect={true} />
-      <CurrencySearchModal modalId="targetTokenModal" isSourceSelect={false} />
+      {/* <CurrencySearchModal modalId="currentTokenModal" isSourceSelect={true} />
+      <CurrencySearchModal modalId="targetTokenModal" isSourceSelect={false} /> */}
     </div>
   );
 }

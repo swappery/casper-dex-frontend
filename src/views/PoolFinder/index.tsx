@@ -8,7 +8,7 @@ import useLiquidityStatus, {
   TokenType,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
-import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+// import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
@@ -125,7 +125,7 @@ export default function PoolFinder() {
           ) : (
             <></>
           )}
-          <ActionButton />
+          {/* <ActionButton /> */}
           <p className="text-base md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO FIND LIQUIDITY
           </p>

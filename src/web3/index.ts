@@ -28,7 +28,7 @@ import {
 import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
-import useWalletStatus, { Pool } from "../store/useWalletStatus";
+import useWalletStatus from "../store/useWalletStatus";
 import { deserialize, getDeploy } from "../utils/utils";
 import { useSearchParams } from "react-router-dom";
 import { Token } from "../config/interface/token";

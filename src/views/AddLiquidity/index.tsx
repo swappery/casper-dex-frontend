@@ -12,7 +12,7 @@ import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals } from "../../utils/utils";
-import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+// import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
@@ -186,7 +186,7 @@ export default function AddLiquidity() {
                   )}
                 </div>
               </div>
-              <ActionButton />
+              {/* <ActionButton /> */}
             </div>
           </div>
           <p className="text-base md:text-[18px] text-neutral mt-7">

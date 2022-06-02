@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import useLiquidityStatus from "../../../store/useLiquidityStatus";
+import { Pool } from "../../../config/interface/pool";
 
 type LPTokenProps = {
   isManage: boolean;
@@ -48,13 +48,13 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
         <div className="flex items-center">
           <div className="flex mr-2 md:mr-4">
             <img
-              src={poolInfo.tokens[0].tokenSvg}
+              src={poolInfo.tokens[0].logo}
               alt="Casper Token"
               className="w-[30px] h-[30px] md:w-[37px] md:h-[37px]"
             />
             <div className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></div>
             <img
-              src={poolInfo.tokens[1].tokenSvg}
+              src={poolInfo.tokens[1].logo}
               alt="SWPR Token"
               className="w-[30px] h-[30px] md:w-[37px] md:h-[37px]"
             />
@@ -88,8 +88,8 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
               navigate({
                 pathname: "/remove",
                 search: createSearchParams({
-                  inputCurrency: poolInfo.tokens[0].contractHash,
-                  outputCurrency: poolInfo.tokens[1].contractHash,
+                  inputCurrency: poolInfo.tokens[0].address,
+                  outputCurrency: poolInfo.tokens[1].address,
                 }).toString(),
               });
             }}
@@ -102,8 +102,8 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
               navigate({
                 pathname: "/add",
                 search: createSearchParams({
-                  inputCurrency: poolInfo.tokens[0].contractHash,
-                  outputCurrency: poolInfo.tokens[1].contractHash,
+                  inputCurrency: poolInfo.tokens[0].address,
+                  outputCurrency: poolInfo.tokens[1].address,
                 }).toString(),
               });
             }}

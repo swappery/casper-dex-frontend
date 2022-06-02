@@ -3,7 +3,7 @@ import create, { State } from "zustand";
 import csprToken from "../assets/images/tokens/3d3d5301e1a1deb700fb018bc8a0d52514ff7e169bd3fe75c3f9b72440ec21f6.svg";
 import swprToken from "../assets/images/tokens/fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85.svg";
 import { devtools } from "zustand/middleware";
-import { Pool } from "./useWalletStatus";
+import { Pool } from "../config/interface/pool";
 
 
 export interface TokenContext {
