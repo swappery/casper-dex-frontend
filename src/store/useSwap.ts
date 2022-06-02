@@ -9,9 +9,9 @@ import { testnetTokens } from "../config/constants/tokens";
 interface SwapStatus extends State {
     inputCurrency: Token;
     outputCurrency: Token;
-    inputCurrencyAmounts?: TokenAmount;
-    outputCurrencyAmounts?: TokenAmount;
-    reserves?: BigNumber[][];
+    inputCurrencyAmounts: TokenAmount;
+    outputCurrencyAmounts: TokenAmount;
+    reserves: BigNumber[][];
     inputField: InputField;
     setInputCurrency: (currency: Token) => void;
     setOutputCurrency: (currency: Token) => void;
@@ -24,6 +24,9 @@ interface SwapStatus extends State {
 const useSwap = create<SwapStatus>(devtools((set) => ({
     inputCurrency: testnetTokens.CSPR,
     outputCurrency: testnetTokens.SWPR,
+    inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+    outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+    reserves: [[BigNumber.from(1), BigNumber.from(1)]],
     inputField: InputField.INPUT_A,
     setInputCurrency: (currency: Token) => set(() => {
         return {inputCurrency: currency};

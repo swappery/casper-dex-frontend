@@ -1,82 +1,293 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, KeyboardEvent, useMemo } from "react";
-import IconButton from "../../components/Button/IconButton";
-import useLiquidityStatus, {
-  ExecutionType,
-  supportedTokens,
-  TokenType,
-  TOTAL_SHARE,
-} from "../../store/useLiquidityStatus";
+import { useCallback, KeyboardEvent, useEffect, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/utils";
+import {
+  amountWithoutDecimals,
+  getAmountsIn,
+  getAmountsOut,
+  getTokenFromAddress,
+  reverseDoubleArray,
+} from "../../utils/utils";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import swapImage from "../../assets/images/swap/swap.svg";
 import ChevronIcon from "../../components/Icon/Chevron";
 import leftHand from "../../assets/images/hands/left.svg";
 import { useSearchParams } from "react-router-dom";
+import useSwap from "../../store/useSwap";
+import useNetworkStatus from "../../store/useNetworkStatus";
+import useAction from "../../store/useAction";
+import useSetting from "../../store/useSetting";
+import { ActionType } from "../../config/interface/actionType";
+import { TokenAmount } from "../../config/interface/tokenAmounts";
+import useCasperWeb3Provider from "../../web3";
+import { ActionStatus } from "../../config/interface/actionStatus";
+import { BigNumber } from "ethers";
+import { InputField } from "../../config/interface/inputField";
+import { testnetTokens } from "../../config/constants/tokens";
+import { SUPPORTED_TOKENS, TOTAL_SHARE } from "../../config/constants";
+import { ChainName } from "../../config/constants/chainName";
+import { CLPublicKey } from "casper-js-sdk";
+import SwitchButton from "../../components/Button/switchButton";
 
 export default function Swap() {
-  const [searchParams] = useSearchParams();
+  const [text, setText] = useState<string>("");
+  const [isDisabled, setDisabled] = useState<boolean>(false);
+  const [isSpinning, setSpinning] = useState<boolean>(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const params = useMemo(() => {
-    return Object.fromEntries(searchParams.entries());
+  const {
+    inputCurrency,
+    outputCurrency,
+    inputCurrencyAmounts,
+    outputCurrencyAmounts,
+    reserves,
+    inputField,
+    setInputField,
+    setInputCurrency,
+    setOutputCurrency,
+    setInputCurrencyAmounts,
+    setOutputCurrencyAmounts,
+    setReserves,
+  } = useSwap();
+  const { isConnected, activeAddress } = useNetworkStatus();
+  const {
+    actionType,
+    actionStatus,
+    isPending,
+    isFetching,
+    setActionType,
+    setActionStatus,
+    setFetching,
+  } = useAction();
+  const { slippageTolerance } = useSetting();
+  const {
+    activate,
+    balanceOf,
+    allowanceOf,
+    isPairExist,
+    getReserves,
+    wrapCspr,
+    approve,
+    swapExactIn,
+    swapExactOut,
+  } = useCasperWeb3Provider();
+
+  useEffect(() => {
+    async function handleChange() {
+      if (!isConnected || !inputCurrency) return;
+      const currencyAmount: TokenAmount = {
+        balance: await balanceOf(inputCurrency.address),
+        allowance: await allowanceOf(inputCurrency.address),
+        amount: inputCurrencyAmounts.amount,
+        limit: inputCurrencyAmounts.limit,
+      };
+      setInputCurrencyAmounts(currencyAmount);
+    }
+    handleChange();
+  }, [activeAddress, inputCurrency, isPending]);
+
+  useEffect(() => {
+    async function handleChange() {
+      if (!isConnected || !outputCurrency) return;
+      const currencyAmount: TokenAmount = {
+        balance: await balanceOf(outputCurrency.address),
+        allowance: await allowanceOf(outputCurrency.address),
+        amount: outputCurrencyAmounts.amount,
+        limit: outputCurrencyAmounts.limit,
+      };
+      setOutputCurrencyAmounts(currencyAmount);
+    }
+    handleChange();
+  }, [activeAddress, outputCurrency, isPending]);
+
+  useEffect(() => {
+    async function handleUpdateReserves() {
+      if (!inputCurrency || !outputCurrency) return;
+      setFetching(true);
+      if (await isPairExist(inputCurrency, outputCurrency)) {
+        setReserves([await getReserves(inputCurrency, outputCurrency)]);
+      } else if (
+        (await isPairExist(inputCurrency, testnetTokens.CSPR)) &&
+        (await isPairExist(testnetTokens.CSPR, outputCurrency))
+      ) {
+        setReserves([
+          await getReserves(inputCurrency, testnetTokens.CSPR),
+          await getReserves(testnetTokens.CSPR, outputCurrency),
+        ]);
+      }
+      setFetching(false);
+    }
+    handleUpdateReserves();
+  }, [inputCurrency, outputCurrency, isPending]);
+
+  useEffect(() => {
+    async function updateActionStatus() {
+      let newActionStatus;
+      if (!isConnected) newActionStatus = ActionStatus.REQ_CONNECT_WALLET;
+      else if (isPending) newActionStatus = ActionStatus.PENDING;
+      else if (isFetching) newActionStatus = ActionStatus.LOADING;
+      else if (
+        BigNumber.from(inputCurrencyAmounts.amount).eq(0) ||
+        BigNumber.from(outputCurrencyAmounts.amount).eq(0)
+      )
+        newActionStatus = ActionStatus.REQ_INPUT_AMOUNT;
+      else if (
+        inputCurrency.isNative &&
+        BigNumber.from(inputCurrencyAmounts.balance).lt(
+          inputCurrencyAmounts.amount
+        )
+      )
+        newActionStatus = ActionStatus.REQ_WRAP_INPUT_CURRENCY;
+      else if (
+        BigNumber.from(inputCurrencyAmounts.allowance).lt(
+          inputCurrencyAmounts.amount
+        )
+      )
+        newActionStatus = ActionStatus.REQ_APPROVE_INPUT_CURRENCY;
+      else newActionStatus = ActionStatus.REQ_EXECUTE_ACTION;
+      setActionStatus(newActionStatus);
+    }
+    updateActionStatus();
+  }, [
+    isConnected,
+    inputCurrencyAmounts,
+    outputCurrencyAmounts,
+    isPending,
+    isFetching,
+  ]);
+
+  useEffect(() => {
+    switch (actionStatus) {
+      case ActionStatus.REQ_CONNECT_WALLET:
+        setText("Connect Your Wallet");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.PENDING:
+        setText("Pending");
+        setSpinning(true);
+        setDisabled(false);
+        break;
+      case ActionStatus.LOADING:
+        setText("Loading");
+        setSpinning(true);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_INPUT_AMOUNT:
+        setText("Please Input Amount");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_WRAP_INPUT_CURRENCY:
+        setText("Wrap");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_APPROVE_INPUT_CURRENCY:
+        setText("Approve " + inputCurrency.symbol);
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_EXECUTE_ACTION:
+        setText("Swap");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      default:
+        break;
+    }
+  }, [actionStatus]);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+    const input = params["input"] || inputCurrency.address;
+    const output = params["output"] || outputCurrency.address;
+    setInputCurrency(
+      getTokenFromAddress(input, SUPPORTED_TOKENS[ChainName.TESTNET])!
+    );
+    setOutputCurrency(
+      getTokenFromAddress(output, SUPPORTED_TOKENS[ChainName.TESTNET])!
+    );
   }, [searchParams]);
 
-  const inputCurrency =
-    params["inputCurrency"] || supportedTokens[TokenType.CSPR].contractHash;
-  const outputCurrency =
-    params["outputCurrency"] || supportedTokens[TokenType.SWPR].contractHash;
+  const handleClickActionButton = async () => {
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    else if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
+      await wrapCspr(
+        inputCurrencyAmounts.amount.sub(inputCurrencyAmounts.balance)
+      );
+    } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
+      await approve(inputCurrencyAmounts.amount, inputCurrency.address);
+    } else if (
+      actionStatus === ActionStatus.REQ_EXECUTE_ACTION &&
+      inputField === InputField.INPUT_A
+    ) {
+      await swapExactIn(
+        CLPublicKey.fromHex(activeAddress),
+        inputCurrency,
+        outputCurrency,
+        inputCurrencyAmounts.amount,
+        outputCurrencyAmounts.limit
+      );
+    } else if (
+      actionStatus === ActionStatus.REQ_EXECUTE_ACTION &&
+      inputField === InputField.INPUT_B
+    ) {
+      await swapExactOut(
+        CLPublicKey.fromHex(activeAddress),
+        inputCurrency,
+        outputCurrency,
+        inputCurrencyAmounts.limit,
+        outputCurrencyAmounts.amount
+      );
+    }
+  };
+  const handleClickSwithButton = () => {
+    setSearchParams({
+      input: outputCurrency.address,
+      output: inputCurrency.address,
+    });
+    if (inputField === InputField.INPUT_A) setInputField(InputField.INPUT_B);
+    else setInputField(InputField.INPUT_A);
+    const tempAmount = inputCurrencyAmounts;
+    setInputCurrencyAmounts(outputCurrencyAmounts);
+    setOutputCurrencyAmounts(tempAmount);
+    setReserves(reverseDoubleArray(reserves));
+  };
 
-  // const getAmountsOut = () => {
-  //   let tempAmount = sourceAmount;
-  //   for (var i = 0; i < reserves.length; i++) {
-  //     tempAmount = tempAmount
-  //       .mul(998)
-  //       .mul(reserves[i][1])
-  //       .div(reserves[i][0].mul(1000).add(tempAmount.mul(998)));
-  //   }
-  //   return amountWithoutDecimals(
-  //     tempAmount,
-  //     supportedTokens[targetToken].decimals
-  //   );
-  // };
+  if (actionType !== ActionType.SWAP) setActionType(ActionType.SWAP);
 
-  // const getAmountsIn = () => {
-  //   let tempAmount = targetAmount;
-  //   for (var i = 0; i < reserves.length; i++) {
-  //     tempAmount = reserves[i][0]
-  //       .mul(tempAmount)
-  //       .mul(1000)
-  //       .div(reserves[i][1].sub(tempAmount).mul(998))
-  //       .add(1);
-  //   }
-  //   return amountWithoutDecimals(
-  //     tempAmount,
-  //     supportedTokens[sourceToken].decimals
-  //   );
-  // };
+  const withTargetLimit = ({ floatValue }: any) =>
+    floatValue <
+    amountWithoutDecimals(
+      reserves[reserves.length - 1][1],
+      outputCurrency.decimals
+    );
 
-  // const withTargetLimit = ({ floatValue }: any) =>
-  //   floatValue <
-  //   amountWithoutDecimals(
-  //     reserves[reserves.length - 1][1],
-  //     supportedTokens[targetToken].decimals
-  //   );
-
-  // const sourceValue = !isExactIn
-  //   ? getAmountsIn()
-  //   : amountWithoutDecimals(
-  //       sourceAmount,
-  //       supportedTokens[sourceToken].decimals
-  //     );
-  // const targetValue = isExactIn
-  //   ? getAmountsOut()
-  //   : amountWithoutDecimals(
-  //       targetAmount,
-  //       supportedTokens[targetToken].decimals
-  //     );
+  const inputValue =
+    inputField === InputField.INPUT_B
+      ? getAmountsIn(
+          outputCurrencyAmounts.amount,
+          reserves,
+          inputCurrency.decimals
+        )
+      : amountWithoutDecimals(
+          inputCurrencyAmounts.amount,
+          inputCurrency.decimals
+        );
+  const outputValue =
+    inputField === InputField.INPUT_A
+      ? getAmountsOut(
+          inputCurrencyAmounts.amount,
+          reserves,
+          outputCurrency.decimals
+        )
+      : amountWithoutDecimals(
+          outputCurrencyAmounts.amount,
+          outputCurrency.decimals
+        );
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper px-2 md:px-0">
@@ -98,108 +309,134 @@ export default function Swap() {
           <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
             <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
-                // value={sourceValue}
+                value={inputValue}
                 className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                 thousandSeparator={false}
-                // onKeyDown={useCallback(
-                //   (e: KeyboardEvent<HTMLInputElement>) => {
-                //     setExactIn(true);
-                //   },
-                //   [isExactIn]
-                // )}
-                // onValueChange={async (values) => {
-                //   const { value } = values;
-                //   setSourceAmount(parseFloat(value) || 0);
-                //   setMaxAmountIn(
-                //     (parseFloat(value) * (TOTAL_SHARE + slippageTolerance)) /
-                //       TOTAL_SHARE
-                //   );
-                // }}
+                onKeyDown={useCallback(
+                  (e: KeyboardEvent<HTMLInputElement>) => {
+                    setInputField(InputField.INPUT_A);
+                  },
+                  [inputField]
+                )}
+                onValueChange={async (values) => {
+                  const { value } = values;
+                  const amount = parseFloat(value) || 0;
+                  const percentage =
+                    (TOTAL_SHARE + slippageTolerance) / TOTAL_SHARE;
+                  const newAmounts: TokenAmount = {
+                    balance: inputCurrencyAmounts.balance,
+                    allowance: inputCurrencyAmounts.allowance,
+                    amount: BigNumber.from(
+                      (amount * 10 ** inputCurrency.decimals).toFixed()
+                    ),
+                    limit: BigNumber.from(
+                      (
+                        amount *
+                        percentage ** reserves.length *
+                        10 ** inputCurrency.decimals
+                      ).toFixed()
+                    ),
+                  };
+                  setInputCurrencyAmounts(newAmounts);
+                }}
               />
               <div className="flex items-center md:gap-2">
                 <label
-                  htmlFor="currentTokenModal"
+                  htmlFor="swap-input-currency-modal"
                   className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                 >
                   <span className="text-[14px] md:text-[19px]">
-                    {/* {supportedTokens[sourceToken].symbol} */}
+                    {inputCurrency.symbol}
                   </span>
                   <ChevronIcon />
                 </label>
                 <img
-                  // src={supportedTokens[sourceToken].tokenSvg}
+                  src={inputCurrency.logo}
                   className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                   alt="CSPR Token"
                 />
               </div>
             </div>
             <div className="flex justify-center">
-              <IconButton />
+              <SwitchButton
+                handleClick={handleClickSwithButton}
+                isDisabled={isSpinning}
+              />
             </div>
             <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
               <NumberFormat
-                // value={targetValue}
+                value={outputValue}
                 className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                 thousandSeparator={false}
-                // isAllowed={withTargetLimit}
-                // onKeyDown={useCallback(
-                //   (e: KeyboardEvent<HTMLInputElement>) => {
-                //     setExactIn(false);
-                //   },
-                //   [isExactIn]
-                // )}
-                // onValueChange={async (values) => {
-                //   const { value } = values;
-                //   setTargetAmount(parseFloat(value) || 0);
-                //   setMinAmountOut(
-                //     (parseFloat(value) * TOTAL_SHARE) /
-                //       (TOTAL_SHARE + slippageTolerance)
-                //   );
-                // }}
+                isAllowed={withTargetLimit}
+                onKeyDown={useCallback(
+                  (e: KeyboardEvent<HTMLInputElement>) => {
+                    setInputField(InputField.INPUT_B);
+                  },
+                  [inputField]
+                )}
+                onValueChange={async (values) => {
+                  const { value } = values;
+                  const amount = parseFloat(value) || 0;
+                  const percentage =
+                    TOTAL_SHARE / (TOTAL_SHARE + slippageTolerance);
+                  const newAmounts: TokenAmount = {
+                    balance: outputCurrencyAmounts.balance,
+                    allowance: outputCurrencyAmounts.allowance,
+                    amount: BigNumber.from(
+                      (amount * 10 ** outputCurrency.decimals).toFixed()
+                    ),
+                    limit: BigNumber.from(
+                      (
+                        amount *
+                        percentage ** reserves.length *
+                        10 ** outputCurrency.decimals
+                      ).toFixed()
+                    ),
+                  };
+                  setOutputCurrencyAmounts(newAmounts);
+                }}
               />
               <div className="flex items-center md:gap-2">
                 <label
-                  htmlFor="targetTokenModal"
+                  htmlFor="swap-output-currency-modal"
                   className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                 >
                   <span className="text-[14px] md:text-[19px]">
-                    {/* {supportedTokens[targetToken].symbol} */}
+                    {outputCurrency.symbol}
                   </span>
                   <ChevronIcon />
                 </label>
                 <img
-                  // src={supportedTokens[targetToken].tokenSvg}
+                  src={outputCurrency.logo}
                   className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                   alt="SWPR Token"
                 />
               </div>
             </div>
             <p className="text-center mt-3 px-8 text-neutral text-[12px] md:text-[15px]">
-              {/* Slippage Tolerance {(slippageTolerance / TOTAL_SHARE) * 100}% */}
+              Slippage Tolerance {(slippageTolerance / TOTAL_SHARE) * 100}%
             </p>
-            <ActionButton />
+            <ActionButton
+              text={text}
+              isDisabled={isDisabled}
+              isSpinning={isSpinning}
+              handleClick={handleClickActionButton}
+            />
           </div>
         </div>
       </div>
       <CurrencySearchModal
-        modalId="currentTokenModal"
-        selectedCurrency={
-          "3d3d5301e1a1deb700fb018bc8a0d52514ff7e169bd3fe75c3f9b72440ec21f6"
-        }
-        otherSelectedCurrency={
-          "fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85"
-        }
-        isSourceSelect={true}
+        modalId="swap-input-currency-modal"
+        selectedCurrency={inputCurrency}
+        otherSelectedCurrency={outputCurrency}
+        field={InputField.INPUT_A}
       />
       <CurrencySearchModal
-        modalId="targetTokenModal"
-        selectedCurrency={
-          "fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85"
-        }
-        otherSelectedCurrency={
-          "3d3d5301e1a1deb700fb018bc8a0d52514ff7e169bd3fe75c3f9b72440ec21f6"
-        }
-        isSourceSelect={false}
+        modalId="swap-output-currency-modal"
+        selectedCurrency={outputCurrency}
+        otherSelectedCurrency={inputCurrency}
+        field={InputField.INPUT_B}
       />
     </div>
   );

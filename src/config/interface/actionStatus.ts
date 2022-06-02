@@ -1,5 +1,6 @@
 export enum ActionStatus {
     //For every actions
+    REQ_CONNECT_WALLET = "REQ_CONNECT_WALLET",
     REQ_SELECT_CURRENCY = "REQ_SELECT_CURRENCY",
     REQ_INPUT_AMOUNT = "REQ_INPUT_AMOUNT",
 

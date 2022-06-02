@@ -5,7 +5,6 @@ import swprToken from "../assets/images/tokens/fe33392bf4d0ff2edbb5a664256271c03
 import { devtools } from "zustand/middleware";
 import { Pool } from "./useWalletStatus";
 
-export const TOTAL_SHARE = 10000;
 
 export interface TokenContext {
   name: string;
@@ -116,7 +115,7 @@ interface LiquidityStatus extends State {
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
-  devtools((set) => ({
+  (set) => ({
     execType: ExecutionType.EXE_HOME,
     sourceToken: TokenType.EMPTY,
     sourceBalance: BigNumber.from(0),
@@ -345,7 +344,7 @@ const useLiquidityStatus = create<LiquidityStatus>(
       set(() => ({
         liquidityApproval: BigNumber.from(liquidityApproval),
       })),
-  }))
+  })
 );
 
 export default useLiquidityStatus;

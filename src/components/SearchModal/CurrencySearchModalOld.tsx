@@ -1,10 +1,12 @@
+import { InputField } from "../../config/interface/inputField";
+import { Token } from "../../config/interface/token";
 import SearchInput from "../SearchInput/SearchInput";
 
 interface CurrencySearchModalProps {
   modalId: string;
-  selectedCurrency?: string;
-  otherSelectedCurrency?: string;
-  isSourceSelect: boolean;
+  selectedCurrency?: Token;
+  otherSelectedCurrency?: Token;
+  field: InputField;
   showCommonBases?: boolean;
 }
 
@@ -12,7 +14,7 @@ export default function CurrencySearchModal({
   modalId,
   selectedCurrency,
   otherSelectedCurrency,
-  isSourceSelect,
+  field,
   showCommonBases = false,
 }: CurrencySearchModalProps) {
   return (
@@ -35,7 +37,7 @@ export default function CurrencySearchModal({
               modalId={modalId}
               selectedCurrency={selectedCurrency}
               otherSelectedCurrency={otherSelectedCurrency}
-              isSourceSelect={isSourceSelect}
+              field={field}
             />
           </div>
         </div>

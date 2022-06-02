@@ -15,3 +15,5 @@ export const SUPPORTED_TOKENS: ChainTokenList = {
     testnetTokens.CSPR,
   ],
 };
+
+export const TOTAL_SHARE = 10000;

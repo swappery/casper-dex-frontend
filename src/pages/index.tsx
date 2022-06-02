@@ -6,6 +6,8 @@ import Add from "./add";
 import Remove from "./remove";
 import { Routes, Route } from "react-router-dom";
 import { Header, Footer } from "../components";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 export default function Pages() {
   return (
     <>
@@ -19,6 +21,7 @@ export default function Pages() {
         <Route path="/find" element={<Find />} />
         <Route path="/remove" element={<Remove />} />
       </Routes>
+      <ToastContainer />
 
       <Footer />
     </>

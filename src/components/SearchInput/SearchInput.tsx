@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   useState,
-  useEffect,
   ChangeEvent,
   useMemo,
   KeyboardEvent,
@@ -10,28 +9,29 @@ import {
 import { useSearchParams } from "react-router-dom";
 import { SUPPORTED_TOKENS } from "../../config/constants";
 import { ChainName } from "../../config/constants/chainName";
+import { InputField } from "../../config/interface/inputField";
 import { Token } from "../../config/interface/token";
 import { filterTokens } from "../SearchModal/filtering";
 
 interface SearchInputProps {
   modalId: string;
-  selectedCurrency?: string | null;
-  otherSelectedCurrency?: string | null;
-  isSourceSelect: boolean;
+  selectedCurrency?: Token;
+  otherSelectedCurrency?: Token;
+  field: InputField;
 }
 
 const SearchInput = ({
   modalId,
   selectedCurrency,
   otherSelectedCurrency,
-  isSourceSelect,
+  field,
 }: SearchInputProps) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
   const allTokens = SUPPORTED_TOKENS[ChainName.TESTNET];
 
   const filteredTokens: Token[] = useMemo(() => {
-    return filterTokens(Object.values(allTokens), searchQuery);
+    return filterTokens(allTokens, searchQuery);
   }, [allTokens, searchQuery]);
 
   const [, setSearchParams] = useSearchParams();
@@ -44,7 +44,7 @@ const SearchInput = ({
       if (e.key === "Enter") {
         if (filteredTokens.length > 0) {
           if (filteredTokens.length === 1) {
-            handleCurrencySelect(filteredTokens[0]);
+            // handleCurrencySelect(filteredTokens[0]);
           }
         }
       }
@@ -52,37 +52,37 @@ const SearchInput = ({
     [filteredTokens]
   );
   const handleCurrencySelect = (item: Token) => {
-    if (isSourceSelect) {
-      if (otherSelectedCurrency === item.address) {
+    if (field === InputField.INPUT_A) {
+      if (otherSelectedCurrency === item) {
         if (selectedCurrency)
           setSearchParams({
-            inputCurrency: otherSelectedCurrency,
-            outputCurrency: selectedCurrency,
+            input: otherSelectedCurrency.address,
+            output: selectedCurrency.address,
           });
         else
           setSearchParams({
-            inputCurrency: otherSelectedCurrency,
+            input: otherSelectedCurrency.address,
           });
       } else
         setSearchParams({
-          inputCurrency: item.address,
-          outputCurrency: otherSelectedCurrency!,
+          input: item.address,
+          output: otherSelectedCurrency!.address,
         });
     } else {
-      if (otherSelectedCurrency === item.address) {
+      if (otherSelectedCurrency === item) {
         if (selectedCurrency)
           setSearchParams({
-            inputCurrency: selectedCurrency,
-            outputCurrency: otherSelectedCurrency,
+            input: selectedCurrency.address,
+            output: otherSelectedCurrency.address,
           });
         else
           setSearchParams({
-            outputCurrency: otherSelectedCurrency,
+            output: otherSelectedCurrency.address,
           });
       } else
         setSearchParams({
-          outputCurrency: item.address,
-          inputCurrency: otherSelectedCurrency!,
+          input: otherSelectedCurrency!.address,
+          output: item.address,
         });
     }
   };

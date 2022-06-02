@@ -1,15 +1,8 @@
 import { useMemo } from "react";
 import { Token } from "../../config/interface/token";
-// import { isAddress } from "../../utils";
 
 export function filterTokens(tokens: Token[], search: string): Token[] {
   if (search.length === 0) return tokens;
-
-  // const searchingAddress = isAddress(search);
-
-  if (search) {
-    return tokens.filter((token) => token.address === search);
-  }
 
   const lowerSearchParts = search
     .toLowerCase()
@@ -34,8 +27,8 @@ export function filterTokens(tokens: Token[], search: string): Token[] {
   };
 
   return tokens.filter((token) => {
-    const { symbol, name } = token;
-    return (symbol && matchesSearch(symbol)) || (name && matchesSearch(name));
+    const { symbol, name, address } = token;
+    return (symbol && matchesSearch(symbol)) || (name && matchesSearch(name)) || (address && matchesSearch(address));
   });
 }
 

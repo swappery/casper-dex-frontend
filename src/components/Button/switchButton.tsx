@@ -1,22 +1,17 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { useSearchParams } from "react-router-dom";
-import useLiquidityStatus, {
-  supportedTokens,
-} from "../../store/useLiquidityStatus";
+interface SwitchButtonProps {
+  handleClick: () => void;
+  isDisabled: boolean;
+}
 
-export default function IconButton() {
-  // const { switchToken } = useLiquidityStatus();
-  const { sourceToken, targetToken } = useLiquidityStatus();
-  const [searchParams, setSearchParams] = useSearchParams();
+export default function SwitchButton({
+  handleClick,
+  isDisabled,
+}: SwitchButtonProps) {
   return (
     <button
-      className="hover:opacity-80"
-      onClick={() => {
-        setSearchParams({
-          inputCurrency: supportedTokens[targetToken].contractHash,
-          outputCurrency: supportedTokens[sourceToken].contractHash,
-        });
-      }}
+      className="hover:opacity-80 disabled:opacity-50"
+      onClick={handleClick}
+      disabled={isDisabled}
     >
       <svg
         width="38"
