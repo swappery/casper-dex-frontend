@@ -9,7 +9,7 @@ import {
   getTokenFromAddress,
   reverseDoubleArray,
 } from "../../utils/utils";
-import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 
 import swapImage from "../../assets/images/swap/swap.svg";
 import ChevronIcon from "../../components/Icon/Chevron";
