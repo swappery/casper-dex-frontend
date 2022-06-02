@@ -66,6 +66,7 @@ export enum TxStatus {
   REQ_EXECUTE = "REQ_EXECUTE",
   REQ_ADD_LIQUIDITY = "REQ_ADD_LIQUIDITY",
   REQ_SELECT_CURRENCY = "REQ_SELECT_CURRENCY",
+  REQ_LIQUIDITY_APPROVE = "REQ_LIQUIDITY_APPROVE",
   PENDING = "PENDING",
 }
 
@@ -88,6 +89,8 @@ interface LiquidityStatus extends State {
   hasImported: boolean;
   isBusy: boolean;
   currentPool: Pool;
+  liquidityAmount: BigNumber;
+  liquidityApproval: BigNumber;
   setExecType: (execType: ExecutionType) => void;
   setSourceToken: (sourceToken: TokenType) => void;
   setSourceBalance: (sourceBalance: BigNumberish) => void;
@@ -108,6 +111,8 @@ interface LiquidityStatus extends State {
   setBusy: (isBusy: boolean) => void;
   setCurrentPool: (currentPool: Pool) => void;
   setExecTypeWithCurrency: (execType: ExecutionType, inputCurrency: string | undefined, outputCurrency: string | undefined, reserves?: BigNumber[][]) => void;
+  setLiquidityAmount: (liquidityAmount: number) => void;
+  setLiquidityApproval: (liquidityApproval: BigNumberish) => void;
 }
 
 const useLiquidityStatus = create<LiquidityStatus>(
@@ -138,6 +143,8 @@ const useLiquidityStatus = create<LiquidityStatus>(
       reserves: [],
       balance: BigNumber.from(0),
     },
+    liquidityAmount: BigNumber.from(0),
+    liquidityApproval: BigNumber.from(0),
     setExecType: (execType: ExecutionType) =>
       set(() => {
         return {
@@ -265,10 +272,17 @@ const useLiquidityStatus = create<LiquidityStatus>(
           };
         else if (
           state.execType === ExecutionType.EXE_FIND_LIQUIDITY && 
-          (state.currentPool.balance.eq(0) || state.hasImported )
+          (BigNumber.from(state.currentPool.balance).eq(0) || state.hasImported )
         )
           return {
             currentStatus: TxStatus.REQ_ADD_LIQUIDITY,
+          };
+        else if (
+          state.execType === ExecutionType.EXE_REMOVE_LIQUIDITY &&
+          state.liquidityApproval.lt(state.liquidityAmount)
+        )
+          return {
+            currentStatus: TxStatus.REQ_LIQUIDITY_APPROVE,
           };
         return {
           currentStatus: TxStatus.REQ_EXECUTE,
@@ -318,6 +332,19 @@ const useLiquidityStatus = create<LiquidityStatus>(
           isBusy: false,
         };
       }),
+    setLiquidityAmount: (liquidityAmount: number) =>
+      set((state) => ({
+        liquidityAmount: BigNumber.from(
+          (
+            liquidityAmount *
+            10 ** BigNumber.from(state.currentPool.decimals).toNumber()
+          ).toFixed()
+        ),
+      })),
+    setLiquidityApproval: (liquidityApproval: BigNumberish) =>
+      set(() => ({
+        liquidityApproval: BigNumber.from(liquidityApproval),
+      })),
   }))
 );
 

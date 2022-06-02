@@ -19,7 +19,9 @@ const ActionButton: FC = () => {
     wrapCspr,
     approveSourceToken,
     approveTargetToken,
+    approveLiquidity,
     addLiquidity,
+    removeLiquidity,
     swapExactIn,
     swapExactOut,
   } = useCasperWeb3Provider();
@@ -37,6 +39,7 @@ const ActionButton: FC = () => {
     currentStatus,
     execType,
     currentPool,
+    liquidityAmount,
   } = useLiquidityStatus();
 
   const { setPool } = useWalletStatus();
@@ -87,6 +90,8 @@ const ActionButton: FC = () => {
         approveSourceToken(sourceAmount);
       else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
         approveTargetToken(targetAmount);
+      else if (currentStatus === TxStatus.REQ_LIQUIDITY_APPROVE)
+        approveLiquidity(liquidityAmount);
       else if (
         currentStatus === TxStatus.REQ_EXECUTE &&
         execType === ExecutionType.EXE_ADD_LIQUIDITY
@@ -144,6 +149,16 @@ const ActionButton: FC = () => {
             outputCurrency: supportedTokens[targetToken].contractHash,
           }).toString(),
         });
+      } else if (
+        currentStatus === TxStatus.REQ_EXECUTE &&
+        execType === ExecutionType.EXE_REMOVE_LIQUIDITY
+      ) {
+        removeLiquidity(
+          CLPublicKey.fromHex(activeAddress),
+          currentPool.tokens[0].contractHash,
+          currentPool.tokens[1].contractHash,
+          liquidityAmount
+        );
       }
     } else {
       activate();
@@ -163,6 +178,8 @@ const ActionButton: FC = () => {
       content = <>Approve {supportedTokens[sourceToken].symbol} Token</>;
     else if (currentStatus === TxStatus.REQ_TARGET_APPROVE)
       content = <>Approve {supportedTokens[targetToken].symbol} Token</>;
+    else if (currentStatus === TxStatus.REQ_LIQUIDITY_APPROVE)
+      content = <>Approve Liquidity</>;
     else if (
       currentStatus === TxStatus.REQ_EXECUTE &&
       execType === ExecutionType.EXE_SWAP
@@ -173,6 +190,11 @@ const ActionButton: FC = () => {
       execType === ExecutionType.EXE_ADD_LIQUIDITY
     )
       content = <>Add Liquidity</>;
+    else if (
+      currentStatus === TxStatus.REQ_EXECUTE &&
+      execType === ExecutionType.EXE_REMOVE_LIQUIDITY
+    )
+      content = <>Remove Liquidity</>;
     else if (
       currentStatus === TxStatus.REQ_EXECUTE &&
       execType === ExecutionType.EXE_FIND_LIQUIDITY

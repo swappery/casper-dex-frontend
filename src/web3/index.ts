@@ -47,6 +47,8 @@ export default function useCasperWeb3Provider() {
     hasImported,
     isBusy,
     currentPool,
+    liquidityAmount,
+    liquidityApproval,
     updateCurrentStatus,
     setSourceBalance,
     setSourceApproval,
@@ -57,6 +59,7 @@ export default function useCasperWeb3Provider() {
     setBusy,
     setCurrentPool,
     setExecTypeWithCurrency,
+    setLiquidityApproval,
   } = useLiquidityStatus();
 
   const { addAccount, accountListString } = useWalletStatus();
@@ -169,15 +172,19 @@ export default function useCasperWeb3Provider() {
         TRANSFER_FEE
       );
     } catch (err) {
+      console.log("AAA");
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash);
-    setSourceApproval(
-      await allowanceOf(supportedTokens[sourceToken].contractHash)
-    );
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash);
+      setSourceApproval(await allowanceOf(contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function approveTargetToken(amount: BigNumberish) {
@@ -196,15 +203,46 @@ export default function useCasperWeb3Provider() {
         TRANSFER_FEE
       );
     } catch (err) {
+      setBusy(false); return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash);
+      setTargetApproval(await allowanceOf(contractHash));
+      setBusy(false); return txHash;
+    } catch (error) {
+      setBusy(false); return txHash;
+    }
+  }
+
+  async function approveLiquidity(amount: BigNumberish) {
+    if (!isConnected) return;
+    let txHash = "";
+    setBusy(true);
+    const contractHash = currentPool.contractHash;
+    const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
+    await erc20.setContractHash(contractHash);
+    const clPK = CLPublicKey.fromHex(activeAddress);
+    try {
+      txHash = await erc20.approveWithSigner(
+        clPK,
+        amount,
+        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
+        TRANSFER_FEE
+      );
+    } catch (err) {
+      console.log("AAA");
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash);
-    setSourceApproval(
-      await allowanceOf(supportedTokens[targetToken].contractHash)
-    );
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash);
+      setLiquidityApproval(await allowanceOf(contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function wrapCspr(amount: BigNumberish) {
@@ -221,10 +259,16 @@ export default function useCasperWeb3Provider() {
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash);
-    setSourceBalance(await balanceOf(contractHash));
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash);
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function isPairExist(
@@ -346,15 +390,24 @@ export default function useCasperWeb3Provider() {
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash!);
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function removeLiquidity(
     publicKey: CLPublicKey,
-    sourceToken: TokenType,
-    targetToken: TokenType,
+    sourceTokenAddress: string,
+    targetTokenAddress: string,
     liquidityAmount: BigNumberish
   ) {
     if (!isConnected) return;
@@ -370,8 +423,8 @@ export default function useCasperWeb3Provider() {
     try {
       txHash = await routerClient.removeLiquidity(
         publicKey,
-        supportedTokens[sourceToken].contractHash,
-        supportedTokens[targetToken].contractHash,
+        sourceTokenAddress,
+        targetTokenAddress,
         liquidityAmount,
         0,
         0,
@@ -381,9 +434,18 @@ export default function useCasperWeb3Provider() {
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash);
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function swapExactIn(
@@ -416,9 +478,18 @@ export default function useCasperWeb3Provider() {
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash!);
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   async function swapExactOut(
@@ -451,9 +522,18 @@ export default function useCasperWeb3Provider() {
       setBusy(false);
       return;
     }
-    await getDeploy(NODE_ADDRESS, txHash!);
-    setBusy(false);
-    return txHash;
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setSourceBalance(await balanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetBalance(await balanceOf(supportedTokens[targetToken].contractHash));
+      setSourceApproval(await allowanceOf(supportedTokens[sourceToken].contractHash));
+      setTargetApproval(await allowanceOf(supportedTokens[targetToken].contractHash));
+      setBusy(false);
+      return txHash;
+    } catch (error) {
+      setBusy(false);
+      return txHash;
+    }
   }
 
   useEffect(() => {
@@ -493,6 +573,8 @@ export default function useCasperWeb3Provider() {
     currentPool,
     hasImported,
     isBusy,
+    liquidityApproval,
+    liquidityAmount,
   ]);
 
   useEffect(() => {
@@ -627,12 +709,23 @@ export default function useCasperWeb3Provider() {
     setExecTypeWithCurrency(execType, inputCurrency, outputCurrency);
   }, [searchParams]);
 
+  useEffect(() => {
+    async function handleChangePool() {
+      if (!isConnected || currentPool.contractHash === "") return;
+      setLiquidityApproval(
+        await allowanceOf(currentPool.contractHash)
+      );
+    }
+    handleChangePool();
+  }, [currentPool]);
+
   return {
     activate,
     balanceOf,
     allowanceOf,
     approveSourceToken,
     approveTargetToken,
+    approveLiquidity,
     wrapCspr,
     isPairExist,
     getPairFor,

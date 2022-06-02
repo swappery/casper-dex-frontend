@@ -3,6 +3,7 @@ import { Pool } from "../../../store/useWalletStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
 import { BigNumber } from "ethers";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import useLiquidityStatus from "../../../store/useLiquidityStatus";
 
 type LPTokenProps = {
   isManage: boolean;
@@ -11,6 +12,7 @@ type LPTokenProps = {
 
 const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
   const navigate = useNavigate();
+  const { setCurrentPool } = useLiquidityStatus();
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     BigNumber.from(poolInfo.decimals).toNumber()
@@ -82,6 +84,7 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
           <button
             className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl"
             onClick={() => {
+              setCurrentPool(poolInfo);
               navigate({
                 pathname: "/remove",
                 search: createSearchParams({

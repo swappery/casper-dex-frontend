@@ -13,11 +13,51 @@ import BackIcon from "../../components/Icon/Back";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import csprToken from "../../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
 import swprToken from "../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import useLiquidityStatus, {
+  ExecutionType,
+} from "../../store/useLiquidityStatus";
+import { amountWithoutDecimals } from "../../utils/utils";
+import { BigNumber } from "ethers";
+import { useState } from "react";
+import useCasperWeb3Provider from "../../web3";
+import { CLPublicKey } from "casper-js-sdk";
 
 export default function RemoveLiquidity() {
   const { theme } = useTheme();
   const { isConnected, activeAddress } = useNetworkStatus();
+  const {
+    execType,
+    currentPool,
+    liquidityAmount,
+    setLiquidityAmount,
+    setExecType,
+  } = useLiquidityStatus();
 
+  if (execType !== ExecutionType.EXE_REMOVE_LIQUIDITY)
+    setExecType(ExecutionType.EXE_REMOVE_LIQUIDITY);
+
+  const withLiquidityLimit = ({ floatValue }: any) =>
+    floatValue <
+    amountWithoutDecimals(
+      BigNumber.from(currentPool.balance),
+      BigNumber.from(currentPool.decimals).toNumber()
+    );
+  const sourceValue = amountWithoutDecimals(
+    liquidityAmount
+      .mul(BigNumber.from(currentPool.reserves[0]))
+      .div(BigNumber.from(currentPool.totalSupply)),
+    BigNumber.from(currentPool.tokens[0].decimals).toNumber()
+  );
+  const targetValue = amountWithoutDecimals(
+    liquidityAmount
+      .mul(BigNumber.from(currentPool.reserves[1]))
+      .div(BigNumber.from(currentPool.totalSupply)),
+    BigNumber.from(currentPool.tokens[1].decimals).toNumber()
+  );
+  const liquidityValue = amountWithoutDecimals(
+    liquidityAmount,
+    BigNumber.from(currentPool.decimals).toNumber()
+  );
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
@@ -41,25 +81,31 @@ export default function RemoveLiquidity() {
             <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
               <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
-                  value={0}
+                  value={liquidityValue}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
+                  isAllowed={withLiquidityLimit}
+                  onValueChange={async (values) => {
+                    const { value } = values;
+                    setLiquidityAmount(parseFloat(value) || 0);
+                  }}
                 />
                 <div className="flex items-center">
                   <label className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
                     <span className="text-[14px] md:text-[19px]">
-                      CSPR:SWPR
+                      {currentPool.tokens[0].symbol}:
+                      {currentPool.tokens[1].symbol}
                     </span>
                     <ChevronIcon />
                   </label>
                   <img
-                    src={csprToken}
+                    src={currentPool.tokens[0].tokenSvg}
                     className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
                     alt=""
                   />
                   <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
                   <img
-                    src={swprToken}
+                    src={currentPool.tokens[1].tokenSvg}
                     className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
                     alt=""
                   />
@@ -70,7 +116,7 @@ export default function RemoveLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
-                  value={0}
+                  value={sourceValue}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
                 />
@@ -79,11 +125,13 @@ export default function RemoveLiquidity() {
                     htmlFor="currentTokenModal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">CSPR</span>
+                    <span className="text-[14px] md:text-[19px]">
+                      {currentPool.tokens[0].symbol}
+                    </span>
                     <ChevronIcon />
                   </label>
                   <img
-                    src={csprToken}
+                    src={currentPool.tokens[0].tokenSvg}
                     className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                     alt=""
                   />
@@ -96,7 +144,7 @@ export default function RemoveLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
-                  value={0}
+                  value={targetValue}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
                 />
@@ -105,19 +153,19 @@ export default function RemoveLiquidity() {
                     htmlFor="targetTokenModal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">SWPR</span>
+                    <span className="text-[14px] md:text-[19px]">
+                      {currentPool.tokens[1].symbol}
+                    </span>
                     <ChevronIcon />
                   </label>
                   <img
-                    src={swprToken}
+                    src={currentPool.tokens[1].tokenSvg}
                     className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                     alt=""
                   />
                 </div>
               </div>
-              <button className="hover:opacity-80 mt-4 bg-lightgreen border border-black rounded-3xl px-4 py-2 w-full text-[14px] md:text-[18px] text-black font-orator-std">
-                Remove Liquidity
-              </button>
+              <ActionButton />
             </div>
           </div>
           <p className="text-base md:text-[18px] text-neutral mt-7">
