@@ -1,0 +1,6 @@
+export enum ActionType {
+    ADD_LIQUIDITY = "ADD_LIQUIDITY",
+    REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
+    IMPORT_POOL = "IMPORT_POOL",
+    SWAP = "SWAP",
+}

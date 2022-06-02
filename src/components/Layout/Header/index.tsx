@@ -4,16 +4,17 @@ import { createSearchParams, NavLink, useNavigate } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
 import { shortenAddress } from "../../../utils/utils";
-import useTheme, { Themes } from "../../../hooks/useTheme";
 
 import logo from "../../../assets/images/logo.svg";
 import logoWhite from "../../../assets/images/logo-white.svg";
-import swapperyIcon from "../../../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import swapperyIcon from "../../../assets/images/tokens/fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85.svg";
 import swapperyDarkIcon from "../../../assets/images/tokens/token-dark.svg";
 import { supportedTokens, TokenType } from "../../../store/useLiquidityStatus";
+import useSetting from "../../../store/useSetting";
+import { Themes } from "../../../config/constants/themes";
 
 export default function Header() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useSetting();
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const [navbarOpen, setNavbarOpen] = useState(false);

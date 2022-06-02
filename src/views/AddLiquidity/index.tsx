@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
-import useTheme, { Themes } from "../../hooks/useTheme";
 import { useCallback, KeyboardEvent } from "react";
 
 import useLiquidityStatus, {
@@ -18,9 +17,11 @@ import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModa
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import useNetworkStatus from "../../store/useNetworkStatus";
+import useSetting from "../../store/useSetting";
+import { Themes } from "../../config/constants/themes";
 
 export default function AddLiquidity() {
-  const { theme } = useTheme();
+  const { theme } = useSetting();
   const {
     execType,
     sourceToken,
@@ -193,7 +194,7 @@ export default function AddLiquidity() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal
+      {/* <CurrencySearchModal
         modalId="currentTokenModal"
         selectedCurrency={
           sourceToken !== TokenType.EMPTY
@@ -220,7 +221,7 @@ export default function AddLiquidity() {
             : null
         }
         isSourceSelect={false}
-      />
+      /> */}
     </div>
   );
 }

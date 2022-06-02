@@ -1,7 +1,7 @@
 import { BigNumber, BigNumberish } from "ethers";
 import create, { State } from "zustand";
-import csprToken from "../assets/images/tokens/0x80dB3a8014872a1E6C3667926ABD7d3cE61eD0C4.svg";
-import swprToken from "../assets/images/tokens/0x6FA23529476a1337EB5da8238b778e7122d79666.svg";
+import csprToken from "../assets/images/tokens/3d3d5301e1a1deb700fb018bc8a0d52514ff7e169bd3fe75c3f9b72440ec21f6.svg";
+import swprToken from "../assets/images/tokens/fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85.svg";
 import { devtools } from "zustand/middleware";
 import { Pool } from "./useWalletStatus";
 
@@ -71,15 +71,15 @@ export enum TxStatus {
 }
 
 interface LiquidityStatus extends State {
-  execType: ExecutionType;
-  sourceToken: TokenType;
-  sourceBalance: BigNumber;
-  sourceApproval: BigNumber;
-  sourceAmount: BigNumber;
-  targetToken: TokenType;
-  targetBalance: BigNumber;
-  targetApproval: BigNumber;
-  targetAmount: BigNumber;
+  execType: ExecutionType;//
+  sourceToken: TokenType;//
+  sourceBalance: BigNumber;//
+  sourceApproval: BigNumber;//
+  sourceAmount: BigNumber;//
+  targetToken: TokenType;//
+  targetBalance: BigNumber;//
+  targetApproval: BigNumber;//
+  targetAmount: BigNumber;//
   reserves: BigNumber[][];
   isExactIn: boolean;
   minAmountOut: BigNumber;

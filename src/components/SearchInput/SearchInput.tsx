@@ -1,6 +1,17 @@
-import { useState, useEffect, ChangeEvent } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import {
+  useState,
+  useEffect,
+  ChangeEvent,
+  useMemo,
+  KeyboardEvent,
+  useCallback,
+} from "react";
 import { useSearchParams } from "react-router-dom";
-import { supportedTokens, TokenContext } from "../../store/useLiquidityStatus";
+import { SUPPORTED_TOKENS } from "../../config/constants";
+import { ChainName } from "../../config/constants/chainName";
+import { Token } from "../../config/interface/token";
+import { filterTokens } from "../SearchModal/filtering";
 
 interface SearchInputProps {
   modalId: string;
@@ -15,18 +26,34 @@ const SearchInput = ({
   otherSelectedCurrency,
   isSourceSelect,
 }: SearchInputProps) => {
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<
-    TokenContext[] | undefined
-  >();
+  const [searchQuery, setSearchQuery] = useState<string>("");
+
+  const allTokens = SUPPORTED_TOKENS[ChainName.TESTNET];
+
+  const filteredTokens: Token[] = useMemo(() => {
+    return filterTokens(Object.values(allTokens), searchQuery);
+  }, [allTokens, searchQuery]);
+
   const [, setSearchParams] = useSearchParams();
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
+    setSearchQuery(event.target.value);
   };
-  const handleSelect = (item: TokenContext) => {
+  const handleEnter = useCallback(
+    (e: KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === "Enter") {
+        if (filteredTokens.length > 0) {
+          if (filteredTokens.length === 1) {
+            handleCurrencySelect(filteredTokens[0]);
+          }
+        }
+      }
+    },
+    [filteredTokens]
+  );
+  const handleCurrencySelect = (item: Token) => {
     if (isSourceSelect) {
-      if (otherSelectedCurrency === item.contractHash) {
+      if (otherSelectedCurrency === item.address) {
         if (selectedCurrency)
           setSearchParams({
             inputCurrency: otherSelectedCurrency,
@@ -38,11 +65,11 @@ const SearchInput = ({
           });
       } else
         setSearchParams({
-          inputCurrency: item.contractHash,
+          inputCurrency: item.address,
           outputCurrency: otherSelectedCurrency!,
         });
     } else {
-      if (otherSelectedCurrency === item.contractHash) {
+      if (otherSelectedCurrency === item.address) {
         if (selectedCurrency)
           setSearchParams({
             inputCurrency: selectedCurrency,
@@ -54,22 +81,11 @@ const SearchInput = ({
           });
       } else
         setSearchParams({
-          outputCurrency: item.contractHash,
+          outputCurrency: item.address,
           inputCurrency: otherSelectedCurrency!,
         });
     }
   };
-
-  useEffect(() => {
-    const results = supportedTokens
-      .slice(0, supportedTokens.length - 1)
-      .filter((token) =>
-        (token.symbol + token.name + token.contractHash)
-          .toLowerCase()
-          .includes(searchTerm)
-      );
-    setSearchResults(results);
-  }, [searchTerm]);
 
   return (
     <>
@@ -77,21 +93,22 @@ const SearchInput = ({
         <input
           className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral"
           placeholder="Search name or paste address"
-          value={searchTerm}
+          value={searchQuery}
           onChange={handleChange}
+          onKeyDown={handleEnter}
         />
       </div>
       <div className="grid gap-2 mt-6">
-        {searchResults?.map((item) => (
+        {filteredTokens?.map((item) => (
           <label
             key={item.symbol}
             className="py-1 px-6 flex items-center gap-1 hover:bg-accent cursor-pointer"
             htmlFor={modalId}
             onClick={() => {
-              handleSelect(item);
+              handleCurrencySelect(item);
             }}
           >
-            <img src={item.tokenSvg} className="w-9 h-9" alt="Token" />
+            <img src={item.logo} className="w-9 h-9" alt="Token" />
             <div className="font-orator-std">
               <p className="text-[18px] text-neutral">{item.symbol}</p>
               <p className="text-[14px]">{item.name}</p>

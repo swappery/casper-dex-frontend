@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Link, useSearchParams } from "react-router-dom";
-import useTheme, { Themes } from "../../hooks/useTheme";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import useLiquidityStatus, {
@@ -15,9 +14,11 @@ import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import { useMemo } from "react";
+import useSetting from "../../store/useSetting";
+import { Themes } from "../../config/constants/themes";
 
 export default function PoolFinder() {
-  const { theme } = useTheme();
+  const { theme } = useSetting();
   const { activate } = useCasperWeb3Provider();
   const { isConnected } = useNetworkStatus();
   const {
@@ -130,7 +131,7 @@ export default function PoolFinder() {
           </p>
         </div>
       </div>
-      <CurrencySearchModal
+      {/* <CurrencySearchModal
         modalId="currentTokenModal"
         selectedCurrency={
           sourceToken !== TokenType.EMPTY
@@ -157,7 +158,7 @@ export default function PoolFinder() {
             : null
         }
         isSourceSelect={false}
-      />
+      /> */}
     </div>
   );
 }

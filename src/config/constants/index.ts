@@ -1,6 +1,6 @@
-import { ChainName } from "./types";
-import { Token } from "../sdk/token";
-import { mainnetTokens, testnetTokens } from "./tokens";
+import { ChainName } from "./chainName";
+import { Token } from "../interface/token";
+import { testnetTokens } from "./tokens";
 
 // a list of tokens by chain
 type ChainTokenList = {
@@ -8,15 +8,10 @@ type ChainTokenList = {
 };
 
 // used for display in the default list when adding liquidity
-export const SUGGESTED_BASES: ChainTokenList = {
-  [ChainName.MAINNET]: [
-    mainnetTokens.swpr,
-    mainnetTokens.wcspr,
-    mainnetTokens.usdt,
-  ],
+export const SUPPORTED_TOKENS: ChainTokenList = {
+  [ChainName.MAINNET]: [],
   [ChainName.TESTNET]: [
-    testnetTokens.swpr,
-    testnetTokens.wcspr,
-    testnetTokens.usdt,
+    testnetTokens.SWPR,
+    testnetTokens.CSPR,
   ],
 };

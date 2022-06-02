@@ -2,8 +2,8 @@ import SearchInput from "../SearchInput/SearchInput";
 
 interface CurrencySearchModalProps {
   modalId: string;
-  selectedCurrency?: string | null;
-  otherSelectedCurrency?: string | null;
+  selectedCurrency?: string;
+  otherSelectedCurrency?: string;
   isSourceSelect: boolean;
   showCommonBases?: boolean;
 }

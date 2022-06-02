@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Link, useSearchParams } from "react-router-dom";
-import useTheme, { Themes } from "../../hooks/useTheme";
 
 import ActionButton from "../../components/Button/actionButton";
 
@@ -21,9 +20,11 @@ import { BigNumber } from "ethers";
 import { useState } from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
+import useSetting from "../../store/useSetting";
+import { Themes } from "../../config/constants/themes";
 
 export default function RemoveLiquidity() {
-  const { theme } = useTheme();
+  const { theme } = useSetting();
   const { isConnected, activeAddress } = useNetworkStatus();
   const {
     execType,
