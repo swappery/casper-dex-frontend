@@ -18,6 +18,7 @@ export const deserialize = (serializedString: string) => {
 export const getAmountsOut = (amount: BigNumber, reserves: BigNumber[][], decimals: number) => {
   let tempAmount = amount;
   reserves.forEach((reserve) => {
+    if(reserve[0].eq(0) || reserve[1].eq(0)) { tempAmount = BigNumber.from(0); return; }
     tempAmount = tempAmount
       .mul(998)
       .mul(reserve[1])
@@ -29,6 +30,7 @@ export const getAmountsOut = (amount: BigNumber, reserves: BigNumber[][], decima
 export const getAmountsIn = (amount: BigNumber, reserves: BigNumber[][], decimals: number) => {
   let tempAmount = amount;
   reserves.forEach((reserve) => {
+    if(reserve[0].eq(0) || reserve[1].eq(0)) { tempAmount = BigNumber.from(0); return; }
     tempAmount = reserve[0]
       .mul(tempAmount)
       .mul(1000)

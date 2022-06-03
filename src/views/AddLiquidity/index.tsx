@@ -348,17 +348,25 @@ export default function AddLiquidity() {
   const withALimit = ({ floatValue }: any) =>
     !currencyA || !currentPool
       ? false
+      : currentPool.totalSupply.eq(0)
+      ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[0], currencyA.decimals);
 
   const withBLimit = ({ floatValue }: any) =>
     !currencyB || !currentPool
       ? false
+      : currentPool.totalSupply.eq(0)
+      ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[1], currencyB.decimals);
 
   const valueA = useMemo(() => {
-    if (inputField === InputField.INPUT_B) {
+    if (
+      inputField === InputField.INPUT_B &&
+      currentPool &&
+      currentPool.totalSupply.gt(0)
+    ) {
       return currencyA && currentPool && currencyBAmounts
         ? amountWithoutDecimals(
             currencyBAmounts.amount
@@ -375,7 +383,11 @@ export default function AddLiquidity() {
   }, [inputField, currencyA, currencyAAmounts, currencyBAmounts, currentPool]);
 
   const valueB = useMemo(() => {
-    if (inputField === InputField.INPUT_A) {
+    if (
+      inputField === InputField.INPUT_A &&
+      currentPool &&
+      currentPool.totalSupply.gt(0)
+    ) {
       return currencyAAmounts && currencyB && currentPool
         ? amountWithoutDecimals(
             currencyAAmounts.amount

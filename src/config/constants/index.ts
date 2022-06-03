@@ -13,6 +13,8 @@ export const SUPPORTED_TOKENS: ChainTokenList = {
   [ChainName.TESTNET]: [
     testnetTokens.SWPR,
     testnetTokens.CSPR,
+    testnetTokens.USDT,
+    testnetTokens.CSPD,
   ],
 };
 
