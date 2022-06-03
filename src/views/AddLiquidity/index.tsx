@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
-import { useCallback, KeyboardEvent } from "react";
+import { useCallback, KeyboardEvent, useEffect } from "react";
 
 import useLiquidityStatus, {
   ExecutionType,
@@ -11,7 +11,7 @@ import useLiquidityStatus, {
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
-import { amountWithoutDecimals } from "../../utils/utils";
+import { amountWithoutDecimals, getTokenFromAddress } from "../../utils/utils";
 // import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import ChevronIcon from "../../components/Icon/Chevron";
@@ -19,36 +19,143 @@ import BackIcon from "../../components/Icon/Back";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useSetting from "../../store/useSetting";
 import { Themes } from "../../config/constants/themes";
+import useAddLiquidityStatus from "../../store/useAddLiquidity";
+import { SUPPORTED_TOKENS } from "../../config/constants";
+import { ChainName } from "../../config/constants/chainName";
+import useAction from "../../store/useAction";
+import { ActionType } from "../../config/interface/actionType";
+import useCasperWeb3Provider from "../../web3";
+import {
+  CHAIN_NAME,
+  NODE_ADDRESS,
+  ROUTER_CONTRACT_HASH,
+} from "../../web3/config/constant";
+import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
+import { CasperServiceByJsonRPC } from "casper-js-sdk";
+import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
+import { BigNumber } from "ethers";
+import { Pool } from "../../config/interface/pool";
+import useWalletStatus from "../../store/useWalletStatus";
+import { InputField } from "../../config/interface/inputField";
 
 export default function AddLiquidity() {
   const { theme } = useSetting();
+  const { isPairExist, activate, balanceOf, allowanceOf } =
+    useCasperWeb3Provider();
+  const { setPool } = useWalletStatus();
   const {
-    execType,
-    sourceToken,
-    sourceAmount,
-    targetToken,
-    targetAmount,
-    reserves,
-    isExactIn,
-    currentPool,
-    setExactIn,
-    setSourceAmount,
-    setTargetAmount,
-    setExecTypeWithCurrency,
-  } = useLiquidityStatus();
+    actionType,
+    actionStatus,
+    isPending,
+    isFetching,
+    setActionType,
+    setActionStatus,
+    setPending,
+    setFetching,
+  } = useAction();
   const [searchParams] = useSearchParams();
-  const { isConnected } = useNetworkStatus();
+  const { isConnected, activeAddress } = useNetworkStatus();
+  const {
+    currencyA,
+    currencyB,
+    currencyAAmounts,
+    currencyBAmounts,
+    currentPool,
+    inputField,
+    initialize,
+    setCurrencyA,
+    setCurrencyB,
+    setCurrencyAAmounts,
+    setCurrencyBAmounts,
+    setCurrentPool,
+    setInputField,
+  } = useAddLiquidityStatus();
 
-  const params = Object.fromEntries(searchParams.entries());
+  useEffect(() => {
+    async function handleUpdatePool() {
+      if (!isConnected || !currencyA || !currencyB) return;
+      setFetching(true);
+      if (await isPairExist(currencyA, currencyB)) {
+        let routerContractHash = ROUTER_CONTRACT_HASH;
+        let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await routerClient.setContractHash(routerContractHash);
+        let pairPackageHash = await routerClient.getPairFor(
+          currencyA.address,
+          currencyB.address
+        );
 
-  let inputCurrency = params["inputCurrency"];
-  let outputCurrency = params["outputCurrency"];
-  if (execType !== ExecutionType.EXE_ADD_LIQUIDITY && isConnected) {
-    setExecTypeWithCurrency(
-      ExecutionType.EXE_ADD_LIQUIDITY,
-      inputCurrency,
-      outputCurrency
+        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+        if (block) {
+          const stateRootHash = block.header.state_root_hash;
+          const blockState = await client.getBlockState(
+            stateRootHash,
+            `hash-${pairPackageHash}`,
+            []
+          );
+          let pairContractHash =
+            blockState.ContractPackage?.versions[
+              blockState.ContractPackage.versions.length - 1
+            ].contractHash.slice(9)!;
+          let pairClient = new SwapperyPairClient(
+            NODE_ADDRESS,
+            CHAIN_NAME,
+            undefined
+          );
+          await pairClient.setContractHash(pairContractHash);
+          let reserves_res = await pairClient.getReserves();
+          let reserves;
+          if (currencyA.address < currencyB.address)
+            reserves = [
+              BigNumber.from(reserves_res[0]),
+              BigNumber.from(reserves_res[1]),
+            ];
+          else
+            reserves = [
+              BigNumber.from(reserves_res[1]),
+              BigNumber.from(reserves_res[0]),
+            ];
+
+          const pool: Pool = {
+            contractPackageHash: pairPackageHash,
+            contractHash: pairContractHash,
+            tokens: [currencyA, currencyB],
+            decimals: await pairClient.decimals(),
+            totalSupply: await pairClient.totalSupply(),
+            reserves: reserves,
+            balance: BigNumber.from(await balanceOf(pairContractHash)),
+            allowance: BigNumber.from(await allowanceOf(pairContractHash)),
+          };
+          setCurrentPool(pool);
+          setPool(activeAddress, pool);
+        }
+      }
+      setFetching(false);
+    }
+    handleUpdatePool();
+  }, [isConnected, activeAddress, currencyA, currencyB]);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+    const input = params["input"];
+    const output = params["output"];
+
+    setCurrencyA(
+      getTokenFromAddress(input, SUPPORTED_TOKENS[ChainName.TESTNET])!
     );
+    setCurrencyB(
+      getTokenFromAddress(output, SUPPORTED_TOKENS[ChainName.TESTNET])!
+    );
+  }, [searchParams]);
+
+  if (actionType !== ActionType.ADD_LIQUIDITY) {
+    setActionType(ActionType.ADD_LIQUIDITY);
+    initialize();
   }
 
   const withSourceLimit = ({ floatValue }: any) =>
@@ -65,24 +172,25 @@ export default function AddLiquidity() {
       supportedTokens[targetToken].decimals
     );
 
-  const sourceValue = !isExactIn
-    ? amountWithoutDecimals(
-        targetAmount.mul(reserves[0][0]).div(reserves[0][1]),
-        supportedTokens[sourceToken].decimals
-      )
-    : amountWithoutDecimals(
-        sourceAmount,
-        supportedTokens[sourceToken].decimals
-      );
-  const targetValue = isExactIn
-    ? amountWithoutDecimals(
-        sourceAmount.mul(reserves[0][1]).div(reserves[0][0]),
-        supportedTokens[targetToken].decimals
-      )
-    : amountWithoutDecimals(
-        targetAmount,
-        supportedTokens[targetToken].decimals
-      );
+  const sourceValue =
+    inputField === InputField.INPUT_B
+      ? amountWithoutDecimals(
+          currencyBAmounts?.amount
+            .mul(currentPool?.reserves[0]!)
+            .div(currentPool?.reserves[1]!)!,
+          currencyA?.decimals!
+        )
+      : amountWithoutDecimals(currencyAAmounts?.amount!, currencyA?.decimals!);
+  const targetValue =
+    inputField === InputField.INPUT_A
+      ? amountWithoutDecimals(
+          sourceAmount.mul(reserves[0][1]).div(reserves[0][0]),
+          supportedTokens[targetToken].decimals
+        )
+      : amountWithoutDecimals(
+          targetAmount,
+          supportedTokens[targetToken].decimals
+        );
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">

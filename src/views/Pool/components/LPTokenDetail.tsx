@@ -12,7 +12,6 @@ type LPTokenProps = {
 
 const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
   const navigate = useNavigate();
-  const { setCurrentPool } = useLiquidityStatus();
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
     BigNumber.from(poolInfo.decimals).toNumber()
@@ -84,12 +83,11 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
           <button
             className="hover:opacity-80 p-[7px] text-[18px] leading-[22px] bg-lightgreen border border-black rounded-3xl"
             onClick={() => {
-              setCurrentPool(poolInfo);
               navigate({
                 pathname: "/remove",
                 search: createSearchParams({
-                  inputCurrency: poolInfo.tokens[0].address,
-                  outputCurrency: poolInfo.tokens[1].address,
+                  input: poolInfo.tokens[0].address,
+                  output: poolInfo.tokens[1].address,
                 }).toString(),
               });
             }}
@@ -102,8 +100,8 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
               navigate({
                 pathname: "/add",
                 search: createSearchParams({
-                  inputCurrency: poolInfo.tokens[0].address,
-                  outputCurrency: poolInfo.tokens[1].address,
+                  input: poolInfo.tokens[0].address,
+                  output: poolInfo.tokens[1].address,
                 }).toString(),
               });
             }}

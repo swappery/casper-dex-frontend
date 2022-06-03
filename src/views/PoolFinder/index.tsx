@@ -40,6 +40,7 @@ import { Pool } from "../../config/interface/pool";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import { InputField } from "../../config/interface/inputField";
+import { testnetTokens } from "../../config/constants/tokens";
 
 export default function PoolFinder() {
   const [text, setText] = useState<string>("");
@@ -141,15 +142,16 @@ export default function PoolFinder() {
 
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
-    const input = params["input"] || (currencyA ? currencyA.address : "");
-    const output = params["output"] || (currencyB ? currencyB.address : "");
-
-    setCurrencyA(
-      getTokenFromAddress(input, SUPPORTED_TOKENS[ChainName.TESTNET])!
-    );
-    setCurrencyB(
-      getTokenFromAddress(output, SUPPORTED_TOKENS[ChainName.TESTNET])!
-    );
+    const input = params["input"];
+    const output = params["output"];
+    if (input || output) {
+      setCurrencyA(
+        getTokenFromAddress(input, SUPPORTED_TOKENS[ChainName.TESTNET])!
+      );
+      setCurrencyB(
+        getTokenFromAddress(output, SUPPORTED_TOKENS[ChainName.TESTNET])!
+      );
+    }
   }, [searchParams]);
 
   useEffect(() => {

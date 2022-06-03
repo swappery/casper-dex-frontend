@@ -44,6 +44,7 @@ export default function Swap() {
     outputCurrencyAmounts,
     reserves,
     inputField,
+    initialize,
     setInputField,
     setInputCurrency,
     setOutputCurrency,
@@ -257,7 +258,10 @@ export default function Swap() {
     setReserves(reverseDoubleArray(reserves));
   };
 
-  if (actionType !== ActionType.SWAP) setActionType(ActionType.SWAP);
+  if (actionType !== ActionType.SWAP) {
+    setActionType(ActionType.SWAP);
+    initialize();
+  }
 
   const withTargetLimit = ({ floatValue }: any) =>
     floatValue <

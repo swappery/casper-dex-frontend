@@ -9,7 +9,6 @@ import logo from "../../../assets/images/logo.svg";
 import logoWhite from "../../../assets/images/logo-white.svg";
 import swapperyIcon from "../../../assets/images/tokens/fe33392bf4d0ff2edbb5a664256271c03c9ed98da7a902472336a4c67cbb8f85.svg";
 import swapperyDarkIcon from "../../../assets/images/tokens/token-dark.svg";
-import { supportedTokens, TokenType } from "../../../store/useLiquidityStatus";
 import useSetting from "../../../store/useSetting";
 import { Themes } from "../../../config/constants/themes";
 
@@ -31,10 +30,7 @@ export default function Header() {
     event.preventDefault();
     navigate({
       pathname: "/swap",
-      search: createSearchParams({
-        inputCurrency: supportedTokens[TokenType.CSPR].contractHash,
-        outputCurrency: supportedTokens[TokenType.SWPR].contractHash,
-      }).toString(),
+      search: createSearchParams({}).toString(),
     });
   };
 

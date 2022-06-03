@@ -1,6 +1,5 @@
 import create, { State } from "zustand";
 import { configurePersist } from "zustand-persist";
-import { devtools } from "zustand/middleware";
 import { deserialize } from "../utils/utils";
 import serialize from "serialize-javascript";
 import { Pool } from "../config/interface/pool";

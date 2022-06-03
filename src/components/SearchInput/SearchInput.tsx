@@ -63,11 +63,17 @@ const SearchInput = ({
           setSearchParams({
             input: otherSelectedCurrency.address,
           });
-      } else
-        setSearchParams({
-          input: item.address,
-          output: otherSelectedCurrency!.address,
-        });
+      } else {
+        if (otherSelectedCurrency)
+          setSearchParams({
+            input: item.address,
+            output: otherSelectedCurrency.address,
+          });
+        else
+          setSearchParams({
+            input: item.address,
+          });
+      }
     } else {
       if (otherSelectedCurrency === item) {
         if (selectedCurrency)
@@ -79,11 +85,17 @@ const SearchInput = ({
           setSearchParams({
             output: otherSelectedCurrency.address,
           });
-      } else
-        setSearchParams({
-          input: otherSelectedCurrency!.address,
-          output: item.address,
-        });
+      } else {
+        if (otherSelectedCurrency)
+          setSearchParams({
+            input: otherSelectedCurrency.address,
+            output: item.address,
+          });
+        else
+          setSearchParams({
+            output: item.address,
+          });
+      }
     }
   };
 

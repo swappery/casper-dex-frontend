@@ -1,8 +1,6 @@
 import { createSearchParams, useNavigate } from "react-router-dom";
 import useLiquidityStatus, {
   ExecutionType,
-  supportedTokens,
-  TokenType,
 } from "../../store/useLiquidityStatus";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useWalletStatus, { AccountList } from "../../store/useWalletStatus";
@@ -62,10 +60,7 @@ export default function Liquidity() {
                     event.preventDefault();
                     navigate({
                       pathname: "/find",
-                      search: createSearchParams({
-                        inputCurrency:
-                          supportedTokens[TokenType.SWPR].contractHash,
-                      }).toString(),
+                      search: createSearchParams({}).toString(),
                     });
                   }}
                 >

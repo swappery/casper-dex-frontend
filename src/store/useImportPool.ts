@@ -16,7 +16,7 @@ interface FindPoolStatus extends State {
 
 const useImportPool = create<FindPoolStatus> (devtools(
     (set) => ({
-        initialize: () => set(() => { return { currencyA: testnetTokens.SWPR }; }),
+        initialize: () => set(() => { return { currencyA: testnetTokens.SWPR, currencyB: undefined, currentPool: undefined }; }),
         setCurrencyA: (currencyA: Token) => set(() => ({currencyA})),
         setCurrencyB: (currencyB: Token) => set(() => ({currencyB})),
         setCurrentPool: (currentPool: Pool) => set(() => ({currentPool})),
