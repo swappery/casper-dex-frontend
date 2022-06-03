@@ -8,12 +8,6 @@ import {
   useMemo,
   useState,
 } from "react";
-
-import useLiquidityStatus, {
-  ExecutionType,
-  supportedTokens,
-  TokenType,
-} from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";

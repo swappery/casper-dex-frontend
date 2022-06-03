@@ -8,11 +8,6 @@ import {
 } from "react-router-dom";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
-import useLiquidityStatus, {
-  ExecutionType,
-  supportedTokens,
-  TokenType,
-} from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
 import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";

@@ -10,11 +10,6 @@ import {
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
 import useNetworkStatus from "../store/useNetworkStatus";
-import useLiquidityStatus, {
-  ExecutionType,
-  supportedTokens,
-  TokenType,
-} from "../store/useLiquidityStatus";
 import { BigNumber, BigNumberish } from "ethers";
 import {
   CHAIN_NAME,
