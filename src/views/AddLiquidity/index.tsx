@@ -1,7 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
-import { useCallback, KeyboardEvent, useEffect } from "react";
+import {
+  useCallback,
+  KeyboardEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import useLiquidityStatus, {
   ExecutionType,
@@ -31,17 +37,30 @@ import {
   ROUTER_CONTRACT_HASH,
 } from "../../web3/config/constant";
 import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
-import { CasperServiceByJsonRPC } from "casper-js-sdk";
+import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
 import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
 import { BigNumber } from "ethers";
 import { Pool } from "../../config/interface/pool";
 import useWalletStatus from "../../store/useWalletStatus";
 import { InputField } from "../../config/interface/inputField";
+import { TokenAmount } from "../../config/interface/tokenAmounts";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
+import { ActionStatus } from "../../config/interface/actionStatus";
 
 export default function AddLiquidity() {
+  const [text, setText] = useState<string>("");
+  const [isDisabled, setDisabled] = useState<boolean>(false);
+  const [isSpinning, setSpinning] = useState<boolean>(false);
   const { theme } = useSetting();
-  const { isPairExist, activate, balanceOf, allowanceOf } =
-    useCasperWeb3Provider();
+  const {
+    activate,
+    balanceOf,
+    allowanceOf,
+    isPairExist,
+    wrapCspr,
+    approve,
+    addLiquidity,
+  } = useCasperWeb3Provider();
   const { setPool } = useWalletStatus();
   const {
     actionType,
@@ -70,6 +89,34 @@ export default function AddLiquidity() {
     setCurrentPool,
     setInputField,
   } = useAddLiquidityStatus();
+
+  useEffect(() => {
+    async function handleChange() {
+      if (!isConnected || !currencyA) return;
+      const currencyAmount: TokenAmount = {
+        balance: await balanceOf(currencyA.address),
+        allowance: await allowanceOf(currencyA.address),
+        amount: currencyAAmounts ? currencyAAmounts.amount : BigNumber.from(0),
+        limit: currencyAAmounts ? currencyAAmounts.limit : BigNumber.from(0),
+      };
+      setCurrencyAAmounts(currencyAmount);
+    }
+    handleChange();
+  }, [activeAddress, currencyA, isPending]);
+
+  useEffect(() => {
+    async function handleChange() {
+      if (!isConnected || !currencyB) return;
+      const currencyAmount: TokenAmount = {
+        balance: await balanceOf(currencyB.address),
+        allowance: await allowanceOf(currencyB.address),
+        amount: currencyBAmounts ? currencyBAmounts.amount : BigNumber.from(0),
+        limit: currencyBAmounts ? currencyBAmounts.limit : BigNumber.from(0),
+      };
+      setCurrencyBAmounts(currencyAmount);
+    }
+    handleChange();
+  }, [activeAddress, currencyB, isPending]);
 
   useEffect(() => {
     async function handleUpdatePool() {
@@ -138,7 +185,131 @@ export default function AddLiquidity() {
       setFetching(false);
     }
     handleUpdatePool();
-  }, [isConnected, activeAddress, currencyA, currencyB]);
+  }, [isConnected, activeAddress, currencyA, currencyB, isPending]);
+
+  useEffect(() => {
+    async function updateActionStatus() {
+      let newActionStatus;
+      if (!isConnected) newActionStatus = ActionStatus.REQ_CONNECT_WALLET;
+      else if (!currencyA || !currencyB)
+        newActionStatus = ActionStatus.REQ_SELECT_CURRENCY;
+      else if (isPending) newActionStatus = ActionStatus.PENDING;
+      else if (isFetching) newActionStatus = ActionStatus.LOADING;
+      else if (
+        BigNumber.from(currencyAAmounts ? currencyAAmounts.amount : 0).eq(0) ||
+        BigNumber.from(currencyBAmounts ? currencyBAmounts.amount : 0).eq(0)
+      )
+        newActionStatus = ActionStatus.REQ_INPUT_AMOUNT;
+      else if (
+        currencyA?.isNative &&
+        BigNumber.from(currencyAAmounts?.balance).lt(currencyAAmounts?.amount!)
+      )
+        newActionStatus = ActionStatus.REQ_WRAP_INPUT_CURRENCY;
+      else if (
+        BigNumber.from(currencyAAmounts?.balance).lt(currencyAAmounts?.amount!)
+      )
+        newActionStatus = ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT;
+      else if (
+        BigNumber.from(currencyAAmounts?.allowance).lt(
+          currencyAAmounts?.amount!
+        )
+      )
+        newActionStatus = ActionStatus.REQ_APPROVE_INPUT_CURRENCY;
+      else if (
+        currencyB?.isNative &&
+        BigNumber.from(currencyBAmounts?.balance).lt(currencyBAmounts?.amount!)
+      )
+        newActionStatus = ActionStatus.REQ_WRAP_OUTPUT_CURRENCY;
+      else if (
+        BigNumber.from(currencyBAmounts?.balance).lt(currencyBAmounts?.amount!)
+      )
+        newActionStatus = ActionStatus.INSUFFICIENT_OUTPUT_CURRENCY_AMOUNT;
+      else if (
+        BigNumber.from(currencyBAmounts?.allowance).lt(
+          currencyBAmounts?.amount!
+        )
+      )
+        newActionStatus = ActionStatus.REQ_APPROVE_OUTPUT_CURRENCY;
+      else newActionStatus = ActionStatus.REQ_EXECUTE_ACTION;
+      setActionStatus(newActionStatus);
+    }
+    updateActionStatus();
+  }, [
+    isConnected,
+    currencyAAmounts,
+    currencyBAmounts,
+    currencyA,
+    currencyB,
+    isPending,
+    isFetching,
+  ]);
+
+  useEffect(() => {
+    switch (actionStatus) {
+      case ActionStatus.REQ_CONNECT_WALLET:
+        setText("Connect Your Wallet");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_SELECT_CURRENCY:
+        setText("Please Select Currency");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_INPUT_AMOUNT:
+        setText("Please Input Amount");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.PENDING:
+        setText("Pending");
+        setSpinning(true);
+        setDisabled(false);
+        break;
+      case ActionStatus.LOADING:
+        setText("Loading");
+        setSpinning(true);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_WRAP_INPUT_CURRENCY:
+        setText("Wrap");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT:
+        setText("Insufficient" + currencyA?.symbol + "Amount");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_APPROVE_INPUT_CURRENCY:
+        setText("Approve " + currencyA?.symbol);
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_WRAP_OUTPUT_CURRENCY:
+        setText("Wrap");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.INSUFFICIENT_OUTPUT_CURRENCY_AMOUNT:
+        setText("Insufficient" + currencyB?.symbol + "Amount");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_APPROVE_OUTPUT_CURRENCY:
+        setText("Approve " + currencyB?.symbol);
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_EXECUTE_ACTION:
+        setText("Add Liquidity");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      default:
+        break;
+    }
+  }, [actionStatus]);
 
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
@@ -153,44 +324,78 @@ export default function AddLiquidity() {
     );
   }, [searchParams]);
 
+  const handleClickActionButton = async () => {
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    else if (currencyA && currencyB && currencyAAmounts && currencyBAmounts)
+      if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
+        await wrapCspr(currencyAAmounts.amount.sub(currencyAAmounts.balance));
+      } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
+        await approve(currencyAAmounts.amount, currencyA.address);
+      } else if (actionStatus === ActionStatus.REQ_WRAP_OUTPUT_CURRENCY) {
+        await wrapCspr(currencyBAmounts.amount.sub(currencyBAmounts.balance));
+      } else if (actionStatus === ActionStatus.REQ_APPROVE_OUTPUT_CURRENCY) {
+        await approve(currencyBAmounts.amount, currencyB.address);
+      } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
+        await addLiquidity(
+          CLPublicKey.fromHex(activeAddress),
+          currencyA,
+          currencyAAmounts.amount,
+          currencyB,
+          currencyBAmounts.amount
+        );
+      }
+  };
+
   if (actionType !== ActionType.ADD_LIQUIDITY) {
     setActionType(ActionType.ADD_LIQUIDITY);
     initialize();
   }
 
-  const withSourceLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      reserves[0][0],
-      supportedTokens[sourceToken].decimals
-    );
+  const withALimit = ({ floatValue }: any) =>
+    !currencyA || !currentPool
+      ? false
+      : floatValue <
+        amountWithoutDecimals(currentPool.reserves[0], currencyA.decimals);
 
-  const withTargetLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      reserves[reserves.length - 1][1],
-      supportedTokens[targetToken].decimals
-    );
+  const withBLimit = ({ floatValue }: any) =>
+    !currencyB || !currentPool
+      ? false
+      : floatValue <
+        amountWithoutDecimals(currentPool.reserves[1], currencyB.decimals);
 
-  const sourceValue =
-    inputField === InputField.INPUT_B
-      ? amountWithoutDecimals(
-          currencyBAmounts?.amount
-            .mul(currentPool?.reserves[0]!)
-            .div(currentPool?.reserves[1]!)!,
-          currencyA?.decimals!
-        )
-      : amountWithoutDecimals(currencyAAmounts?.amount!, currencyA?.decimals!);
-  const targetValue =
-    inputField === InputField.INPUT_A
-      ? amountWithoutDecimals(
-          sourceAmount.mul(reserves[0][1]).div(reserves[0][0]),
-          supportedTokens[targetToken].decimals
-        )
-      : amountWithoutDecimals(
-          targetAmount,
-          supportedTokens[targetToken].decimals
-        );
+  const valueA = useMemo(() => {
+    if (inputField === InputField.INPUT_B) {
+      return currencyA && currentPool && currencyBAmounts
+        ? amountWithoutDecimals(
+            currencyBAmounts.amount
+              .mul(currentPool.reserves[0])
+              .div(currentPool.reserves[1]),
+            currencyA.decimals
+          )
+        : 0;
+    } else {
+      return currencyA && currencyAAmounts
+        ? amountWithoutDecimals(currencyAAmounts?.amount!, currencyA?.decimals!)
+        : 0;
+    }
+  }, [inputField, currencyA, currencyAAmounts, currencyBAmounts, currentPool]);
+
+  const valueB = useMemo(() => {
+    if (inputField === InputField.INPUT_A) {
+      return currencyAAmounts && currencyB && currentPool
+        ? amountWithoutDecimals(
+            currencyAAmounts.amount
+              .mul(currentPool.reserves[1])
+              .div(currentPool.reserves[0]!),
+            currencyB.decimals
+          )
+        : 0;
+    } else {
+      return currencyB && currencyBAmounts
+        ? amountWithoutDecimals(currencyBAmounts.amount, currencyB.decimals)
+        : 0;
+    }
+  }, [inputField, currencyAAmounts, currencyB, currencyBAmounts, currentPool]);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
@@ -215,34 +420,47 @@ export default function AddLiquidity() {
             <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
               <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
-                  value={sourceValue}
+                  value={valueA}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(true);
+                      setInputField(InputField.INPUT_A);
                     },
-                    [isExactIn]
+                    [inputField]
                   )}
-                  isAllowed={withSourceLimit}
+                  isAllowed={withALimit}
                   onValueChange={async (values) => {
                     const { value } = values;
-                    setSourceAmount(parseFloat(value) || 0);
+                    const amount = parseFloat(value) || 0;
+                    if (currencyAAmounts && currencyA) {
+                      const newAmounts: TokenAmount = {
+                        balance: currencyAAmounts.balance,
+                        allowance: currencyAAmounts.allowance,
+                        amount: BigNumber.from(
+                          (amount * 10 ** currencyA.decimals).toFixed()
+                        ),
+                        limit: BigNumber.from(
+                          (amount * 10 ** currencyA.decimals).toFixed()
+                        ),
+                      };
+                      setCurrencyAAmounts(newAmounts);
+                    }
                   }}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
-                    htmlFor="currentTokenModal"
+                    htmlFor="add-currencyA-modal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
                     <span className="text-[14px] md:text-[19px]">
-                      {supportedTokens[sourceToken].symbol}
+                      {currencyA ? currencyA.symbol : "Select Currency"}
                     </span>
                     <ChevronIcon />
                   </label>
-                  {sourceToken !== TokenType.EMPTY ? (
+                  {currencyA ? (
                     <img
-                      src={supportedTokens[sourceToken].tokenSvg}
+                      src={currencyA.logo}
                       className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                       alt=""
                     />
@@ -258,34 +476,47 @@ export default function AddLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
-                  value={targetValue}
+                  value={valueB}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
-                      setExactIn(false);
+                      setInputField(InputField.INPUT_B);
                     },
-                    [isExactIn]
+                    [inputField]
                   )}
-                  isAllowed={withTargetLimit}
+                  isAllowed={withBLimit}
                   onValueChange={async (values) => {
                     const { value } = values;
-                    setTargetAmount(parseFloat(value) || 0);
+                    const amount = parseFloat(value) || 0;
+                    if (currencyB && currencyBAmounts) {
+                      const newAmounts: TokenAmount = {
+                        balance: currencyBAmounts.balance,
+                        allowance: currencyBAmounts.allowance,
+                        amount: BigNumber.from(
+                          (amount * 10 ** currencyB.decimals).toFixed()
+                        ),
+                        limit: BigNumber.from(
+                          (amount * 10 ** currencyB.decimals).toFixed()
+                        ),
+                      };
+                      setCurrencyBAmounts(newAmounts);
+                    }
                   }}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
-                    htmlFor="targetTokenModal"
+                    htmlFor="add-currencyB-modal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
                     <span className="text-[14px] md:text-[19px]">
-                      {supportedTokens[targetToken].symbol}
+                      {currencyB ? currencyB.symbol : "Select Currency"}
                     </span>
                     <ChevronIcon />
                   </label>
-                  {targetToken !== TokenType.EMPTY ? (
+                  {currencyB ? (
                     <img
-                      src={supportedTokens[targetToken].tokenSvg}
+                      src={currencyB.logo}
                       className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
                       alt=""
                     />
@@ -294,7 +525,12 @@ export default function AddLiquidity() {
                   )}
                 </div>
               </div>
-              {/* <ActionButton /> */}
+              <ActionButton
+                text={text}
+                isDisabled={isDisabled}
+                isSpinning={isSpinning}
+                handleClick={handleClickActionButton}
+              />
             </div>
           </div>
           <p className="text-base md:text-[18px] text-neutral mt-7">
@@ -302,34 +538,18 @@ export default function AddLiquidity() {
           </p>
         </div>
       </div>
-      {/* <CurrencySearchModal
-        modalId="currentTokenModal"
-        selectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        isSourceSelect={true}
+      <CurrencySearchModal
+        modalId="add-currencyA-modal"
+        selectedCurrency={currencyA}
+        otherSelectedCurrency={currencyB}
+        field={InputField.INPUT_A}
       />
       <CurrencySearchModal
-        modalId="targetTokenModal"
-        selectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        isSourceSelect={false}
-      /> */}
+        modalId="add-currencyB-modal"
+        selectedCurrency={currencyB}
+        otherSelectedCurrency={currencyA}
+        field={InputField.INPUT_B}
+      />
     </div>
   );
 }

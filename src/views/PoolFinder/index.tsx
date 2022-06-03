@@ -158,9 +158,9 @@ export default function PoolFinder() {
     async function handleUpdateActionStatus() {
       let newActionStatus;
       if (!isConnected) newActionStatus = ActionStatus.REQ_CONNECT_WALLET;
-      else if (isFetching) newActionStatus = ActionStatus.LOADING;
       else if (!currencyA || !currencyB)
         newActionStatus = ActionStatus.REQ_SELECT_CURRENCY;
+      else if (isFetching) newActionStatus = ActionStatus.LOADING;
       else if (!currentPool) newActionStatus = ActionStatus.REQ_CREATE_POOL;
       else if (currentPool.balance.eq(0) || isImportedPool(currentPool))
         newActionStatus = ActionStatus.REQ_ADD_LIQUIDITY;

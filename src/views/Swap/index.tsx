@@ -142,6 +142,12 @@ export default function Swap() {
       )
         newActionStatus = ActionStatus.REQ_WRAP_INPUT_CURRENCY;
       else if (
+        BigNumber.from(inputCurrencyAmounts.balance).lt(
+          inputCurrencyAmounts.amount
+        )
+      )
+        newActionStatus = ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT;
+      else if (
         BigNumber.from(inputCurrencyAmounts.allowance).lt(
           inputCurrencyAmounts.amount
         )
@@ -166,6 +172,11 @@ export default function Swap() {
         setSpinning(false);
         setDisabled(false);
         break;
+      case ActionStatus.REQ_INPUT_AMOUNT:
+        setText("Please Input Amount");
+        setSpinning(false);
+        setDisabled(true);
+        break;
       case ActionStatus.PENDING:
         setText("Pending");
         setSpinning(true);
@@ -176,15 +187,15 @@ export default function Swap() {
         setSpinning(true);
         setDisabled(false);
         break;
-      case ActionStatus.REQ_INPUT_AMOUNT:
-        setText("Please Input Amount");
-        setSpinning(false);
-        setDisabled(true);
-        break;
       case ActionStatus.REQ_WRAP_INPUT_CURRENCY:
         setText("Wrap");
         setSpinning(false);
         setDisabled(false);
+        break;
+      case ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT:
+        setText("Insufficient" + inputCurrency.symbol + "Amount");
+        setSpinning(false);
+        setDisabled(true);
         break;
       case ActionStatus.REQ_APPROVE_INPUT_CURRENCY:
         setText("Approve " + inputCurrency.symbol);
