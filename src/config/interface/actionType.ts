@@ -3,4 +3,5 @@ export enum ActionType {
     REMOVE_LIQUIDITY = "REMOVE_LIQUIDITY",
     IMPORT_POOL = "IMPORT_POOL",
     SWAP = "SWAP",
+    VIEW_LIQUIDITY = "VIEW_LIQUIDITY",
 }

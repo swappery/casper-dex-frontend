@@ -17,48 +17,168 @@ import useLiquidityStatus, {
 } from "../../store/useLiquidityStatus";
 import { amountWithoutDecimals } from "../../utils/utils";
 import { BigNumber } from "ethers";
-import { useState } from "react";
+import {
+  useCallback,
+  useMemo,
+  useState,
+  KeyboardEvent,
+  useEffect,
+} from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 import useSetting from "../../store/useSetting";
 import { Themes } from "../../config/constants/themes";
+import useAction from "../../store/useAction";
+import { ActionType } from "../../config/interface/actionType";
+import useRemoveLiquidityStatus from "../../store/useRemoveLiquidity";
+import { InputField } from "../../config/interface/inputField";
 
 export default function RemoveLiquidity() {
+  const [liquidityAmount, setLiquidityAmount] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
+  const [currencyAAmount, setCurrencyAAmount] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
+  const [currencyBAmount, setCurrencyBAmount] = useState<BigNumber>(
+    BigNumber.from(0)
+  );
   const { theme } = useSetting();
   const { isConnected, activeAddress } = useNetworkStatus();
+  const { actionType, actionStatus, setActionType, setActionStatus } =
+    useAction();
   const {
-    execType,
+    currencyA,
+    currencyB,
     currentPool,
-    liquidityAmount,
-    setLiquidityAmount,
-    setExecType,
-  } = useLiquidityStatus();
+    inputField,
+    setCurrencyA,
+    setCurrencyB,
+    setCurrentPool,
+    setInputField,
+  } = useRemoveLiquidityStatus();
 
-  if (execType !== ExecutionType.EXE_REMOVE_LIQUIDITY)
-    setExecType(ExecutionType.EXE_REMOVE_LIQUIDITY);
+  useEffect(() => {
+    if (currentPool) {
+      setCurrencyA(currentPool.tokens[0]);
+      setCurrencyB(currentPool.tokens[1]);
+    }
+  }, [currentPool]);
+
+  if (actionType !== ActionType.REMOVE_LIQUIDITY)
+    setActionType(ActionType.REMOVE_LIQUIDITY);
 
   const withLiquidityLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      BigNumber.from(currentPool.balance),
-      BigNumber.from(currentPool.decimals).toNumber()
-    );
-  const sourceValue = amountWithoutDecimals(
-    liquidityAmount
-      .mul(BigNumber.from(currentPool.reserves[0]))
-      .div(BigNumber.from(currentPool.totalSupply)),
-    BigNumber.from(currentPool.tokens[0].decimals).toNumber()
-  );
-  const targetValue = amountWithoutDecimals(
-    liquidityAmount
-      .mul(BigNumber.from(currentPool.reserves[1]))
-      .div(BigNumber.from(currentPool.totalSupply)),
-    BigNumber.from(currentPool.tokens[1].decimals).toNumber()
-  );
-  const liquidityValue = amountWithoutDecimals(
+    currentPool
+      ? floatValue <
+        amountWithoutDecimals(
+          BigNumber.from(currentPool.balance),
+          BigNumber.from(currentPool.decimals).toNumber()
+        )
+      : false;
+
+  const liquidityValue = useMemo(() => {
+    if (inputField === InputField.INPUT_LIQUIDITY)
+      return currentPool
+        ? amountWithoutDecimals(
+            liquidityAmount,
+            BigNumber.from(currentPool.decimals).toNumber()
+          )
+        : 0;
+    else if (inputField === InputField.INPUT_A)
+      return currentPool
+        ? amountWithoutDecimals(
+            currencyAAmount
+              .mul(BigNumber.from(currentPool.totalSupply))
+              .div(BigNumber.from(currentPool.reserves[0])),
+            BigNumber.from(currentPool.decimals).toNumber()
+          )
+        : 0;
+    else if (inputField === InputField.INPUT_B)
+      return currentPool
+        ? amountWithoutDecimals(
+            currencyBAmount
+              .mul(BigNumber.from(currentPool.totalSupply))
+              .div(BigNumber.from(currentPool.reserves[1])),
+            BigNumber.from(currentPool.decimals).toNumber()
+          )
+        : 0;
+  }, [
+    inputField,
+    currentPool,
     liquidityAmount,
-    BigNumber.from(currentPool.decimals).toNumber()
-  );
+    currencyA,
+    currencyAAmount,
+    currencyB,
+    currencyBAmount,
+  ]);
+
+  const currencyAValue = useMemo(() => {
+    if (inputField === InputField.INPUT_LIQUIDITY)
+      return currencyA && currentPool
+        ? amountWithoutDecimals(
+            liquidityAmount
+              .mul(currentPool.reserves[0])
+              .div(currentPool.totalSupply),
+            currencyA.decimals
+          )
+        : 0;
+    else if (inputField === InputField.INPUT_A)
+      return currencyA
+        ? amountWithoutDecimals(currencyAAmount, currencyA.decimals)
+        : 0;
+    else if (inputField === InputField.INPUT_B)
+      return currencyA && currentPool
+        ? amountWithoutDecimals(
+            currencyBAmount
+              .mul(BigNumber.from(currentPool.reserves[0]))
+              .div(BigNumber.from(currentPool.reserves[1])),
+            currencyA.decimals
+          )
+        : 0;
+  }, [
+    inputField,
+    currentPool,
+    liquidityAmount,
+    currencyA,
+    currencyAAmount,
+    currencyB,
+    currencyBAmount,
+  ]);
+
+  const currencyBValue = useMemo(() => {
+    if (inputField === InputField.INPUT_LIQUIDITY)
+      return currencyB && currentPool
+        ? amountWithoutDecimals(
+            liquidityAmount
+              .mul(currentPool.reserves[1])
+              .div(currentPool.totalSupply),
+            currencyB.decimals
+          )
+        : 0;
+    else if (inputField === InputField.INPUT_A)
+      return currencyB && currentPool
+        ? amountWithoutDecimals(
+            currencyAAmount
+              .mul(BigNumber.from(currentPool.reserves[1]))
+              .div(BigNumber.from(currentPool.reserves[0])),
+            currencyB.decimals
+          )
+        : 0;
+    else if (inputField === InputField.INPUT_B)
+      return currencyB
+        ? amountWithoutDecimals(currencyBAmount, currencyB.decimals)
+        : 0;
+  }, [
+    inputField,
+    currentPool,
+    liquidityAmount,
+    currencyA,
+    currencyAAmount,
+    currencyB,
+    currencyBAmount,
+  ]);
+
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
@@ -86,30 +206,58 @@ export default function RemoveLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
                   isAllowed={withLiquidityLimit}
+                  onKeyDown={useCallback(
+                    (e: KeyboardEvent<HTMLInputElement>) => {
+                      setInputField(InputField.INPUT_LIQUIDITY);
+                    },
+                    [inputField]
+                  )}
                   onValueChange={async (values) => {
                     const { value } = values;
-                    setLiquidityAmount(parseFloat(value) || 0);
+                    const amount = parseFloat(value) || 0;
+                    setLiquidityAmount(
+                      BigNumber.from(
+                        (currentPool
+                          ? amount *
+                            10 **
+                              BigNumber.from(currentPool.decimals).toNumber()
+                          : 0
+                        ).toFixed()
+                      )
+                    );
                   }}
                 />
                 <div className="flex items-center">
                   <label className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
                     <span className="text-[14px] md:text-[19px]">
-                      {currentPool.tokens[0].symbol}:
-                      {currentPool.tokens[1].symbol}
+                      {currentPool ? (
+                        <>
+                          {currentPool.tokens[0].symbol}:
+                          {currentPool.tokens[1].symbol}
+                        </>
+                      ) : (
+                        "Invalid Pool"
+                      )}
                     </span>
                     <ChevronIcon />
                   </label>
-                  <img
-                    src={currentPool.tokens[0].logo}
-                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
-                    alt=""
-                  />
-                  <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
-                  <img
-                    src={currentPool.tokens[1].logo}
-                    className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
-                    alt=""
-                  />
+                  {currentPool ? (
+                    <>
+                      <img
+                        src={currentPool.tokens[0].logo}
+                        className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                        alt=""
+                      />
+                      <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
+                      <img
+                        src={currentPool.tokens[1].logo}
+                        className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                        alt=""
+                      />
+                    </>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               <div className="flex justify-center">
@@ -117,9 +265,27 @@ export default function RemoveLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
-                  value={sourceValue}
+                  value={currencyAValue}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
+                  onKeyDown={useCallback(
+                    (e: KeyboardEvent<HTMLInputElement>) => {
+                      setInputField(InputField.INPUT_A);
+                    },
+                    [inputField]
+                  )}
+                  onValueChange={async (values) => {
+                    const { value } = values;
+                    const amount = parseFloat(value) || 0;
+                    setCurrencyAAmount(
+                      BigNumber.from(
+                        (currencyA
+                          ? amount * 10 ** currencyA.decimals
+                          : 0
+                        ).toFixed()
+                      )
+                    );
+                  }}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
@@ -127,15 +293,21 @@ export default function RemoveLiquidity() {
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
                     <span className="text-[14px] md:text-[19px]">
-                      {currentPool.tokens[0].symbol}
+                      {currentPool
+                        ? currentPool.tokens[0].symbol
+                        : "Select a Currency"}
                     </span>
                     <ChevronIcon />
                   </label>
-                  <img
-                    src={currentPool.tokens[0].logo}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt=""
-                  />
+                  {currentPool ? (
+                    <img
+                      src={currentPool.tokens[0].logo}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               <div className="flex justify-center">
@@ -145,9 +317,27 @@ export default function RemoveLiquidity() {
               </div>
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
-                  value={targetValue}
+                  value={currencyBValue}
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
                   thousandSeparator={false}
+                  onKeyDown={useCallback(
+                    (e: KeyboardEvent<HTMLInputElement>) => {
+                      setInputField(InputField.INPUT_B);
+                    },
+                    [inputField]
+                  )}
+                  onValueChange={async (values) => {
+                    const { value } = values;
+                    const amount = parseFloat(value) || 0;
+                    setCurrencyBAmount(
+                      BigNumber.from(
+                        (currencyB
+                          ? amount * 10 ** currencyB.decimals
+                          : 0
+                        ).toFixed()
+                      )
+                    );
+                  }}
                 />
                 <div className="flex items-center md:gap-2">
                   <label
@@ -155,15 +345,21 @@ export default function RemoveLiquidity() {
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
                     <span className="text-[14px] md:text-[19px]">
-                      {currentPool.tokens[1].symbol}
+                      {currentPool
+                        ? currentPool.tokens[1].symbol
+                        : "Select a Currency"}
                     </span>
                     <ChevronIcon />
                   </label>
-                  <img
-                    src={currentPool.tokens[1].logo}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt=""
-                  />
+                  {currentPool ? (
+                    <img
+                      src={currentPool.tokens[1].logo}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </div>
               {/* <ActionButton /> */}
