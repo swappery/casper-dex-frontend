@@ -21,7 +21,6 @@ const { persist } = configurePersist({
 });
 
 const useWalletStatus = create<WalletStatus>(
-  devtools(
   persist(
     {
       key: "wallets",
@@ -73,9 +72,6 @@ const useWalletStatus = create<WalletStatus>(
               ),
             };
         }),
-    })
-    )
-  )
-);
+    })));
 
 export default useWalletStatus;

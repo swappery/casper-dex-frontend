@@ -9,4 +9,5 @@ export interface Pool {
   totalSupply: BigNumber;
   reserves: BigNumber[];
   balance: BigNumber;
+  allowance: BigNumber;
 }

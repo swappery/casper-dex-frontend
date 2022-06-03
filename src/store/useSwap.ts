@@ -13,6 +13,7 @@ interface SwapStatus extends State {
     outputCurrencyAmounts: TokenAmount;
     reserves: BigNumber[][];
     inputField: InputField;
+    initialize: () => void;
     setInputCurrency: (currency: Token) => void;
     setOutputCurrency: (currency: Token) => void;
     setInputCurrencyAmounts: (currencyAmount: TokenAmount) => void;
@@ -28,6 +29,16 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
     outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
     reserves: [[BigNumber.from(1), BigNumber.from(1)]],
     inputField: InputField.INPUT_A,
+    initialize: () => set(() => {
+        return {
+            inputCurrency: testnetTokens.CSPR,
+            outputCurrency: testnetTokens.SWPR,
+            inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+            outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+            reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+            inputField: InputField.INPUT_A,
+        };
+    }),
     setInputCurrency: (currency: Token) => set(() => {
         return {inputCurrency: currency};
     }),

@@ -1,5 +1,11 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  createSearchParams,
+  Link,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import useLiquidityStatus, {
@@ -8,44 +14,225 @@ import useLiquidityStatus, {
   TokenType,
 } from "../../store/useLiquidityStatus";
 import ActionButton from "../../components/Button/actionButton";
-// import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import useSetting from "../../store/useSetting";
 import { Themes } from "../../config/constants/themes";
+import useAction from "../../store/useAction";
+import useImportPool from "../../store/useImportPool";
+import { deserialize, getTokenFromAddress } from "../../utils/utils";
+import { SUPPORTED_TOKENS } from "../../config/constants";
+import { ChainName } from "../../config/constants/chainName";
+import { ActionType } from "../../config/interface/actionType";
+import {
+  CHAIN_NAME,
+  NODE_ADDRESS,
+  ROUTER_CONTRACT_HASH,
+} from "../../web3/config/constant";
+import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
+import useWalletStatus from "../../store/useWalletStatus";
+import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
+import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
+import { Pool } from "../../config/interface/pool";
+import { ActionStatus } from "../../config/interface/actionStatus";
+import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
+import { InputField } from "../../config/interface/inputField";
 
 export default function PoolFinder() {
+  const [text, setText] = useState<string>("");
+  const [isDisabled, setDisabled] = useState<boolean>(false);
+  const [isSpinning, setSpinning] = useState<boolean>(false);
   const { theme } = useSetting();
-  const { activate } = useCasperWeb3Provider();
-  const { isConnected } = useNetworkStatus();
+  const navigate = useNavigate();
+  const { activate, isPairExist, allowanceOf, balanceOf } =
+    useCasperWeb3Provider();
+  const { isConnected, activeAddress } = useNetworkStatus();
+  const { accountListString, setPool } = useWalletStatus();
   const {
-    execType,
-    sourceToken,
-    targetToken,
+    actionType,
+    actionStatus,
+    setActionType,
+    setActionStatus,
+    isFetching,
+    setFetching,
+  } = useAction();
+  const {
+    currencyA,
+    currencyB,
     currentPool,
-    setExecTypeWithCurrency,
-  } = useLiquidityStatus();
+    initialize,
+    setCurrencyA,
+    setCurrencyB,
+    setCurrentPool,
+  } = useImportPool();
   const [searchParams] = useSearchParams();
 
-  // if (!isConnected) activate();
+  useEffect(() => {
+    async function handleUpdatePool() {
+      if (!isConnected || !currencyA || !currencyB) return;
+      setFetching(true);
+      if (await isPairExist(currencyA, currencyB)) {
+        let routerContractHash = ROUTER_CONTRACT_HASH;
+        let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await routerClient.setContractHash(routerContractHash);
+        let pairPackageHash = await routerClient.getPairFor(
+          currencyA.address,
+          currencyB.address
+        );
 
-  const params = useMemo(() => {
-    return Object.fromEntries(searchParams.entries());
+        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+        if (block) {
+          const stateRootHash = block.header.state_root_hash;
+          const blockState = await client.getBlockState(
+            stateRootHash,
+            `hash-${pairPackageHash}`,
+            []
+          );
+          let pairContractHash =
+            blockState.ContractPackage?.versions[
+              blockState.ContractPackage.versions.length - 1
+            ].contractHash.slice(9)!;
+          let pairClient = new SwapperyPairClient(
+            NODE_ADDRESS,
+            CHAIN_NAME,
+            undefined
+          );
+          await pairClient.setContractHash(pairContractHash);
+          let reserves_res = await pairClient.getReserves();
+          let reserves;
+          if (currencyA.address < currencyB.address)
+            reserves = [
+              BigNumber.from(reserves_res[0]),
+              BigNumber.from(reserves_res[1]),
+            ];
+          else
+            reserves = [
+              BigNumber.from(reserves_res[1]),
+              BigNumber.from(reserves_res[0]),
+            ];
+
+          const pool: Pool = {
+            contractPackageHash: pairPackageHash,
+            contractHash: pairContractHash,
+            tokens: [currencyA, currencyB],
+            decimals: await pairClient.decimals(),
+            totalSupply: await pairClient.totalSupply(),
+            reserves: reserves,
+            balance: BigNumber.from(await balanceOf(pairContractHash)),
+            allowance: BigNumber.from(await allowanceOf(pairContractHash)),
+          };
+          setCurrentPool(pool);
+          setPool(activeAddress, pool);
+        }
+      }
+      setFetching(false);
+    }
+    handleUpdatePool();
+  }, [isConnected, activeAddress, currencyA, currencyB]);
+
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams.entries());
+    const input = params["input"] || (currencyA ? currencyA.address : "");
+    const output = params["output"] || (currencyB ? currencyB.address : "");
+
+    setCurrencyA(
+      getTokenFromAddress(input, SUPPORTED_TOKENS[ChainName.TESTNET])!
+    );
+    setCurrencyB(
+      getTokenFromAddress(output, SUPPORTED_TOKENS[ChainName.TESTNET])!
+    );
   }, [searchParams]);
 
-  const inputCurrency =
-    params["inputCurrency"] || supportedTokens[TokenType.SWPR].contractHash;
-  const outputCurrency = params["outputCurrency"];
+  useEffect(() => {
+    async function handleUpdateActionStatus() {
+      let newActionStatus;
+      if (!isConnected) newActionStatus = ActionStatus.REQ_CONNECT_WALLET;
+      else if (isFetching) newActionStatus = ActionStatus.LOADING;
+      else if (!currencyA || !currencyB)
+        newActionStatus = ActionStatus.REQ_SELECT_CURRENCY;
+      else if (!currentPool) newActionStatus = ActionStatus.REQ_CREATE_POOL;
+      else if (currentPool.balance.eq(0) || isImportedPool(currentPool))
+        newActionStatus = ActionStatus.REQ_ADD_LIQUIDITY;
+      else newActionStatus = ActionStatus.REQ_EXECUTE_ACTION;
+      setActionStatus(newActionStatus);
+    }
+    handleUpdateActionStatus();
+  }, [isConnected, isFetching, currentPool]);
 
-  if (execType !== ExecutionType.EXE_FIND_LIQUIDITY)
-    setExecTypeWithCurrency(
-      ExecutionType.EXE_FIND_LIQUIDITY,
-      inputCurrency,
-      outputCurrency
-    );
+  useEffect(() => {
+    switch (actionStatus) {
+      case ActionStatus.REQ_CONNECT_WALLET:
+        setText("Connect Your Wallet");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.LOADING:
+        setText("Loading");
+        setSpinning(true);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_SELECT_CURRENCY:
+        setText("Please Select Currency");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_CREATE_POOL:
+        setText("Pool Does Not Exist");
+        setSpinning(false);
+        setDisabled(true);
+        break;
+      case ActionStatus.REQ_ADD_LIQUIDITY:
+        setText("Add Liquidity");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      case ActionStatus.REQ_EXECUTE_ACTION:
+        setText("Manage This Pool");
+        setSpinning(false);
+        setDisabled(false);
+        break;
+      default:
+        break;
+    }
+  }, [actionStatus]);
+
+  const isImportedPool = (pool: Pool): boolean => {
+    const accountList = deserialize(accountListString);
+    if (accountList.has(activeAddress)) {
+      const poolList = accountList.get(activeAddress).poolList;
+      if (poolList.has(pool.contractPackageHash)) return true;
+    }
+    return false;
+  };
+
+  const handleClickActionButton = async () => {
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    else if (actionStatus === ActionStatus.REQ_ADD_LIQUIDITY) {
+      navigate({
+        pathname: "/add",
+        search: createSearchParams({
+          input: currencyA?.address!,
+          output: currencyB?.address!,
+        }).toString(),
+      });
+    } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
+      setPool(activeAddress, currentPool!);
+    }
+  };
+
+  if (actionType !== ActionType.IMPORT_POOL) {
+    setActionType(ActionType.IMPORT_POOL);
+    initialize();
+  }
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
@@ -67,22 +254,29 @@ export default function PoolFinder() {
 
           <div className="grid justify-items-center w-full">
             <label
-              htmlFor="currentTokenModal"
+              htmlFor="import-currencyA-modal"
               className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2"
             >
               <p className="flex items-center gap-2">
-                {sourceToken !== TokenType.EMPTY ? (
-                  <img
-                    src={supportedTokens[sourceToken].tokenSvg}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt=""
-                  />
+                {currencyA ? (
+                  <>
+                    <img
+                      src={currencyA.logo}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                    <span className="text-[19px] text-black">
+                      {currencyA.symbol}
+                    </span>
+                  </>
                 ) : (
-                  <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
+                  <>
+                    <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
+                    <span className="text-[19px] text-black">
+                      Select A Currency
+                    </span>
+                  </>
                 )}
-                <span className="text-[19px] text-black">
-                  {supportedTokens[sourceToken].symbol}
-                </span>
               </p>
               <ChevronIcon />
             </label>
@@ -90,75 +284,67 @@ export default function PoolFinder() {
               +
             </div>
             <label
-              htmlFor="targetTokenModal"
+              htmlFor="import-currencyB-modal"
               className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-neutral rounded-3xl text-neutral py-2"
             >
               <p className="flex items-center gap-2">
-                {/* <img src={swprToken} className='w-[28px] h-[28px]' alt='' /> */}
-                {/* <div className="w-[28px] h-[28px] border border-neutral rounded-[50%]"></div>
-                <span className="text-[19px]">select a token</span> */}
-                {targetToken !== TokenType.EMPTY ? (
-                  <img
-                    src={supportedTokens[targetToken].tokenSvg}
-                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                    alt=""
-                  />
+                {currencyB ? (
+                  <>
+                    <img
+                      src={currencyB.logo}
+                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      alt=""
+                    />
+                    <span className="text-[19px] text-black">
+                      {currencyB.symbol}
+                    </span>
+                  </>
                 ) : (
-                  <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
+                  <>
+                    <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
+                    <span className="text-[19px] text-black">
+                      Select A Currency
+                    </span>
+                  </>
                 )}
-                <span className="text-[19px] text-black">
-                  {supportedTokens[targetToken].symbol}
-                </span>
               </p>
               <ChevronIcon
                 fill={theme === Themes.LIGHT ? "black" : "#FFF8D4"}
               />
             </label>
           </div>
-          {currentPool.balance &&
-          !BigNumber.from(currentPool.balance).eq(BigNumber.from(0)) ? (
+          {actionStatus === ActionStatus.REQ_EXECUTE_ACTION ? (
             <LPTokenDetail
               isManage={false}
-              poolInfo={currentPool}
-              key={currentPool.contractPackageHash}
+              poolInfo={currentPool!}
+              key={currentPool!.contractPackageHash}
             />
           ) : (
             <></>
           )}
-          {/* <ActionButton /> */}
+          <ActionButton
+            text={text}
+            isDisabled={isDisabled}
+            isSpinning={isSpinning}
+            handleClick={handleClickActionButton}
+          />
           <p className="text-base md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO FIND LIQUIDITY
           </p>
         </div>
       </div>
-      {/* <CurrencySearchModal
-        modalId="currentTokenModal"
-        selectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        isSourceSelect={true}
+      <CurrencySearchModal
+        modalId="import-currencyA-modal"
+        selectedCurrency={currencyA}
+        otherSelectedCurrency={currencyB}
+        field={InputField.INPUT_A}
       />
       <CurrencySearchModal
-        modalId="targetTokenModal"
-        selectedCurrency={
-          targetToken !== TokenType.EMPTY
-            ? supportedTokens[targetToken].contractHash
-            : null
-        }
-        otherSelectedCurrency={
-          sourceToken !== TokenType.EMPTY
-            ? supportedTokens[sourceToken].contractHash
-            : null
-        }
-        isSourceSelect={false}
-      /> */}
+        modalId="import-currencyB-modal"
+        selectedCurrency={currencyB}
+        otherSelectedCurrency={currencyA}
+        field={InputField.INPUT_B}
+      />
     </div>
   );
 }

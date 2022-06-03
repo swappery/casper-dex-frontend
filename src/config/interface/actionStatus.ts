@@ -17,6 +17,7 @@ export enum ActionStatus {
     INSUFFICIENT_LIQUIDITY_AMOUNT = "INSUFFICIENT_LIQUIDITY_AMOUNT",
     
     //For import pool action
+    REQ_CREATE_POOL = "REQ_CREATE_POOL",
     REQ_ADD_LIQUIDITY = "REQ_ADD_LIQUIDITY",
 
     //Others
