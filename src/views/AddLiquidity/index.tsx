@@ -272,7 +272,7 @@ export default function AddLiquidity() {
         setDisabled(false);
         break;
       case ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT:
-        setText("Insufficient" + currencyA?.symbol + "Amount");
+        setText("Insufficient " + currencyA?.symbol + " Amount");
         setSpinning(false);
         setDisabled(true);
         break;
@@ -287,7 +287,7 @@ export default function AddLiquidity() {
         setDisabled(false);
         break;
       case ActionStatus.INSUFFICIENT_OUTPUT_CURRENCY_AMOUNT:
-        setText("Insufficient" + currencyB?.symbol + "Amount");
+        setText("Insufficient " + currencyB?.symbol + " Amount");
         setSpinning(false);
         setDisabled(true);
         break;
@@ -349,17 +349,25 @@ export default function AddLiquidity() {
   const withALimit = ({ floatValue }: any) =>
     !currencyA || !currentPool
       ? false
+      : currentPool.totalSupply.eq(0)
+      ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[0], currencyA.decimals);
 
   const withBLimit = ({ floatValue }: any) =>
     !currencyB || !currentPool
       ? false
+      : currentPool.totalSupply.eq(0)
+      ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[1], currencyB.decimals);
 
   const valueA = useMemo(() => {
-    if (inputField === InputField.INPUT_B) {
+    if (
+      inputField === InputField.INPUT_B &&
+      currentPool &&
+      currentPool.totalSupply.gt(0)
+    ) {
       return currencyA && currentPool && currencyBAmounts
         ? amountWithoutDecimals(
             currencyBAmounts.amount
@@ -376,7 +384,11 @@ export default function AddLiquidity() {
   }, [inputField, currencyA, currencyAAmounts, currencyBAmounts, currentPool]);
 
   const valueB = useMemo(() => {
-    if (inputField === InputField.INPUT_A) {
+    if (
+      inputField === InputField.INPUT_A &&
+      currentPool &&
+      currentPool.totalSupply.gt(0)
+    ) {
       return currencyAAmounts && currencyB && currentPool
         ? amountWithoutDecimals(
             currencyAAmounts.amount

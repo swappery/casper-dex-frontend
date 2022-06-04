@@ -29,6 +29,7 @@ import { useSearchParams } from "react-router-dom";
 import { Token } from "../config/interface/token";
 import useAction from "../store/useAction";
 import { toast } from "react-toastify";
+import { testnetTokens } from "../config/constants/tokens";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -405,6 +406,62 @@ export default function useCasperWeb3Provider() {
     }
   }
 
+  async function getSwapperyPrice() {
+    const swprToken = testnetTokens.SWPR;
+    const usdtToken = testnetTokens.USDT;
+
+    if (await isPairExist(swprToken, usdtToken)) {
+        let routerContractHash = ROUTER_CONTRACT_HASH;
+        let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+        await routerClient.setContractHash(routerContractHash);
+        let pairPackageHash = await routerClient.getPairFor(
+          swprToken.address,
+          usdtToken.address
+        );
+
+        const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+        if (block) {
+          const stateRootHash = block.header.state_root_hash;
+          const blockState = await client.getBlockState(
+            stateRootHash,
+            `hash-${pairPackageHash}`,
+            []
+          );
+          let pairContractHash =
+            blockState.ContractPackage?.versions[
+              blockState.ContractPackage.versions.length - 1
+            ].contractHash.slice(9)!;
+          let pairClient = new SwapperyPairClient(
+            NODE_ADDRESS,
+            CHAIN_NAME,
+            undefined
+          );
+          await pairClient.setContractHash(pairContractHash);
+          let reserves_res = await pairClient.getReserves();
+          let reserves;
+          if (swprToken.address < usdtToken.address)
+            reserves = [
+              BigNumber.from(reserves_res[0]),
+              BigNumber.from(reserves_res[1]),
+            ];
+          else
+            reserves = [
+              BigNumber.from(reserves_res[1]),
+              BigNumber.from(reserves_res[0]),
+            ];
+
+          return Number((reserves[1].toNumber() / reserves[0].toNumber()).toFixed(3));
+        }
+      }
+    return Number("0");
+  }
+
   useEffect(() => {
     initialize();
   }, []);
@@ -422,5 +479,6 @@ export default function useCasperWeb3Provider() {
     removeLiquidity,
     swapExactIn,
     swapExactOut,
+    getSwapperyPrice,
   };
 }

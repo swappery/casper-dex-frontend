@@ -27,7 +27,7 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
     outputCurrency: testnetTokens.SWPR,
     inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
     outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
-    reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+    reserves: [[BigNumber.from(0), BigNumber.from(0)]],
     inputField: InputField.INPUT_A,
     initialize: () => set(() => {
         return {
@@ -35,7 +35,7 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
             outputCurrency: testnetTokens.SWPR,
             inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
             outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
-            reserves: [[BigNumber.from(1), BigNumber.from(1)]],
+            reserves: [[BigNumber.from(0), BigNumber.from(0)]],
             inputField: InputField.INPUT_A,
         };
     }),

@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createSearchParams, NavLink, useNavigate } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
@@ -13,11 +14,18 @@ import useSetting from "../../../store/useSetting";
 import { Themes } from "../../../config/constants/themes";
 
 export default function Header() {
-  const { theme, setTheme } = useSetting();
-  const { activate } = useCasperWeb3Provider();
+  const { theme, setTheme, swprPrice, setSwprPrice } = useSetting();
+  const { activate, getSwapperyPrice } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const [navbarOpen, setNavbarOpen] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function setPrice() {
+      setSwprPrice(await getSwapperyPrice());
+    }
+    setPrice();
+  }, []);
 
   document.documentElement.setAttribute("data-theme", theme);
 
@@ -77,7 +85,9 @@ export default function Header() {
                 className="w-9 h-9"
                 alt="Swappery Icon"
               />
-              <span className="text-neutral font-gotham font-bold">$0.01</span>
+              <span className="text-neutral font-gotham font-bold">
+                ${swprPrice}
+              </span>
             </div>
             <div className="flex items-center">
               <label className="swap swap-rotate">
@@ -205,7 +215,9 @@ export default function Header() {
             className="w-9 h-9"
             alt="Swappery Icon"
           />
-          <span className="text-neutral font-gotham font-bold">$0.01</span>
+          <span className="text-neutral font-gotham font-bold">
+            ${swprPrice}
+          </span>
           <div className="flex items-center">
             <label className="swap swap-rotate">
               <input
