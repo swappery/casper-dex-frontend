@@ -15,7 +15,7 @@ const ActionButton = ({
 }: ActionButtonProps) => {
   return (
     <button
-      className="hover:opacity-80 mt-4 bg-lightgreen border border-black rounded-3xl px-4 py-2 w-full text-[14px] md:text-[18px] text-black font-orator-std disabled:opacity-50"
+      className="hover:opacity-80 mt-4 bg-lightgreen border border-black rounded-3xl px-4 py-[6.5px] w-full text-[14px] md:text-[18px] text-black font-orator-std disabled:opacity-50"
       onClick={handleClick}
       disabled={isDisabled}
     >

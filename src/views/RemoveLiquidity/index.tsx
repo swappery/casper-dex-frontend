@@ -394,7 +394,7 @@ export default function RemoveLiquidity() {
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
-        <div className="col-span-12 md:col-start-2 md:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-9">
+        <div className="col-span-12 lg:col-start-2 lg:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-9">
           <div className="flex items-center justify-between w-full px-1">
             <Link to="/liquidity" className="hover:opacity-80">
               <BackIcon stroke={theme === Themes.LIGHT ? "black" : "#FFF8D4"} />
@@ -406,7 +406,7 @@ export default function RemoveLiquidity() {
             <div className="w-[19px]"></div>
           </div>
 
-          <p className="text-[20px] md:text-[22px] text-neutral mt-3 mb-7">
+          <p className="text-[20px] lg:text-[20px] text-neutral mt-3 mb-7">
             remove liquidity to receive tokens back
           </p>
 
@@ -415,7 +415,7 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
                   value={liquidityValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px]"
                   thousandSeparator={false}
                   isAllowed={withLiquidityLimit}
                   onKeyDown={useCallback(
@@ -441,7 +441,7 @@ export default function RemoveLiquidity() {
                 />
                 <div className="flex items-center">
                   <label className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
-                    <span className="text-[14px] md:text-[19px]">
+                    <span className="text-[14px] lg:text-[18px]">
                       {currentPool ? (
                         <>
                           {currentPool.tokens[0].symbol}:
@@ -478,7 +478,7 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
                   value={currencyAValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px]"
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -499,12 +499,12 @@ export default function RemoveLiquidity() {
                     );
                   }}
                 />
-                <div className="flex items-center md:gap-2">
+                <div className="flex items-center md:gap-1">
                   <label
                     htmlFor="remove-currencyA-modal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">
+                    <span className="text-[14px] lg:text-[18px]">
                       {currentPool
                         ? currentPool.tokens[0].symbol
                         : "Select a Currency"}
@@ -514,7 +514,7 @@ export default function RemoveLiquidity() {
                   {currentPool ? (
                     <img
                       src={currentPool.tokens[0].logo}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
                       alt=""
                     />
                   ) : (
@@ -530,7 +530,7 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
                   value={currencyBValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px]"
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -551,12 +551,12 @@ export default function RemoveLiquidity() {
                     );
                   }}
                 />
-                <div className="flex items-center md:gap-2">
+                <div className="flex items-center md:gap-1">
                   <label
                     htmlFor="remove-currencyB-modal"
                     className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
                   >
-                    <span className="text-[14px] md:text-[19px]">
+                    <span className="text-[14px] lg:text-[18px]">
                       {currentPool
                         ? currentPool.tokens[1].symbol
                         : "Select a Currency"}
@@ -566,7 +566,7 @@ export default function RemoveLiquidity() {
                   {currentPool ? (
                     <img
                       src={currentPool.tokens[1].logo}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
                       alt=""
                     />
                   ) : (
@@ -574,6 +574,21 @@ export default function RemoveLiquidity() {
                   )}
                 </div>
               </div>
+
+              <div className="w-full text-neutral mt-6">
+                <p className="text-[14px] text-left mb-3">PRICES</p>
+                <div className="border border-neutral px-12 py-5 text-[14px] md:text-[16px]">
+                  <p className="flex justify-between">
+                    <span>1 CSPD -</span>
+                    <span>1.2121 USDT</span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>1 USDT -</span>
+                    <span>1.23 CSPD</span>
+                  </p>
+                </div>
+              </div>
+
               <ActionButton
                 text={text}
                 isDisabled={isDisabled}
@@ -582,6 +597,7 @@ export default function RemoveLiquidity() {
               />
             </div>
           </div>
+
           <p className="text-base md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO REMOVE LIQUIDITY
           </p>

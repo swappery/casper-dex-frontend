@@ -22,7 +22,7 @@ export default function Liquidity() {
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
-        <div className="col-span-12 md:col-start-3 md:col-end-11 xl:col-start-4 xl:col-end-10 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-7">
+        <div className="col-span-12 md:col-start-2 md:col-end-12 lg:col-start-3 lg:col-end-11 xl:col-start-4 xl:col-end-10 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-7">
           <p className="text-[35px] md:text-[43px] leading-[43px] text-neutral">
             your liquidity
           </p>
