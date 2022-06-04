@@ -193,7 +193,7 @@ export default function Swap() {
         setDisabled(false);
         break;
       case ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT:
-        setText("Insufficient" + inputCurrency.symbol + "Amount");
+        setText("Insufficient " + inputCurrency.symbol + " Amount");
         setSpinning(false);
         setDisabled(true);
         break;

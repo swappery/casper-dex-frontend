@@ -62,20 +62,20 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
             {poolInfo.tokens[0].symbol}-{poolInfo.tokens[1].symbol} LP
           </p>
         </div>
-        <p>{balance}</p>
+        <p>{Number(balance.toFixed(5))}</p>
       </div>
       <div className="text-[15px] text-neutral mt-6">
         <p className="flex justify-between">
           <span>share of pool</span>
-          <span>{shareOfPool}%</span>
+          <span>{Number(shareOfPool.toFixed(5))}%</span>
         </p>
         <p className="flex justify-between my-1">
           <span>pooled {poolInfo.tokens[0].symbol}</span>
-          <span>{pooledToken0}</span>
+          <span>{Number(pooledToken0.toFixed(5))}</span>
         </p>
         <p className="flex justify-between">
           <span>pooled {poolInfo.tokens[1].symbol}</span>
-          <span>{pooledToken1}</span>
+          <span>{Number(pooledToken1.toFixed(5))}</span>
         </p>
       </div>
       {isManage ? (

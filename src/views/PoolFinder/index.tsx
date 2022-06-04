@@ -282,7 +282,7 @@ export default function PoolFinder() {
             </div>
             <label
               htmlFor="import-currencyB-modal"
-              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-neutral rounded-3xl text-neutral py-2"
+              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 rounded-3xl"
             >
               <p className="flex items-center gap-2">
                 {currencyB ? (
@@ -305,9 +305,7 @@ export default function PoolFinder() {
                   </>
                 )}
               </p>
-              <ChevronIcon
-                fill={theme === Themes.LIGHT ? "black" : "#FFF8D4"}
-              />
+              <ChevronIcon />
             </label>
           </div>
           {actionStatus === ActionStatus.REQ_EXECUTE_ACTION ? (

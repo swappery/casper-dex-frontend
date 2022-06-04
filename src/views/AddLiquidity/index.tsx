@@ -271,7 +271,7 @@ export default function AddLiquidity() {
         setDisabled(false);
         break;
       case ActionStatus.INSUFFICIENT_INPUT_CURRENCY_AMOUNT:
-        setText("Insufficient" + currencyA?.symbol + "Amount");
+        setText("Insufficient " + currencyA?.symbol + " Amount");
         setSpinning(false);
         setDisabled(true);
         break;
@@ -286,7 +286,7 @@ export default function AddLiquidity() {
         setDisabled(false);
         break;
       case ActionStatus.INSUFFICIENT_OUTPUT_CURRENCY_AMOUNT:
-        setText("Insufficient" + currencyB?.symbol + "Amount");
+        setText("Insufficient " + currencyB?.symbol + " Amount");
         setSpinning(false);
         setDisabled(true);
         break;
