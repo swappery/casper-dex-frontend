@@ -40,6 +40,8 @@ import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 
 export default function RemoveLiquidity() {
+  const [showInputModal, setShowInputModal] = useState<boolean>(false);
+  const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -415,7 +417,8 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
                   value={liquidityValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSpinning}
                   thousandSeparator={false}
                   isAllowed={withLiquidityLimit}
                   onKeyDown={useCallback(
@@ -440,7 +443,10 @@ export default function RemoveLiquidity() {
                   }}
                 />
                 <div className="flex items-center">
-                  <label className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]">
+                  <button
+                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={isSpinning}
+                  >
                     <span className="text-[14px] md:text-[19px]">
                       {currentPool ? (
                         <>
@@ -451,8 +457,7 @@ export default function RemoveLiquidity() {
                         "Invalid Pool"
                       )}
                     </span>
-                    <ChevronIcon />
-                  </label>
+                  </button>
                   {currentPool ? (
                     <>
                       <img
@@ -478,7 +483,8 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
                 <NumberFormat
                   value={currencyAValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSpinning}
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -500,9 +506,12 @@ export default function RemoveLiquidity() {
                   }}
                 />
                 <div className="flex items-center md:gap-2">
-                  <label
-                    htmlFor="remove-currencyA-modal"
-                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                  <button
+                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      setShowInputModal(true);
+                    }}
+                    disabled={isSpinning}
                   >
                     <span className="text-[14px] md:text-[19px]">
                       {currentPool
@@ -510,7 +519,7 @@ export default function RemoveLiquidity() {
                         : "Select a Currency"}
                     </span>
                     <ChevronIcon />
-                  </label>
+                  </button>
                   {currentPool ? (
                     <img
                       src={currentPool.tokens[0].logo}
@@ -530,7 +539,8 @@ export default function RemoveLiquidity() {
               <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
                 <NumberFormat
                   value={currencyBValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSpinning}
                   thousandSeparator={false}
                   onKeyDown={useCallback(
                     (e: KeyboardEvent<HTMLInputElement>) => {
@@ -552,9 +562,12 @@ export default function RemoveLiquidity() {
                   }}
                 />
                 <div className="flex items-center md:gap-2">
-                  <label
-                    htmlFor="remove-currencyB-modal"
-                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                  <button
+                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      setShowOutputModal(true);
+                    }}
+                    disabled={isSpinning}
                   >
                     <span className="text-[14px] md:text-[19px]">
                       {currentPool
@@ -562,7 +575,7 @@ export default function RemoveLiquidity() {
                         : "Select a Currency"}
                     </span>
                     <ChevronIcon />
-                  </label>
+                  </button>
                   {currentPool ? (
                     <img
                       src={currentPool.tokens[1].logo}
@@ -592,12 +605,16 @@ export default function RemoveLiquidity() {
         selectedCurrency={currencyA}
         otherSelectedCurrency={currencyB}
         field={InputField.INPUT_A}
+        show={showInputModal}
+        setShow={setShowInputModal}
       />
       <CurrencySearchModal
         modalId="remove-currencyB-modal"
         selectedCurrency={currencyB}
         otherSelectedCurrency={currencyA}
         field={InputField.INPUT_B}
+        show={showOutputModal}
+        setShow={setShowOutputModal}
       />
     </div>
   );

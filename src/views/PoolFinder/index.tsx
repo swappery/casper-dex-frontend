@@ -38,6 +38,8 @@ import { InputField } from "../../config/interface/inputField";
 import { testnetTokens } from "../../config/constants/tokens";
 
 export default function PoolFinder() {
+  const [showInputModal, setShowInputModal] = useState<boolean>(false);
+  const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -66,6 +68,7 @@ export default function PoolFinder() {
   } = useImportPool();
   const [searchParams] = useSearchParams();
 
+  //Get pool info details
   useEffect(() => {
     async function handleUpdatePool() {
       if (!isConnected || !currencyA || !currencyB) return;
@@ -127,7 +130,6 @@ export default function PoolFinder() {
             allowance: BigNumber.from(await allowanceOf(pairContractHash)),
           };
           setCurrentPool(pool);
-          setPool(activeAddress, pool);
         }
       }
       setFetching(false);
@@ -135,6 +137,7 @@ export default function PoolFinder() {
     handleUpdatePool();
   }, [isConnected, activeAddress, currencyA, currencyB]);
 
+  //Set currencies form search params
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
     const input = params["input"];
@@ -149,6 +152,7 @@ export default function PoolFinder() {
     }
   }, [searchParams]);
 
+  //Set action status
   useEffect(() => {
     async function handleUpdateActionStatus() {
       let newActionStatus;
@@ -163,8 +167,16 @@ export default function PoolFinder() {
       setActionStatus(newActionStatus);
     }
     handleUpdateActionStatus();
-  }, [isConnected, isFetching, currentPool]);
+  }, [
+    isConnected,
+    isFetching,
+    currentPool,
+    accountListString,
+    currencyA,
+    currencyB,
+  ]);
 
+  //Set action button properties
   useEffect(() => {
     switch (actionStatus) {
       case ActionStatus.REQ_CONNECT_WALLET:
@@ -223,9 +235,11 @@ export default function PoolFinder() {
       });
     } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
       setPool(activeAddress, currentPool!);
+      navigate({ pathname: "/liquidity" });
     }
   };
 
+  //Initialize action
   if (actionType !== ActionType.IMPORT_POOL) {
     setActionType(ActionType.IMPORT_POOL);
     initialize();
@@ -250,9 +264,12 @@ export default function PoolFinder() {
           </p>
 
           <div className="grid justify-items-center w-full">
-            <label
-              htmlFor="import-currencyA-modal"
-              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2"
+            <button
+              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                setShowInputModal(true);
+              }}
+              disabled={isSpinning}
             >
               <p className="flex items-center gap-2">
                 {currencyA ? (
@@ -276,13 +293,16 @@ export default function PoolFinder() {
                 )}
               </p>
               <ChevronIcon />
-            </label>
+            </button>
             <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral">
               +
             </div>
-            <label
-              htmlFor="import-currencyB-modal"
-              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 rounded-3xl"
+            <button
+              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 rounded-3xl disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => {
+                setShowOutputModal(true);
+              }}
+              disabled={isSpinning}
             >
               <p className="flex items-center gap-2">
                 {currencyB ? (
@@ -306,7 +326,7 @@ export default function PoolFinder() {
                 )}
               </p>
               <ChevronIcon />
-            </label>
+            </button>
           </div>
           {actionStatus === ActionStatus.REQ_EXECUTE_ACTION ? (
             <LPTokenDetail
@@ -333,12 +353,16 @@ export default function PoolFinder() {
         selectedCurrency={currencyA}
         otherSelectedCurrency={currencyB}
         field={InputField.INPUT_A}
+        show={showInputModal}
+        setShow={setShowInputModal}
       />
       <CurrencySearchModal
         modalId="import-currencyB-modal"
         selectedCurrency={currencyB}
         otherSelectedCurrency={currencyA}
         field={InputField.INPUT_B}
+        show={showOutputModal}
+        setShow={setShowOutputModal}
       />
     </div>
   );

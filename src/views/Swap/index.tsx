@@ -32,6 +32,8 @@ import { CLPublicKey } from "casper-js-sdk";
 import SwitchButton from "../../components/Button/switchButton";
 
 export default function Swap() {
+  const [showInputModal, setShowInputModal] = useState<boolean>(false);
+  const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -75,6 +77,7 @@ export default function Swap() {
     swapExactOut,
   } = useCasperWeb3Provider();
 
+  //Set user balance & allowance of input currency
   useEffect(() => {
     async function handleChange() {
       if (!isConnected || !inputCurrency) return;
@@ -89,6 +92,7 @@ export default function Swap() {
     handleChange();
   }, [activeAddress, inputCurrency, isPending]);
 
+  //Set user balance & allowance of output currency
   useEffect(() => {
     async function handleChange() {
       if (!isConnected || !outputCurrency) return;
@@ -103,6 +107,7 @@ export default function Swap() {
     handleChange();
   }, [activeAddress, outputCurrency, isPending]);
 
+  //Update path to swap input currency to output
   useEffect(() => {
     async function handleUpdateReserves() {
       if (!inputCurrency || !outputCurrency) return;
@@ -123,6 +128,7 @@ export default function Swap() {
     handleUpdateReserves();
   }, [inputCurrency, outputCurrency, isPending]);
 
+  //Set current action status
   useEffect(() => {
     async function updateActionStatus() {
       let newActionStatus;
@@ -165,6 +171,7 @@ export default function Swap() {
     isFetching,
   ]);
 
+  //Set action button properties
   useEffect(() => {
     switch (actionStatus) {
       case ActionStatus.REQ_CONNECT_WALLET:
@@ -212,6 +219,7 @@ export default function Swap() {
     }
   }, [actionStatus]);
 
+  //Set currencies form search params
   useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
     const input = params["input"] || inputCurrency.address;
@@ -325,7 +333,8 @@ export default function Swap() {
             <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
                 value={inputValue}
-                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]  disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSpinning}
                 thousandSeparator={false}
                 onKeyDown={useCallback(
                   (e: KeyboardEvent<HTMLInputElement>) => {
@@ -356,15 +365,18 @@ export default function Swap() {
                 }}
               />
               <div className="flex items-center md:gap-2">
-                <label
-                  htmlFor="swap-input-currency-modal"
-                  className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                <button
+                  className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    setShowInputModal(true);
+                  }}
+                  disabled={isSpinning}
                 >
                   <span className="text-[14px] md:text-[19px]">
                     {inputCurrency.symbol}
                   </span>
                   <ChevronIcon />
-                </label>
+                </button>
                 <img
                   src={inputCurrency.logo}
                   className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
@@ -381,7 +393,8 @@ export default function Swap() {
             <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
               <NumberFormat
                 value={outputValue}
-                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]"
+                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isSpinning}
                 thousandSeparator={false}
                 isAllowed={withTargetLimit}
                 onKeyDown={useCallback(
@@ -413,15 +426,18 @@ export default function Swap() {
                 }}
               />
               <div className="flex items-center md:gap-2">
-                <label
-                  htmlFor="swap-output-currency-modal"
-                  className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px]"
+                <button
+                  className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => {
+                    setShowOutputModal(true);
+                  }}
+                  disabled={isSpinning}
                 >
                   <span className="text-[14px] md:text-[19px]">
                     {outputCurrency.symbol}
                   </span>
                   <ChevronIcon />
-                </label>
+                </button>
                 <img
                   src={outputCurrency.logo}
                   className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
@@ -446,12 +462,16 @@ export default function Swap() {
         selectedCurrency={inputCurrency}
         otherSelectedCurrency={outputCurrency}
         field={InputField.INPUT_A}
+        show={showInputModal}
+        setShow={setShowInputModal}
       />
       <CurrencySearchModal
         modalId="swap-output-currency-modal"
         selectedCurrency={outputCurrency}
         otherSelectedCurrency={inputCurrency}
         field={InputField.INPUT_B}
+        show={showOutputModal}
+        setShow={setShowOutputModal}
       />
     </div>
   );

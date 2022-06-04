@@ -14,17 +14,17 @@ import { Token } from "../../config/interface/token";
 import { filterTokens } from "../SearchModal/filtering";
 
 interface SearchInputProps {
-  modalId: string;
   selectedCurrency?: Token;
   otherSelectedCurrency?: Token;
   field: InputField;
+  handleHideModal: () => void;
 }
 
 const SearchInput = ({
-  modalId,
   selectedCurrency,
   otherSelectedCurrency,
   field,
+  handleHideModal,
 }: SearchInputProps) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -44,7 +44,7 @@ const SearchInput = ({
       if (e.key === "Enter") {
         if (filteredTokens.length > 0) {
           if (filteredTokens.length === 1) {
-            // handleCurrencySelect(filteredTokens[0]);
+            handleCurrencySelect(filteredTokens[0]);
           }
         }
       }
@@ -97,6 +97,7 @@ const SearchInput = ({
           });
       }
     }
+    handleHideModal();
   };
 
   return (
@@ -115,7 +116,6 @@ const SearchInput = ({
           <label
             key={item.symbol}
             className="py-1 px-6 flex items-center gap-1 hover:bg-accent cursor-pointer"
-            htmlFor={modalId}
             onClick={() => {
               handleCurrencySelect(item);
             }}

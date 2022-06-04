@@ -8,6 +8,8 @@ interface CurrencySearchModalProps {
   otherSelectedCurrency?: Token;
   field: InputField;
   showCommonBases?: boolean;
+  show: boolean;
+  setShow: (show: boolean) => void;
 }
 
 export default function CurrencySearchModal({
@@ -16,16 +18,25 @@ export default function CurrencySearchModal({
   otherSelectedCurrency,
   field,
   showCommonBases = false,
+  show,
+  setShow,
 }: CurrencySearchModalProps) {
   return (
     <>
-      <input type="checkbox" id={modalId} className="modal-toggle" />
+      <input
+        type="checkbox"
+        id={modalId}
+        className="modal-toggle"
+        checked={show}
+      />
       <div className="modal">
         <div className="modal-box bg-success rounded-none p-0 relative">
           <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral">
             <p className="font-orator-std text-[24px]">Select a Token</p>
             <label
-              htmlFor={modalId}
+              onClick={() => {
+                setShow(false);
+              }}
               className="cursor-pointer hover:opacity-70"
             >
               ✕
@@ -34,10 +45,12 @@ export default function CurrencySearchModal({
 
           <div className="py-7">
             <SearchInput
-              modalId={modalId}
               selectedCurrency={selectedCurrency}
               otherSelectedCurrency={otherSelectedCurrency}
               field={field}
+              handleHideModal={() => {
+                setShow(false);
+              }}
             />
           </div>
         </div>
