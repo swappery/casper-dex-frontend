@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, KeyboardEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import {
@@ -336,12 +336,9 @@ export default function Swap() {
                 className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]  disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isSpinning}
                 thousandSeparator={false}
-                onKeyDown={useCallback(
-                  (e: KeyboardEvent<HTMLInputElement>) => {
-                    setInputField(InputField.INPUT_A);
-                  },
-                  [inputField]
-                )}
+                onKeyDown={() => {
+                  setInputField(InputField.INPUT_A);
+                }}
                 onValueChange={async (values) => {
                   const { value } = values;
                   const amount = parseFloat(value) || 0;
@@ -397,12 +394,9 @@ export default function Swap() {
                 disabled={isSpinning}
                 thousandSeparator={false}
                 isAllowed={withTargetLimit}
-                onKeyDown={useCallback(
-                  (e: KeyboardEvent<HTMLInputElement>) => {
-                    setInputField(InputField.INPUT_B);
-                  },
-                  [inputField]
-                )}
+                onKeyDown={() => {
+                  setInputField(InputField.INPUT_B);
+                }}
                 onValueChange={async (values) => {
                   const { value } = values;
                   const amount = parseFloat(value) || 0;

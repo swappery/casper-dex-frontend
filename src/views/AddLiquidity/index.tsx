@@ -1,13 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
-import {
-  useCallback,
-  KeyboardEvent,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
@@ -66,7 +59,6 @@ export default function AddLiquidity() {
     isFetching,
     setActionType,
     setActionStatus,
-    setPending,
     setFetching,
   } = useAction();
   const [searchParams] = useSearchParams();
@@ -436,12 +428,9 @@ export default function AddLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setInputField(InputField.INPUT_A);
-                    },
-                    [inputField]
-                  )}
+                  onKeyDown={() => {
+                    setInputField(InputField.INPUT_A);
+                  }}
                   isAllowed={withALimit}
                   onValueChange={async (values) => {
                     const { value } = values;
@@ -496,12 +485,9 @@ export default function AddLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setInputField(InputField.INPUT_B);
-                    },
-                    [inputField]
-                  )}
+                  onKeyDown={() => {
+                    setInputField(InputField.INPUT_B);
+                  }}
                   isAllowed={withBLimit}
                   onValueChange={async (values) => {
                     const { value } = values;

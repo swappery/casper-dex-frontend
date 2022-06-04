@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   createSearchParams,
   Link,
@@ -13,7 +12,7 @@ import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import useSetting from "../../store/useSetting";
 import { Themes } from "../../config/constants/themes";
 import useAction from "../../store/useAction";
@@ -29,13 +28,12 @@ import {
 } from "../../web3/config/constant";
 import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
 import useWalletStatus from "../../store/useWalletStatus";
-import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
+import { CasperServiceByJsonRPC } from "casper-js-sdk";
 import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
 import { Pool } from "../../config/interface/pool";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import { InputField } from "../../config/interface/inputField";
-import { testnetTokens } from "../../config/constants/tokens";
 
 export default function PoolFinder() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);

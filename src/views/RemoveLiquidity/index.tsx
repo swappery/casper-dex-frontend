@@ -10,13 +10,7 @@ import BackIcon from "../../components/Icon/Back";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import { amountWithoutDecimals, getTokenFromAddress } from "../../utils/utils";
 import { BigNumber } from "ethers";
-import {
-  useCallback,
-  useMemo,
-  useState,
-  KeyboardEvent,
-  useEffect,
-} from "react";
+import { useMemo, useState, useEffect } from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
 import useSetting from "../../store/useSetting";
@@ -421,12 +415,9 @@ export default function RemoveLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                   thousandSeparator={false}
                   isAllowed={withLiquidityLimit}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setInputField(InputField.INPUT_LIQUIDITY);
-                    },
-                    [inputField]
-                  )}
+                  onKeyDown={() => {
+                    setInputField(InputField.INPUT_LIQUIDITY);
+                  }}
                   onValueChange={async (values) => {
                     const { value } = values;
                     const amount = parseFloat(value) || 0;
@@ -486,12 +477,9 @@ export default function RemoveLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setInputField(InputField.INPUT_A);
-                    },
-                    [inputField]
-                  )}
+                  onKeyDown={() => {
+                    setInputField(InputField.INPUT_A);
+                  }}
                   onValueChange={async (values) => {
                     const { value } = values;
                     const amount = parseFloat(value) || 0;
@@ -542,12 +530,9 @@ export default function RemoveLiquidity() {
                   className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
-                  onKeyDown={useCallback(
-                    (e: KeyboardEvent<HTMLInputElement>) => {
-                      setInputField(InputField.INPUT_B);
-                    },
-                    [inputField]
-                  )}
+                  onKeyDown={() => {
+                    setInputField(InputField.INPUT_B);
+                  }}
                   onValueChange={async (values) => {
                     const { value } = values;
                     const amount = parseFloat(value) || 0;
