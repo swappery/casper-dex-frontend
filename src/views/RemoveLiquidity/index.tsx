@@ -608,7 +608,7 @@ export default function RemoveLiquidity() {
               ) : (
                 <>
                   <div className="border border-neutral px-6 py-5">
-                    <p className="text-[40px] text-left text-neutral font-bold mb-3">
+                    <p className="text-[40px] text-left text-neutral mb-3">
                       {sliderValue}%
                     </p>
                     <input
@@ -619,7 +619,7 @@ export default function RemoveLiquidity() {
                       onChange={handleChange}
                       className="range range-xs"
                     />
-                    <div className="flex justify-between w-[75%] mx-auto text-[16px] font-orator-std mt-7">
+                    <div className="flex justify-between w-[75%] mx-auto text-[16px] mt-7">
                       <button
                         onClick={handleSetValue}
                         value="25"
