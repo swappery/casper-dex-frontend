@@ -609,7 +609,7 @@ export default function RemoveLiquidity() {
                 <>
                   <div className="border border-neutral px-6 py-5">
                     <p className="text-[40px] text-left text-neutral font-bold mb-3">
-                      100%
+                      {sliderValue}%
                     </p>
                     <input
                       type="range"
@@ -623,28 +623,28 @@ export default function RemoveLiquidity() {
                       <button
                         onClick={handleSetValue}
                         value="25"
-                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                        className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
                       >
                         25%
                       </button>
                       <button
                         onClick={handleSetValue}
                         value="50"
-                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                        className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
                       >
                         50%
                       </button>
                       <button
                         onClick={handleSetValue}
                         value="75"
-                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                        className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
                       >
                         75%
                       </button>
                       <button
                         onClick={handleSetValue}
                         value="100"
-                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                        className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
                       >
                         MAX
                       </button>
