@@ -276,7 +276,7 @@ export default function PoolFinder() {
                   <>
                     <img
                       src={currencyA.logo}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      className="w-[30px] h-[30px]"
                       alt=""
                     />
                     <span className="text-[19px] text-black">
@@ -285,9 +285,9 @@ export default function PoolFinder() {
                   </>
                 ) : (
                   <>
-                    <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
-                    <span className="text-[19px] text-black">
-                      Select A Currency
+                    <span className="w-[30px] h-[30px] border border-neutral rounded-[50%]"></span>
+                    <span className="text-[19px] text-neutral">
+                      select a token
                     </span>
                   </>
                 )}
@@ -309,18 +309,18 @@ export default function PoolFinder() {
                   <>
                     <img
                       src={currencyB.logo}
-                      className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                      className="w-[30px] h-[30px]"
                       alt=""
                     />
-                    <span className="text-[19px] text-black">
+                    <span className="text-[19px] text-neutral">
                       {currencyB.symbol}
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="w-[30px] h-[30px] md:w-[37px] md:h-[37px] border border-neutral rounded-[50%]"></span>
-                    <span className="text-[19px] text-black">
-                      Select A Currency
+                    <span className="w-[30px] h-[30px] border border-neutral rounded-[50%]"></span>{" "}
+                    <span className="text-[19px] text-neutral">
+                      select a token
                     </span>
                   </>
                 )}

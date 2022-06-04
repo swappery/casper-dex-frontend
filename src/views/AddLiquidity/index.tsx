@@ -14,6 +14,7 @@ import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, getTokenFromAddress } from "../../utils/utils";
 // import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
+import QuestionHelper from "../../components/QuestionHelper";
 import ChevronIcon from "../../components/Icon/Chevron";
 import BackIcon from "../../components/Icon/Back";
 import useNetworkStatus from "../../store/useNetworkStatus";
@@ -420,9 +421,12 @@ export default function AddLiquidity() {
             <div className="w-[19px]"></div>
           </div>
 
-          <p className="text-[20px] md:text-[22px] text-neutral mt-3 mb-7">
-            add liquidity to receive lp tokens
-          </p>
+          <div className="mt-3 mb-7 flex gap-1 items-center">
+            <QuestionHelper text="This is helper tooltip" />
+            <p className="text-[20px] md:text-[22px] text-neutral">
+              add liquidity to receive lp tokens
+            </p>
+          </div>
 
           <div className="border bg-success w-full">
             <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
