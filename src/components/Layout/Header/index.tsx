@@ -32,6 +32,7 @@ export default function Header() {
   const handleToggle = () => {
     setNavbarOpen((prev) => !prev);
   };
+
   const handleClick = (
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {

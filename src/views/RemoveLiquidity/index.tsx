@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ActionButton from "../../components/Button/actionButton";
@@ -39,6 +40,9 @@ export default function RemoveLiquidity() {
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
+  const [layout, setLayout] = useState<boolean>(false);
+  const [sliderValue, setSliderValue] = useState<number>(0);
+
   const [liquidityAmount, setLiquidityAmount] = useState<BigNumber>(
     BigNumber.from(0)
   );
@@ -387,6 +391,21 @@ export default function RemoveLiquidity() {
     currencyBAmount,
   ]);
 
+  const handleClick = () => {
+    setLayout((prev) => !prev);
+  };
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSliderValue(parseInt(event.target.value, 10));
+  };
+
+  const handleSetValue = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    const button: HTMLButtonElement = event.currentTarget;
+    setSliderValue(parseInt(button.value, 10));
+  };
+
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
@@ -408,174 +427,270 @@ export default function RemoveLiquidity() {
 
           <div className="border bg-success w-full">
             <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
-              <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
-                <NumberFormat
-                  value={liquidityValue}
-                  disabled={isSpinning}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                  thousandSeparator={false}
-                  isAllowed={withLiquidityLimit}
-                  onKeyDown={() => {
-                    setInputField(InputField.INPUT_LIQUIDITY);
-                  }}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    const amount = parseFloat(value) || 0;
-                    setLiquidityAmount(
-                      BigNumber.from(
-                        (currentPool
-                          ? amount *
-                            10 **
-                              BigNumber.from(currentPool.decimals).toNumber()
-                          : 0
-                        ).toFixed()
-                      )
-                    );
-                  }}
-                />
-                <div className="flex items-center">
-                  <button
-                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={isSpinning}
-                  >
-                    <span className="text-[14px] md:text-[18px]">
+              <div className="flex justify-between text-[14px] lg:text-[18px] mb-5 text-neutral">
+                <span className="">AMOUNT</span>
+                <button
+                  onClick={handleClick}
+                  className="font-bold outline-none"
+                >
+                  {layout ? "SIMPLE" : "DETAILED"}
+                </button>
+              </div>
+              {layout ? (
+                <>
+                  <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
+                    <NumberFormat
+                      value={liquidityValue}
+                      disabled={isSpinning}
+                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      thousandSeparator={false}
+                      isAllowed={withLiquidityLimit}
+                      onKeyDown={() => {
+                        setInputField(InputField.INPUT_LIQUIDITY);
+                      }}
+                      onValueChange={async (values) => {
+                        const { value } = values;
+                        const amount = parseFloat(value) || 0;
+                        setLiquidityAmount(
+                          BigNumber.from(
+                            (currentPool
+                              ? amount *
+                                10 **
+                                  BigNumber.from(
+                                    currentPool.decimals
+                                  ).toNumber()
+                              : 0
+                            ).toFixed()
+                          )
+                        );
+                      }}
+                    />
+                    <div className="flex items-center">
+                      <button
+                        className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={isSpinning}
+                      >
+                        <span className="text-[14px] lg:text-[18px]">
+                          {currentPool ? (
+                            <>
+                              {currentPool.tokens[0].symbol}:
+                              {currentPool.tokens[1].symbol}
+                            </>
+                          ) : (
+                            "Invalid Pool"
+                          )}
+                        </span>
+                      </button>
                       {currentPool ? (
                         <>
-                          {currentPool.tokens[0].symbol}:
-                          {currentPool.tokens[1].symbol}
+                          <img
+                            src={currentPool.tokens[0].logo}
+                            className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                            alt=""
+                          />
+                          <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
+                          <img
+                            src={currentPool.tokens[1].logo}
+                            className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
+                            alt=""
+                          />
                         </>
                       ) : (
-                        "Invalid Pool"
+                        <></>
                       )}
-                    </span>
-                  </button>
-                  {currentPool ? (
-                    <>
-                      <img
-                        src={currentPool.tokens[0].logo}
-                        className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
-                        alt=""
-                      />
-                      <div className="w-[20px] h-[20px] md:w-[30px] md:h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
-                      <img
-                        src={currentPool.tokens[1].logo}
-                        className="w-[20px] h-[20px] md:w-[30px] md:h-[30px]"
-                        alt=""
-                      />
-                    </>
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
-              </div>
-              <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
-                <NumberFormat
-                  value={currencyAValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isSpinning}
-                  thousandSeparator={false}
-                  onKeyDown={() => {
-                    setInputField(InputField.INPUT_A);
-                  }}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    const amount = parseFloat(value) || 0;
-                    setCurrencyAAmount(
-                      BigNumber.from(
-                        (currencyA
-                          ? amount * 10 ** currencyA.decimals
-                          : 0
-                        ).toFixed()
-                      )
-                    );
-                  }}
-                />
-                <div className="flex items-center md:gap-1">
-                  <button
-                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => {
-                      setShowInputModal(true);
-                    }}
-                    disabled={isSpinning}
-                  >
-                    <span className="text-[14px] lg:text-[18px]">
-                      {currentPool
-                        ? currentPool.tokens[0].symbol
-                        : "Select a Currency"}
-                    </span>
-                    <ChevronIcon />
-                  </button>
-                  {currentPool ? (
-                    <img
-                      src={currentPool.tokens[0].logo}
-                      className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
-                      alt=""
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
+                  </div>
+                  <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
+                    <NumberFormat
+                      value={currencyAValue}
+                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSpinning}
+                      thousandSeparator={false}
+                      onKeyDown={() => {
+                        setInputField(InputField.INPUT_A);
+                      }}
+                      onValueChange={async (values) => {
+                        const { value } = values;
+                        const amount = parseFloat(value) || 0;
+                        setCurrencyAAmount(
+                          BigNumber.from(
+                            (currencyA
+                              ? amount * 10 ** currencyA.decimals
+                              : 0
+                            ).toFixed()
+                          )
+                        );
+                      }}
                     />
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
-              <div className="flex justify-center">
-                <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral">
-                  +
-                </div>
-              </div>
-              <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
-                <NumberFormat
-                  value={currencyBValue}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isSpinning}
-                  thousandSeparator={false}
-                  onKeyDown={() => {
-                    setInputField(InputField.INPUT_B);
-                  }}
-                  onValueChange={async (values) => {
-                    const { value } = values;
-                    const amount = parseFloat(value) || 0;
-                    setCurrencyBAmount(
-                      BigNumber.from(
-                        (currencyB
-                          ? amount * 10 ** currencyB.decimals
-                          : 0
-                        ).toFixed()
-                      )
-                    );
-                  }}
-                />
-                <div className="flex items-center md:gap-1">
-                  <button
-                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                    onClick={() => {
-                      setShowOutputModal(true);
-                    }}
-                    disabled={isSpinning}
-                  >
-                    <span className="text-[14px] lg:text-[18px]">
-                      {currentPool
-                        ? currentPool.tokens[1].symbol
-                        : "Select a Currency"}
-                    </span>
-                    <ChevronIcon />
-                  </button>
-                  {currentPool ? (
-                    <img
-                      src={currentPool.tokens[1].logo}
-                      className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
-                      alt=""
+                    <div className="flex items-center md:gap-1">
+                      <button
+                        className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => {
+                          setShowInputModal(true);
+                        }}
+                        disabled={isSpinning}
+                      >
+                        <span className="text-[14px] lg:text-[18px]">
+                          {currentPool
+                            ? currentPool.tokens[0].symbol
+                            : "Select a Currency"}
+                        </span>
+                        <ChevronIcon />
+                      </button>
+                      {currentPool ? (
+                        <img
+                          src={currentPool.tokens[0].logo}
+                          className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
+                          alt=""
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral">
+                      +
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
+                    <NumberFormat
+                      value={currencyBValue}
+                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSpinning}
+                      thousandSeparator={false}
+                      onKeyDown={() => {
+                        setInputField(InputField.INPUT_B);
+                      }}
+                      onValueChange={async (values) => {
+                        const { value } = values;
+                        const amount = parseFloat(value) || 0;
+                        setCurrencyBAmount(
+                          BigNumber.from(
+                            (currencyB
+                              ? amount * 10 ** currencyB.decimals
+                              : 0
+                            ).toFixed()
+                          )
+                        );
+                      }}
                     />
-                  ) : (
-                    <></>
-                  )}
-                </div>
-              </div>
+                    <div className="flex items-center md:gap-1">
+                      <button
+                        className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={() => {
+                          setShowOutputModal(true);
+                        }}
+                        disabled={isSpinning}
+                      >
+                        <span className="text-[14px] lg:text-[18px]">
+                          {currentPool
+                            ? currentPool.tokens[1].symbol
+                            : "Select a Currency"}
+                        </span>
+                        <ChevronIcon />
+                      </button>
+                      {currentPool ? (
+                        <img
+                          src={currentPool.tokens[1].logo}
+                          className="w-[30px] h-[30px]"
+                          alt=""
+                        />
+                      ) : (
+                        <></>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="border border-neutral px-6 py-5">
+                    <p className="text-[40px] text-left text-neutral font-bold mb-3">
+                      100%
+                    </p>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={sliderValue}
+                      onChange={handleChange}
+                      className="range range-xs"
+                    />
+                    <div className="flex justify-between w-[75%] mx-auto text-[16px] font-orator-std mt-7">
+                      <button
+                        onClick={handleSetValue}
+                        value="25"
+                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                      >
+                        25%
+                      </button>
+                      <button
+                        onClick={handleSetValue}
+                        value="50"
+                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                      >
+                        50%
+                      </button>
+                      <button
+                        onClick={handleSetValue}
+                        value="75"
+                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                      >
+                        75%
+                      </button>
+                      <button
+                        onClick={handleSetValue}
+                        value="100"
+                        className="hover:opacity-80 bg-lightblue rounded-2xl px-5 py-1"
+                      >
+                        MAX
+                      </button>
+                    </div>
+                  </div>
+                  <div className="w-full text-neutral mt-6 text-[14px] lg:text-[18px]">
+                    <p className="text-left mb-3">YOU WILL RECEIVE</p>
+                    <div className="border border-neutral px-12 py-5">
+                      <div className="flex justify-between mb-3">
+                        <div className="flex items-center gap-1">
+                          {currentPool && (
+                            <img
+                              src={currentPool?.tokens[0].logo}
+                              className="w-[30px] h-[30px]"
+                              alt=""
+                            />
+                          )}
+                          <span className="text-[14px] lg:text-[18px]">
+                            CSPD
+                          </span>
+                        </div>
+                        <span>-</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="flex items-center gap-1">
+                          {currentPool && (
+                            <img
+                              src={currentPool?.tokens[1].logo}
+                              className="w-[30px] h-[30px]"
+                              alt=""
+                            />
+                          )}
+                          <span className="text-[14px] lg:text-[18px]">
+                            USDT
+                          </span>
+                        </div>
+                        <span>-</span>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
 
-              <div className="w-full text-neutral mt-6">
-                <p className="text-[14px] text-left mb-3">PRICES</p>
-                <div className="border border-neutral px-12 py-5 text-[14px] md:text-[16px]">
+              <div className="w-full text-neutral mt-6 text-[14px] lg:text-[18px]">
+                <p className="text-left mb-3">PRICES</p>
+                <div className="border border-neutral px-12 py-5">
                   <p className="flex justify-between">
                     <span>1 CSPD -</span>
                     <span>1.2121 USDT</span>
