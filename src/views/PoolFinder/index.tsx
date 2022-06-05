@@ -263,7 +263,9 @@ export default function PoolFinder() {
 
           <div className="grid justify-items-center w-full">
             <button
-              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border py-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                currencyA ? "bg-lightyellow" : "border-lightyellow"
+              }`}
               onClick={() => {
                 setShowInputModal(true);
               }}
@@ -277,7 +279,11 @@ export default function PoolFinder() {
                       className="w-[30px] h-[30px]"
                       alt=""
                     />
-                    <span className="text-[19px] text-black">
+                    <span
+                      className={`text-[19px] ${
+                        currencyA ? "text-black" : "text-neutral"
+                      }`}
+                    >
                       {currencyA.symbol}
                     </span>
                   </>
@@ -296,7 +302,9 @@ export default function PoolFinder() {
               +
             </div>
             <button
-              className="hover:opacity-80 w-full flex justify-between items-center px-8 border border-black bg-lightyellow py-2 rounded-3xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border py-2 rounded-3xl disabled:opacity-50 disabled:cursor-not-allowed ${
+                currencyB ? "bg-lightyellow" : "border-lightyellow"
+              }`}
               onClick={() => {
                 setShowOutputModal(true);
               }}
@@ -310,7 +318,11 @@ export default function PoolFinder() {
                       className="w-[30px] h-[30px]"
                       alt=""
                     />
-                    <span className="text-[19px] text-neutral">
+                    <span
+                      className={`text-[19px] ${
+                        currencyB ? "text-black" : "text-neutral"
+                      }`}
+                    >
                       {currencyB.symbol}
                     </span>
                   </>

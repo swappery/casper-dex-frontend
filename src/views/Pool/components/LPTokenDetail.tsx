@@ -41,7 +41,7 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
       shareOfPool) /
     100;
   return (
-    <div className="font-orator-std w-full py-4 md:py-7 px-2 md:px-14 border border-neutral mt-8 mb-3 md:mt-14 md:mb-8">
+    <div className="font-orator-std w-full py-4 md:py-7 sm:px-2 md:px-14 sm:border sm:border-neutral mt-3 mb-1 sm:mt-8 sm:mb-3 md:mt-14 md:mb-8">
       <p className="text-[18px] text-neutral mb-5">lp tokens in your wallet</p>
       <div className="rounded-3xl border border-neutral px-4 md:px-9 flex justify-between items-center text-[15px] text-neutral">
         <div className="flex items-center">

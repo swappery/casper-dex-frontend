@@ -415,18 +415,18 @@ export default function RemoveLiquidity() {
               <BackIcon stroke={theme === Themes.LIGHT ? "black" : "#FFF8D4"} />
             </Link>
 
-            <p className="text-[35px] md:text-[43px] leading-[43px] text-neutral">
+            <p className="text-[25px] sm:text-[35px] md:text-[43px] leading-[43px] text-neutral">
               REMOVE LIQUIDITY
             </p>
             <div className="w-[19px]"></div>
           </div>
 
-          <p className="text-[20px] lg:text-[20px] text-neutral mt-3 mb-7">
+          <p className="text-[16px] md:text-[20px] text-neutral mt-3 mb-7">
             remove liquidity to receive tokens back
           </p>
 
-          <div className="border bg-success w-full">
-            <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
+          <div className="sm:border sm:bg-success w-full">
+            <div className="sm:px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
               <div className="flex justify-between text-[14px] lg:text-[18px] mb-5 text-neutral">
                 <span className="">AMOUNT</span>
                 <button
@@ -438,11 +438,11 @@ export default function RemoveLiquidity() {
               </div>
               {layout ? (
                 <>
-                  <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
+                  <div className="flex justify-between items-center rounded-[45px] border border-neutral py-2 sm:py-4 px-1.5 sm:px-5">
                     <NumberFormat
                       value={liquidityValue}
                       disabled={isSpinning}
-                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="md:h-fit max-w-[50%] sm:max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[12px] sm:text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                       thousandSeparator={false}
                       isAllowed={withLiquidityLimit}
                       onKeyDown={() => {
@@ -470,7 +470,7 @@ export default function RemoveLiquidity() {
                         className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={isSpinning}
                       >
-                        <span className="text-[14px] lg:text-[18px]">
+                        <span className="text-[12px] sm:text-[14px] lg:text-[18px]">
                           {currentPool ? (
                             <>
                               {currentPool.tokens[0].symbol}:
@@ -503,10 +503,10 @@ export default function RemoveLiquidity() {
                   <div className="flex justify-center">
                     <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral"></div>
                   </div>
-                  <div className="flex justify-between items-center border border-neutral py-4 px-5 md:px-6">
+                  <div className="flex justify-between items-center border border-neutral py-2 sm:py-4 px-1.5 sm:px-5">
                     <NumberFormat
                       value={currencyAValue}
-                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[12px] sm:text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isSpinning}
                       thousandSeparator={false}
                       onKeyDown={() => {
@@ -533,7 +533,7 @@ export default function RemoveLiquidity() {
                         }}
                         disabled={isSpinning}
                       >
-                        <span className="text-[14px] lg:text-[18px]">
+                        <span className="text-[12px] sm:text-[14px] lg:text-[18px]">
                           {currentPool
                             ? currentPool.tokens[0].symbol
                             : "Select a Currency"}
@@ -556,10 +556,10 @@ export default function RemoveLiquidity() {
                       +
                     </div>
                   </div>
-                  <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
+                  <div className="flex justify-between items-center border border-neutral py-2 sm:py-4 px-1.5 sm:px-5">
                     <NumberFormat
                       value={currencyBValue}
-                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[12px] sm:text-[14px] lg:text-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={isSpinning}
                       thousandSeparator={false}
                       onKeyDown={() => {
@@ -586,7 +586,7 @@ export default function RemoveLiquidity() {
                         }}
                         disabled={isSpinning}
                       >
-                        <span className="text-[14px] lg:text-[18px]">
+                        <span className="text-[12px] sm:text-[14px] lg:text-[18px]">
                           {currentPool
                             ? currentPool.tokens[1].symbol
                             : "Select a Currency"}
@@ -607,8 +607,8 @@ export default function RemoveLiquidity() {
                 </>
               ) : (
                 <>
-                  <div className="border border-neutral px-6 py-5">
-                    <p className="text-[40px] text-left text-neutral mb-3">
+                  <div className="border border-neutral px-3 sm:px-6 py-5">
+                    <p className="text-[32px] md:text-[40px] text-left text-neutral mb-3">
                       {sliderValue}%
                     </p>
                     <input
@@ -619,7 +619,7 @@ export default function RemoveLiquidity() {
                       onChange={handleChange}
                       className="range range-xs"
                     />
-                    <div className="flex justify-between w-[75%] mx-auto text-[16px] mt-7">
+                    <div className="flex justify-between sm:w-[75%] mx-auto text-[14px] sm:text-[16px] mt-7">
                       <button
                         onClick={handleSetValue}
                         value="25"
@@ -652,7 +652,7 @@ export default function RemoveLiquidity() {
                   </div>
                   <div className="w-full text-neutral mt-6 text-[14px] lg:text-[18px]">
                     <p className="text-left mb-3">YOU WILL RECEIVE</p>
-                    <div className="border border-neutral px-12 py-5">
+                    <div className="border border-neutral px-4 md:px-12 py-5">
                       <div className="flex justify-between mb-3">
                         <div className="flex items-center gap-1">
                           {currentPool && (
@@ -690,7 +690,7 @@ export default function RemoveLiquidity() {
 
               <div className="w-full text-neutral mt-6 text-[14px] lg:text-[18px]">
                 <p className="text-left mb-3">PRICES</p>
-                <div className="border border-neutral px-12 py-5">
+                <div className="border border-neutral px-4 md:px-12 py-5">
                   <p className="flex justify-between">
                     <span>1 CSPD -</span>
                     <span>1.2121 USDT</span>
@@ -711,7 +711,7 @@ export default function RemoveLiquidity() {
             </div>
           </div>
 
-          <p className="text-base md:text-[18px] text-neutral mt-7">
+          <p className="text-[14px] md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO REMOVE LIQUIDITY
           </p>
         </div>

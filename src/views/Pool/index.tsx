@@ -26,7 +26,7 @@ export default function Liquidity() {
           <p className="text-[35px] md:text-[43px] leading-[43px] text-neutral">
             your liquidity
           </p>
-          <p className="text-[20px] md:text-[22px] text-neutral mt-3">
+          <p className="text-[16px] sm:text-[20px] md:text-[22px] text-neutral mt-3">
             remove liquidity to receive tokens back
           </p>
 

@@ -401,31 +401,31 @@ export default function AddLiquidity() {
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
       <div className="container mx-auto grid grid-cols-12">
-        <div className="col-span-12 md:col-start-2 md:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-9">
+        <div className="col-span-12 lg:col-start-2 lg:col-end-12 xl:col-start-3 xl:col-end-11 grid justify-items-center text-center font-orator-std border border-neutral bg-success px-2 md:px-10 pt-14 pb-16 md:pt-6 md:pb-9">
           <div className="flex items-center justify-between w-full px-1">
             <Link to="/liquidity" className="hover:opacity-80">
               <BackIcon stroke={theme === Themes.LIGHT ? "black" : "#FFF8D4"} />
             </Link>
 
-            <p className="text-[35px] md:text-[43px] leading-[43px] text-neutral">
+            <p className="text-[25px] sm:text-[35px] md:text-[43px] leading-[43px] text-neutral">
               ADD LIQUIDITY
             </p>
             <div className="w-[19px]"></div>
           </div>
 
           <div className="mt-3 mb-7 flex gap-1 items-center">
-            <QuestionHelper text="This is helper tooltip" />
-            <p className="text-[20px] md:text-[22px] text-neutral">
+            {/* <QuestionHelper text="This is helper tooltip" /> */}
+            <p className="text-[16px] md:text-[20px] text-neutral">
               add liquidity to receive lp tokens
             </p>
           </div>
 
-          <div className="border bg-success w-full">
-            <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
-              <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
+          <div className="sm:border bg-success w-full">
+            <div className="sm:px-2 sm:py-6 md:p-8 2xl:py-12 font-orator-std text-black">
+              <div className="flex justify-between items-center rounded-[25px] md:rounded-[45px] border border-neutral px-1.5 py-2 sm:py-4 sm:px-5 md:px-6">
                 <NumberFormat
                   value={valueA}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="md:h-fit max-w-[50%] sm:max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
                   onKeyDown={() => {
@@ -458,7 +458,7 @@ export default function AddLiquidity() {
                     }}
                     disabled={isSpinning}
                   >
-                    <span className="text-[14px] md:text-[19px]">
+                    <span className="text-[12px] sm:text-[14px] md:text-[19px]">
                       {currencyA ? currencyA.symbol : "Select Currency"}
                     </span>
                     <ChevronIcon />
@@ -479,10 +479,10 @@ export default function AddLiquidity() {
                   +
                 </div>
               </div>
-              <div className="flex justify-between items-center border border-neutral px-5 py-4 md:px-6">
+              <div className="flex justify-between items-center border border-neutral px-1.5 py-2 sm:py-4 sm:px-5 md:px-6">
                 <NumberFormat
                   value={valueB}
-                  className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="md:h-fit max-w-[50%] sm:max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSpinning}
                   thousandSeparator={false}
                   onKeyDown={() => {
@@ -515,7 +515,7 @@ export default function AddLiquidity() {
                     }}
                     disabled={isSpinning}
                   >
-                    <span className="text-[14px] md:text-[19px]">
+                    <span className="text-[12px] sm:text-[14px] md:text-[19px]">
                       {currencyB ? currencyB.symbol : "Select Currency"}
                     </span>
                     <ChevronIcon />
@@ -539,7 +539,7 @@ export default function AddLiquidity() {
               />
             </div>
           </div>
-          <p className="text-base md:text-[18px] text-neutral mt-7">
+          <p className="text-[14px] md:text-[18px] text-neutral mt-7">
             SELECT A TOKEN TO FIND LIQUIDITY
           </p>
         </div>
