@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
@@ -5,7 +6,6 @@ import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
 import { amountWithoutDecimals, getTokenFromAddress } from "../../utils/utils";
-// import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModalOld";
 
 import QuestionHelper from "../../components/QuestionHelper";
 import ChevronIcon from "../../components/Icon/Chevron";
@@ -56,10 +56,8 @@ export default function AddLiquidity() {
     actionType,
     actionStatus,
     isPending,
-    isFetching,
     setActionType,
     setActionStatus,
-    setFetching,
   } = useAction();
   const [searchParams] = useSearchParams();
   const { isConnected, activeAddress } = useNetworkStatus();
@@ -70,6 +68,7 @@ export default function AddLiquidity() {
     currencyBAmounts,
     currentPool,
     inputField,
+    isFetching,
     initialize,
     setCurrencyA,
     setCurrencyB,
@@ -77,6 +76,7 @@ export default function AddLiquidity() {
     setCurrencyBAmounts,
     setCurrentPool,
     setInputField,
+    setFetching,
   } = useAddLiquidityStatus();
 
   useEffect(() => {
@@ -414,7 +414,7 @@ export default function AddLiquidity() {
           </div>
 
           <div className="mt-3 mb-7 flex gap-1 items-center">
-            {/* <QuestionHelper text="This is helper tooltip" /> */}
+            <QuestionHelper text="Liquidity providers earn a 0.15% trading fee on all trades made for that token pair, proportional to their share of the liquidity pool" />
             <p className="text-[16px] md:text-[20px] text-neutral">
               add liquidity to receive lp tokens
             </p>

@@ -68,20 +68,20 @@ export default function RemoveLiquidity() {
     actionType,
     actionStatus,
     isPending,
-    isFetching,
     setActionType,
     setActionStatus,
-    setFetching,
   } = useAction();
   const {
     currencyA,
     currencyB,
     currentPool,
     inputField,
+    isFetching,
     setCurrencyA,
     setCurrencyB,
     setCurrentPool,
     setInputField,
+    setFetching,
   } = useRemoveLiquidityStatus();
 
   useEffect(() => {
@@ -289,6 +289,22 @@ export default function RemoveLiquidity() {
         )
       : false;
 
+  const priceAasB = useMemo(() => {
+    if (currentPool)
+      return (
+        BigNumber.from(currentPool.reserves[1]).toNumber() /
+        BigNumber.from(currentPool.reserves[0]).toNumber()
+      );
+  }, [currentPool]);
+
+  const priceBasA = useMemo(() => {
+    if (currentPool)
+      return (
+        BigNumber.from(currentPool.reserves[0]).toNumber() /
+        BigNumber.from(currentPool.reserves[1]).toNumber()
+      );
+  }, [currentPool]);
+
   const liquidityValue = useMemo(() => {
     if (inputField === InputField.INPUT_LIQUIDITY)
       return currentPool
@@ -405,6 +421,28 @@ export default function RemoveLiquidity() {
     const button: HTMLButtonElement = event.currentTarget;
     setSliderValue(parseInt(button.value, 10));
   };
+
+  useEffect(() => {
+    setLiquidityAmount(
+      currentPool
+        ? BigNumber.from(currentPool.balance).mul(sliderValue).div(100)
+        : BigNumber.from(0)
+    );
+    setCurrencyAAmount(
+      currentPool
+        ? BigNumber.from(currentPool.reserves[0])
+            .mul(BigNumber.from(currentPool.balance).mul(sliderValue).div(100))
+            .div(BigNumber.from(currentPool.totalSupply))
+        : BigNumber.from(0)
+    );
+    setCurrencyBAmount(
+      currentPool
+        ? BigNumber.from(currentPool.reserves[1])
+            .mul(BigNumber.from(currentPool.balance).mul(sliderValue).div(100))
+            .div(BigNumber.from(currentPool.totalSupply))
+        : BigNumber.from(0)
+    );
+  }, [sliderValue]);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper py-14 px-5 md:px-0">
@@ -663,10 +701,19 @@ export default function RemoveLiquidity() {
                             />
                           )}
                           <span className="text-[14px] lg:text-[18px]">
-                            CSPD
+                            {currentPool?.tokens[0].symbol}
                           </span>
                         </div>
-                        <span>-</span>
+                        <span>
+                          {currentPool
+                            ? Number(
+                                amountWithoutDecimals(
+                                  currencyAAmount,
+                                  currentPool.tokens[0].decimals
+                                ).toFixed(5)
+                              )
+                            : "-"}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <div className="flex items-center gap-1">
@@ -678,10 +725,19 @@ export default function RemoveLiquidity() {
                             />
                           )}
                           <span className="text-[14px] lg:text-[18px]">
-                            USDT
+                            {currentPool?.tokens[1].symbol}
                           </span>
                         </div>
-                        <span>-</span>
+                        <span>
+                          {currentPool
+                            ? Number(
+                                amountWithoutDecimals(
+                                  currencyBAmount,
+                                  currentPool.tokens[1].decimals
+                                ).toFixed(5)
+                              )
+                            : "-"}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -692,12 +748,18 @@ export default function RemoveLiquidity() {
                 <p className="text-left mb-3">PRICES</p>
                 <div className="border border-neutral px-4 md:px-12 py-5">
                   <p className="flex justify-between">
-                    <span>1 CSPD -</span>
-                    <span>1.2121 USDT</span>
+                    <span>1 {currentPool?.tokens[0].symbol} -</span>
+                    <span>
+                      {Number(priceAasB?.toFixed(5))}{" "}
+                      {currentPool?.tokens[1].symbol}
+                    </span>
                   </p>
                   <p className="flex justify-between">
-                    <span>1 USDT -</span>
-                    <span>1.23 CSPD</span>
+                    <span>1 {currentPool?.tokens[1].symbol} -</span>
+                    <span>
+                      {Number(priceBasA?.toFixed(5))}{" "}
+                      {currentPool?.tokens[0].symbol}
+                    </span>
                   </p>
                 </div>
               </div>

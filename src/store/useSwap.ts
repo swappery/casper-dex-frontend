@@ -13,6 +13,7 @@ interface SwapStatus extends State {
     outputCurrencyAmounts: TokenAmount;
     reserves: BigNumber[][];
     inputField: InputField;
+    isFetching: boolean;
     initialize: () => void;
     setInputCurrency: (currency: Token) => void;
     setOutputCurrency: (currency: Token) => void;
@@ -20,6 +21,7 @@ interface SwapStatus extends State {
     setOutputCurrencyAmounts: (currencyAmount: TokenAmount) => void;
     setReserves: (reserves: BigNumber[][]) => void;
     setInputField: (field: InputField) => void;
+    setFetching: (isFetching: boolean) => void;
 }
 
 const useSwap = create<SwapStatus>(devtools((set) => ({
@@ -29,6 +31,7 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
     outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
     reserves: [[BigNumber.from(0), BigNumber.from(0)]],
     inputField: InputField.INPUT_A,
+    isFetching: false,
     initialize: () => set(() => {
         return {
             inputCurrency: testnetTokens.CSPR,
@@ -57,6 +60,7 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
     setInputField: (field: InputField) => set(() => {
         return {inputField: field};
     }),
+    setFetching: (isFetching: boolean) => set(() => ({isFetching})),
 })));
 
 export default useSwap;

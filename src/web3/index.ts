@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   Signer,
@@ -24,19 +23,17 @@ import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus from "../store/useWalletStatus";
-import { deserialize, getDeploy } from "../utils/utils";
-import { useSearchParams } from "react-router-dom";
+import { getDeploy } from "../utils/utils";
 import { Token } from "../config/interface/token";
-import useAction from "../store/useAction";
 import { toast } from "react-toastify";
 import { testnetTokens } from "../config/constants/tokens";
+import useAction from "../store/useAction";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
 
   const { addAccount } = useWalletStatus();
-  const [searchParams] = useSearchParams();
-  const {setFetching, setPending} = useAction();
+  const {setPending} = useAction();
 
   async function activate(requireConnection = true): Promise<void> {
     try {

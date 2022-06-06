@@ -6,6 +6,7 @@ import {
   amountWithoutDecimals,
   getAmountsIn,
   getAmountsOut,
+  getPriceImpact,
   getTokenFromAddress,
   reverseDoubleArray,
 } from "../../utils/utils";
@@ -30,6 +31,7 @@ import { SUPPORTED_TOKENS, TOTAL_SHARE } from "../../config/constants";
 import { ChainName } from "../../config/constants/chainName";
 import { CLPublicKey } from "casper-js-sdk";
 import SwitchButton from "../../components/Button/switchButton";
+import QuestionHelper from "../../components/QuestionHelper";
 
 export default function Swap() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
@@ -37,6 +39,7 @@ export default function Swap() {
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
+
   const [searchParams, setSearchParams] = useSearchParams();
 
   const {
@@ -46,6 +49,7 @@ export default function Swap() {
     outputCurrencyAmounts,
     reserves,
     inputField,
+    isFetching,
     initialize,
     setInputField,
     setInputCurrency,
@@ -53,16 +57,15 @@ export default function Swap() {
     setInputCurrencyAmounts,
     setOutputCurrencyAmounts,
     setReserves,
+    setFetching,
   } = useSwap();
   const { isConnected, activeAddress } = useNetworkStatus();
   const {
     actionType,
     actionStatus,
     isPending,
-    isFetching,
     setActionType,
     setActionStatus,
-    setFetching,
   } = useAction();
   const { slippageTolerance } = useSetting();
   const {
@@ -300,6 +303,7 @@ export default function Swap() {
           inputCurrencyAmounts.amount,
           inputCurrency.decimals
         );
+
   const outputValue =
     inputField === InputField.INPUT_A
       ? getAmountsOut(
@@ -311,6 +315,8 @@ export default function Swap() {
           outputCurrencyAmounts.amount,
           outputCurrency.decimals
         );
+
+  const priceImpact = getPriceImpact(inputValue, outputValue, reserves);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper px-2 md:px-0">
@@ -330,14 +336,6 @@ export default function Swap() {
         </div>
         <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 border bg-success">
           <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
-            <div className="flex justify-center">
-              <ul className="steps">
-                <li className="step step-info text-neutral">Register</li>
-                <li className="step step-info text-neutral">Choose plan</li>
-                <li className="step">Purchase</li>
-                <li className="step">Receive Product</li>
-              </ul>
-            </div>
             <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
                 value={inputValue}
@@ -456,6 +454,87 @@ export default function Swap() {
               isSpinning={isSpinning}
               handleClick={handleClickActionButton}
             />
+            {inputValue !== 0 && outputValue !== 0 && (
+              <div className="border border-neutral px-2 md:px-6 py-2 text-neutral bg-accent mt-3 rounded-2xl">
+                <p className="flex justify-between">
+                  {inputField === InputField.INPUT_A ? (
+                    <>
+                      <span>
+                        Minimum Recieved
+                        <QuestionHelper
+                          text={
+                            "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+                          }
+                        ></QuestionHelper>
+                      </span>
+                      <span>
+                        {Number(
+                          amountWithoutDecimals(
+                            outputCurrencyAmounts.limit,
+                            outputCurrency.decimals
+                          ).toFixed(5)
+                        )}{" "}
+                        {outputCurrency.symbol}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span>
+                        Maximum Sold
+                        <QuestionHelper
+                          text={
+                            "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed."
+                          }
+                        ></QuestionHelper>
+                      </span>
+                      <span>
+                        {Number(
+                          amountWithoutDecimals(
+                            inputCurrencyAmounts.limit,
+                            inputCurrency.decimals
+                          ).toFixed(5)
+                        )}{" "}
+                        {inputCurrency.symbol}
+                      </span>
+                    </>
+                  )}
+                </p>
+                <p className="flex justify-between">
+                  <span>
+                    Price Impact
+                    <QuestionHelper
+                      text={
+                        "The difference between the market price and estimated price due to trade size."
+                      }
+                    ></QuestionHelper>
+                  </span>
+                  <span>
+                    {priceImpact < 0.01 ? "<" : ""}
+                    {priceImpact}
+                    {"%"}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>
+                    Liquidity Provider Fee
+                    <QuestionHelper
+                      text={
+                        "The difference between the market price and estimated price due to trade size."
+                      }
+                    ></QuestionHelper>
+                  </span>
+                  <span>
+                    {Number(
+                      (
+                        inputValue -
+                        inputValue * 0.9975 ** reserves.length
+                      ).toFixed(5)
+                    )}{" "}
+                    {inputCurrency.symbol}
+                  </span>
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>

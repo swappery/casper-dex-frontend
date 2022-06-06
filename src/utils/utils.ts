@@ -40,6 +40,15 @@ export const getAmountsIn = (amount: BigNumber, reserves: BigNumber[][], decimal
   return amountWithoutDecimals(tempAmount, decimals);
 };
 
+export const getPriceImpact = (input: number, output: number, reserves: BigNumber[][]) => {
+  let fullOutput = input;
+  reserves.forEach((reserve) => {
+    if(reserve[0].eq(0) || reserve[1].eq(0)) { fullOutput = 0; return; }
+    fullOutput = fullOutput * reserve[1].toNumber() / reserve[0].toNumber();
+  });
+  return (fullOutput - output) / fullOutput * 100;
+}
+
 export const getTokenFromAddress = (address: string, tokens: Token[]): Token | undefined => {
   for (var i = 0 ; i < tokens.length ; i ++) {
     if(tokens[i].address === address) return tokens[i];

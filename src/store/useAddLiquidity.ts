@@ -12,6 +12,7 @@ interface AddLiquidityStatus extends State {
     currencyBAmounts?: TokenAmount;
     currentPool?: Pool;
     inputField: InputField;
+    isFetching: boolean;
     initialize: () => void;
     setCurrencyA: (currencyA: Token) => void;
     setCurrencyB: (currencyB: Token) => void;
@@ -19,11 +20,13 @@ interface AddLiquidityStatus extends State {
     setCurrencyBAmounts: (currencyBAmounts: TokenAmount) => void;
     setCurrentPool: (currentPool: Pool) => void;
     setInputField: (inputField: InputField) => void;
+    setFetching: (isFetching: boolean) => void;
 }
 
 const useAddLiquidityStatus = create<AddLiquidityStatus>(devtools(
     (set) => ({
         inputField: InputField.INPUT_A,
+        isFetching: false,
         initialize: () => set(() => {return {currencyA: undefined, currencyB: undefined, currencyAAmounts: undefined, currencyBAmounts:undefined, currentPool: undefined, inputField: InputField.INPUT_A};}),
         setCurrencyA: (currencyA: Token) => set(() => ({currencyA})),
         setCurrencyB: (currencyB: Token) => set(() => ({currencyB})),
@@ -31,6 +34,7 @@ const useAddLiquidityStatus = create<AddLiquidityStatus>(devtools(
         setCurrencyBAmounts: (currencyBAmounts: TokenAmount) => set(() => ({currencyBAmounts})),
         setCurrentPool: (currentPool: Pool) => set(() => ({currentPool})),
         setInputField: (inputField: InputField) => set(() => ({inputField})),
+        setFetching: (isFetching: boolean) => set(() => ({isFetching})),
     })
 ));
 

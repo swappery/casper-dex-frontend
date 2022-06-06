@@ -47,18 +47,14 @@ export default function PoolFinder() {
     useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { accountListString, setPool } = useWalletStatus();
-  const {
-    actionType,
-    actionStatus,
-    setActionType,
-    setActionStatus,
-    isFetching,
-    setFetching,
-  } = useAction();
+  const { actionType, actionStatus, setActionType, setActionStatus } =
+    useAction();
   const {
     currencyA,
     currencyB,
     currentPool,
+    isFetching,
+    setFetching,
     initialize,
     setCurrencyA,
     setCurrencyB,
@@ -328,8 +324,8 @@ export default function PoolFinder() {
                   </>
                 ) : (
                   <>
-                    <span className="w-[30px] h-[30px] border border-black rounded-[50%]"></span>{" "}
-                    <span className="text-[19px] text-black">
+                    <span className="w-[30px] h-[30px] border border-neutral rounded-[50%]"></span>{" "}
+                    <span className="text-[19px] text-neutral">
                       select a token
                     </span>
                   </>

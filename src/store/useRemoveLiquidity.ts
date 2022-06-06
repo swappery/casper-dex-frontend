@@ -9,19 +9,23 @@ interface RemoveLiquidityStatus extends State {
     currencyB?: Token;
     currentPool?: Pool;
     inputField: InputField;
+    isFetching: boolean;
     setCurrencyA: (currencyA: Token) => void;
     setCurrencyB: (currencyB: Token) => void;
     setCurrentPool: (currentPool: Pool) => void;
     setInputField: (inputField: InputField) => void;
+    setFetching: (isFetching: boolean) => void;
 }
 
 const useRemoveLiquidityStatus = create<RemoveLiquidityStatus>(devtools(
     (set) => ({
         inputField: InputField.INPUT_A,
+        isFetching: false,
         setCurrencyA: (currencyA: Token) => set(() => ({currencyA})),
         setCurrencyB: (currencyB: Token) => set(() => ({currencyB})),
         setCurrentPool: (currentPool: Pool) => set(() => ({currentPool})),
         setInputField: (inputField: InputField) => set(() => ({inputField})),
+        setFetching: (isFetching: boolean) => set(() => ({isFetching})),
     })
 ));
 

@@ -8,14 +8,18 @@ interface FindPoolStatus extends State {
     currencyA?: Token;
     currencyB?: Token;
     currentPool?: Pool;
+    isFetching: boolean;
     initialize: () => void;
     setCurrencyA: (currencyA: Token) => void;
     setCurrencyB: (currencyA: Token) => void;
     setCurrentPool: (currentPool: Pool) => void;
+    setFetching: (isFetching: boolean) => void;
 }
 
 const useImportPool = create<FindPoolStatus> (devtools(
     (set) => ({
+        isFetching: false,
+        setFetching: (isFetching: boolean) => set(() => ({isFetching})),
         initialize: () => set(() => { return { currencyA: testnetTokens.SWPR, currencyB: undefined, currentPool: undefined }; }),
         setCurrencyA: (currencyA: Token) => set(() => ({currencyA})),
         setCurrencyB: (currencyB: Token) => set(() => ({currencyB})),
