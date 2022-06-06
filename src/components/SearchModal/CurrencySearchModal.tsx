@@ -28,6 +28,7 @@ export default function CurrencySearchModal({
         id={modalId}
         className="modal-toggle"
         checked={show}
+        readOnly
       />
       <div className="modal">
         <div className="modal-box bg-success rounded-none p-0 relative">

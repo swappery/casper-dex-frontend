@@ -330,6 +330,14 @@ export default function Swap() {
         </div>
         <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 border bg-success">
           <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
+            <div className="flex justify-center">
+              <ul className="steps">
+                <li className="step step-info text-neutral">Register</li>
+                <li className="step step-info text-neutral">Choose plan</li>
+                <li className="step">Purchase</li>
+                <li className="step">Receive Product</li>
+              </ul>
+            </div>
             <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
               <NumberFormat
                 value={inputValue}

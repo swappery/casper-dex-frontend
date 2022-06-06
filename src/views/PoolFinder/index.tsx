@@ -328,8 +328,8 @@ export default function PoolFinder() {
                   </>
                 ) : (
                   <>
-                    <span className="w-[30px] h-[30px] border border-neutral rounded-[50%]"></span>{" "}
-                    <span className="text-[19px] text-neutral">
+                    <span className="w-[30px] h-[30px] border border-black rounded-[50%]"></span>{" "}
+                    <span className="text-[19px] text-black">
                       select a token
                     </span>
                   </>
