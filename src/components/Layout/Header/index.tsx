@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
-import { shortenAddress } from "../../../utils/utils";
+import { amountWithoutDecimals, shortenAddress } from "../../../utils/utils";
 
 import logo from "../../../assets/images/logo.svg";
 import logoWhite from "../../../assets/images/logo-white.svg";
@@ -15,6 +15,9 @@ import { Themes } from "../../../config/constants/themes";
 import WalletModal from "../../WalletModal/WalletModal";
 import WalletIcon from "../../../components/Icon/Wallet";
 import EscapeIcon from "../../../components/Icon/Escape";
+import { testnetTokens } from "../../../config/constants/tokens";
+import { BigNumber } from "ethers";
+import ConnectModal from "../../SelectWalletModal/SelectWalletModal";
 
 const navigation = [
   { name: "Swap", href: "/swap" },
@@ -24,8 +27,12 @@ const navigation = [
 
 export default function Header() {
   const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
+  const [csprBalance, setCsprBalance] = useState<number>(0);
+  const [swprBalance, setSwprBalance] = useState<number>(0);
   const { theme, setTheme, swprPrice, setSwprPrice } = useSetting();
-  const { activate, getSwapperyPrice } = useCasperWeb3Provider();
+  const { activate, disconnect, getSwapperyPrice, getCSPRBalance, balanceOf } =
+    useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const [navbarOpen, setNavbarOpen] = useState<boolean>(false);
 
@@ -35,6 +42,19 @@ export default function Header() {
     }
     setPrice();
   }, []);
+
+  useEffect(() => {
+    async function setBalances() {
+      setSwprBalance(
+        amountWithoutDecimals(
+          BigNumber.from(await balanceOf(testnetTokens.SWPR.address)),
+          testnetTokens.SWPR.decimals
+        )
+      );
+      setCsprBalance(await getCSPRBalance());
+    }
+    setBalances();
+  }, [activeAddress]);
 
   document.documentElement.setAttribute("data-theme", theme);
 
@@ -94,19 +114,28 @@ export default function Header() {
                     </div>
                   </div>
                   <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
-                    <li>
-                      <a>Wallet</a>
+                    <li
+                      onClick={() => {
+                        setShowWalletModal(true);
+                      }}
+                    >
+                      <span>Wallet</span>
                     </li>
                     <li>
-                      <a>Recent Transactions</a>
+                      <span>Recent Transactions</span>
                     </li>
-                    <li className="border-t border-neutral">
-                      <a className="flex justify-between">
+                    <li
+                      className="border-t border-neutral"
+                      onClick={() => {
+                        disconnect();
+                      }}
+                    >
+                      <span className="flex justify-between">
                         <span>Disconnect</span>
                         <EscapeIcon
                           fill={theme === Themes.DARK ? "lightyellow" : "black"}
                         />
-                      </a>
+                      </span>
                     </li>
                   </ul>
                 </li>
@@ -114,7 +143,7 @@ export default function Header() {
             ) : (
               <button
                 className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3"
-                onClick={() => activate()}
+                onClick={() => setShowConnectModal(true)}
               >
                 Connect Wallet
               </button>
@@ -269,19 +298,28 @@ export default function Header() {
                     </div>
                   </div>
                   <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
-                    <li>
-                      <a>Wallet</a>
+                    <li
+                      onClick={() => {
+                        setShowWalletModal(true);
+                      }}
+                    >
+                      <span>Wallet</span>
                     </li>
                     <li>
-                      <a>Recent Transactions</a>
+                      <span>Recent Transactions</span>
                     </li>
-                    <li className="border-t border-neutral">
-                      <a className="flex justify-between">
+                    <li
+                      className="border-t border-neutral"
+                      onClick={() => {
+                        disconnect();
+                      }}
+                    >
+                      <span className="flex justify-between">
                         <span>Disconnect</span>
                         <EscapeIcon
                           fill={theme === Themes.DARK ? "lightyellow" : "black"}
                         />
-                      </a>
+                      </span>
                     </li>
                   </ul>
                 </li>
@@ -289,25 +327,11 @@ export default function Header() {
             ) : (
               <button
                 className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3"
-                onClick={() => activate()}
+                onClick={() => setShowConnectModal(true)}
               >
                 Connect Wallet
               </button>
             )}
-            <ul
-              tabIndex={0}
-              className="dropdown-content menu p-2 shadow bg-success rounded-box w-52"
-            >
-              <li
-                onClick={() => {
-                  setShowWalletModal(true);
-                }}
-              >
-                Wallet
-              </li>
-              <li className="divide-solid"></li>
-              <li>Disconnect</li>
-            </ul>
           </div>
         </div>
         <div className="flex justify-between items-center px-2">
@@ -417,9 +441,19 @@ export default function Header() {
         ))}
       </div>
       <WalletModal
+        theme={theme}
+        activeAddress={activeAddress}
         show={showWalletModal}
+        csprBalance={csprBalance}
+        swprBalance={swprBalance}
         setShow={setShowWalletModal}
+        handleDisconnect={disconnect}
       ></WalletModal>
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </header>
   );
 }

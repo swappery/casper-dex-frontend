@@ -165,20 +165,18 @@ export default function RemoveLiquidity() {
             balance: BigNumber.from(await balanceOf(pairContractHash)),
             allowance: BigNumber.from(await allowanceOf(pairContractHash)),
           };
+          if (
+            currentPool &&
+            currentPool.tokens[0] === currencyA &&
+            currentPool.tokens[1] === currencyB
+          )
+            setPool(activeAddress, pool);
           setCurrentPool(pool);
-          setPool(activeAddress, pool);
         }
       }
       setFetching(false);
     }
-    if (
-      !(
-        currentPool &&
-        currencyA === currentPool.tokens[0] &&
-        currencyB === currentPool.tokens[1]
-      )
-    )
-      handleUpdatePool();
+    handleUpdatePool();
   }, [isConnected, activeAddress, currencyA, currencyB, isPending]);
 
   useEffect(() => {

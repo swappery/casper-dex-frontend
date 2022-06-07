@@ -26,7 +26,7 @@ import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus from "../store/useWalletStatus";
-import { getDeploy } from "../utils/utils";
+import { amountWithoutDecimals, getDeploy } from "../utils/utils";
 import { Token } from "../config/interface/token";
 import { toast } from "react-toastify";
 import { testnetTokens } from "../config/constants/tokens";
@@ -49,6 +49,12 @@ export default function useCasperWeb3Provider() {
         Signer.sendConnectionRequest();
       }
       // console.error(err);
+    }
+  }
+
+  async function disconnect() {
+    if(!!activeAddress && activeAddress !== "") {
+      Signer.disconnectFromSite();
     }
   }
 
@@ -462,6 +468,18 @@ export default function useCasperWeb3Provider() {
     return Number("0");
   }
 
+  async function getCSPRBalance() {
+    const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+    let stateRootHash = await client.getStateRootHash();
+    let accountBalanceUref = await client.getAccountBalanceUrefByPublicKey(stateRootHash, CLPublicKey.fromHex(activeAddress));
+    try {
+      let accountBalance = await client.getAccountBalance(stateRootHash, accountBalanceUref);
+      return amountWithoutDecimals(BigNumber.from(accountBalance), 9);
+    } catch(error) {
+      return 0;
+    }
+  }
+
   useEffect(() => {
     initialize();
   }, []);
@@ -469,6 +487,7 @@ export default function useCasperWeb3Provider() {
 
   return {
     activate,
+    disconnect,
     balanceOf,
     allowanceOf,
     approve,
@@ -480,6 +499,7 @@ export default function useCasperWeb3Provider() {
     swapExactIn,
     swapExactOut,
     getSwapperyPrice,
+    getCSPRBalance,
   };
 }
 

@@ -83,8 +83,8 @@ export default function AddLiquidity() {
     async function handleChange() {
       if (!isConnected || !currencyA) return;
       const currencyAmount: TokenAmount = {
-        balance: await balanceOf(currencyA.address),
-        allowance: await allowanceOf(currencyA.address),
+        balance: BigNumber.from(await balanceOf(currencyA.address)),
+        allowance: BigNumber.from(await allowanceOf(currencyA.address)),
         amount: currencyAAmounts ? currencyAAmounts.amount : BigNumber.from(0),
         limit: currencyAAmounts ? currencyAAmounts.limit : BigNumber.from(0),
       };
@@ -97,8 +97,8 @@ export default function AddLiquidity() {
     async function handleChange() {
       if (!isConnected || !currencyB) return;
       const currencyAmount: TokenAmount = {
-        balance: await balanceOf(currencyB.address),
-        allowance: await allowanceOf(currencyB.address),
+        balance: BigNumber.from(await balanceOf(currencyB.address)),
+        allowance: BigNumber.from(await allowanceOf(currencyB.address)),
         amount: currencyBAmounts ? currencyBAmounts.amount : BigNumber.from(0),
         limit: currencyBAmounts ? currencyBAmounts.limit : BigNumber.from(0),
       };
@@ -161,8 +161,8 @@ export default function AddLiquidity() {
             contractPackageHash: pairPackageHash,
             contractHash: pairContractHash,
             tokens: [currencyA, currencyB],
-            decimals: await pairClient.decimals(),
-            totalSupply: await pairClient.totalSupply(),
+            decimals: BigNumber.from(await pairClient.decimals()),
+            totalSupply: BigNumber.from(await pairClient.totalSupply()),
             reserves: reserves,
             balance: BigNumber.from(await balanceOf(pairContractHash)),
             allowance: BigNumber.from(await allowanceOf(pairContractHash)),

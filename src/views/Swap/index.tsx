@@ -85,8 +85,8 @@ export default function Swap() {
     async function handleChange() {
       if (!isConnected || !inputCurrency) return;
       const currencyAmount: TokenAmount = {
-        balance: await balanceOf(inputCurrency.address),
-        allowance: await allowanceOf(inputCurrency.address),
+        balance: BigNumber.from(await balanceOf(inputCurrency.address)),
+        allowance: BigNumber.from(await allowanceOf(inputCurrency.address)),
         amount: inputCurrencyAmounts.amount,
         limit: inputCurrencyAmounts.limit,
       };
@@ -100,8 +100,8 @@ export default function Swap() {
     async function handleChange() {
       if (!isConnected || !outputCurrency) return;
       const currencyAmount: TokenAmount = {
-        balance: await balanceOf(outputCurrency.address),
-        allowance: await allowanceOf(outputCurrency.address),
+        balance: BigNumber.from(await balanceOf(outputCurrency.address)),
+        allowance: BigNumber.from(await allowanceOf(outputCurrency.address)),
         amount: outputCurrencyAmounts.amount,
         limit: outputCurrencyAmounts.limit,
       };
@@ -316,7 +316,9 @@ export default function Swap() {
           outputCurrency.decimals
         );
 
-  const priceImpact = useMemo(()=>{return  Number(getPriceImpact(inputValue, outputValue, reserves).toFixed(10));},[inputValue, outputValue, reserves]);
+  const priceImpact = useMemo(() => {
+    return Number(getPriceImpact(inputValue, outputValue, reserves).toFixed(3));
+  }, [inputValue, outputValue, reserves]);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper px-2 md:px-0">
