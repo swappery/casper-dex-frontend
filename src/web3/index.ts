@@ -482,6 +482,7 @@ export default function useCasperWeb3Provider() {
 
   useEffect(() => {
     initialize();
+    activate(false);
   }, []);
 
 

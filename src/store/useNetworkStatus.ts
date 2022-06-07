@@ -1,6 +1,4 @@
 import create, { State } from "zustand";
-import { configurePersist } from "zustand-persist";
-import { devtools } from "zustand/middleware";
 
 interface NetworkStatus extends State {
   isConnected: boolean;
@@ -9,7 +7,8 @@ interface NetworkStatus extends State {
   setActiveAddress: (activeAddress: string | undefined) => void;
 }
 
-const useNetworkStatus = create<NetworkStatus>((set) => ({
+const useNetworkStatus = create<NetworkStatus>(
+    (set) => ({
   isConnected: false,
   activeAddress: "",
   setConnected: (isConnected: boolean) => set(() => ({ isConnected })),

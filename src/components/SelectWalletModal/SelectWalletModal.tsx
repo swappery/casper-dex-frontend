@@ -1,7 +1,5 @@
 /* eslint-disable react/jsx-no-target-blank */
-import { Themes } from "../../config/constants/themes";
 import { testnetTokens } from "../../config/constants/tokens";
-import Escape from "../Icon/Escape";
 
 interface ModalProps {
   show: boolean;
