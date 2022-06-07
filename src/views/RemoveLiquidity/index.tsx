@@ -634,7 +634,7 @@ export default function RemoveLiquidity() {
                       {currentPool ? (
                         <img
                           src={currentPool.tokens[1].logo}
-                          className="w-[30px] h-[30px]"
+                          className="w-[30px] h-[30px] md:w-[45px] md:h-[45px]"
                           alt=""
                         />
                       ) : (

@@ -519,7 +519,7 @@ export default function Swap() {
                     Liquidity Provider Fee
                     <QuestionHelper
                       text={
-                        "The difference between the market price and estimated price due to trade size."
+                        "For each trade a 0.25% fee is paid\n- 0.17% to LP token holders\n- 0.03% to the Treasury\n- 0.05% towards SWPR buyback and burn"
                       }
                     ></QuestionHelper>
                   </span>

@@ -12,8 +12,10 @@ import swapperyIcon from "../../../assets/images/tokens/fe33392bf4d0ff2edbb5a664
 import swapperyDarkIcon from "../../../assets/images/tokens/token-dark.svg";
 import useSetting from "../../../store/useSetting";
 import { Themes } from "../../../config/constants/themes";
+import WalletModal from "../../WalletModal/WalletModal";
 
 export default function Header() {
+  const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
   const { theme, setTheme, swprPrice, setSwprPrice } = useSetting();
   const { activate, getSwapperyPrice } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
@@ -80,10 +82,15 @@ export default function Header() {
             >
               {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
             </button>
-            <div className="flex items-center gap-1">
+            <div
+              className="flex items-center gap-1"
+              onClick={() => {
+                navigate({ pathname: "/swap" });
+              }}
+            >
               <img
                 src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
-                className="w-9 h-9"
+                className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
                 alt="Swappery Icon"
               />
               <span className="text-neutral font-gotham font-bold">
@@ -203,17 +210,39 @@ export default function Header() {
               <line x1="9.5" x2="9.5" y2="30" stroke="black" />
             </svg>
           </label>
-          <button
-            className="hover:opacity-80 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] rounded-xl bg-lightyellow p-1 lg:px-3 ml-[18px]"
-            onClick={() => activate()}
-          >
-            {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
-          </button>
+          <div className="dropdown absolute left-1/2 top-1/2">
+            <button
+              tabIndex={0}
+              className="hover:opacity-80 rounded-xl -translate-x-1/2 -translate-y-1/2 leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 ml-[18px]"
+              onClick={() => activate()}
+            >
+              {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
+            </button>
+            <ul
+              tabIndex={0}
+              className="dropdown-content menu p-2 shadow bg-success rounded-box w-52"
+            >
+              <li
+                onClick={() => {
+                  setShowWalletModal(true);
+                }}
+              >
+                Wallet
+              </li>
+              <li className="divide-solid"></li>
+              <li>Disconnect</li>
+            </ul>
+          </div>
         </div>
-        <div className="flex justify-between items-center px-2">
+        <div
+          className="flex justify-between items-center px-2"
+          onClick={() => {
+            navigate({ pathname: "/swap" });
+          }}
+        >
           <img
             src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
-            className="w-9 h-9"
+            className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
             alt="Swappery Icon"
           />
           <span className="text-neutral font-gotham font-bold">
@@ -323,6 +352,10 @@ export default function Header() {
           Farm
         </NavLink>
       </div>
+      <WalletModal
+        show={showWalletModal}
+        setShow={setShowWalletModal}
+      ></WalletModal>
     </header>
   );
 }

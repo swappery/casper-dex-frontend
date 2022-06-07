@@ -5,6 +5,8 @@ import {
   CLValueBuilder,
   decodeBase16,
   CasperServiceByJsonRPC,
+  CLValueParsers,
+  CLMap,
 } from "casper-js-sdk";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
@@ -14,6 +16,7 @@ import {
   CHAIN_NAME,
   INSTALL_FEE,
   NODE_ADDRESS,
+  RouterEvents,
   ROUTER_CONTRACT_HASH,
   ROUTER_CONTRACT_PACKAGE_HASH,
   TRANSFER_FEE,
@@ -202,6 +205,7 @@ export default function useCasperWeb3Provider() {
       undefined
     );
     await routerClient.setContractHash(routerContractHash);
+    console.log(routerClient.getPendingDeploys());
     if (await routerClient.isPairExists(inputCurrency.address, outputCurrency.address)) {
       let pairPackageHash = await routerClient.getPairFor(
         inputCurrency.address,
@@ -479,3 +483,42 @@ export default function useCasperWeb3Provider() {
     getSwapperyPrice,
   };
 }
+
+export const RouterEventParser = (
+  {
+    eventNames,
+  }: { eventNames: RouterEvents[] },
+  value: any
+) => {
+  if (value.body.DeployProcessed.execution_result.Success) {
+    const { transforms } =
+      value.body.DeployProcessed.execution_result.Success.effect;
+
+        const routerEvents = transforms.reduce((acc: any, val: any) => {
+          if (
+            val.transform.hasOwnProperty("WriteCLValue") &&
+            typeof val.transform.WriteCLValue.parsed === "object" &&
+            val.transform.WriteCLValue.parsed !== null
+          ) {
+            const maybeCLValue = CLValueParsers.fromJSON(
+              val.transform.WriteCLValue
+            );
+            const clValue = maybeCLValue.unwrap();
+            if (clValue && clValue instanceof CLMap) {
+              const event = clValue.get(CLValueBuilder.string("event_type"));
+              if (
+                event &&
+                eventNames.includes(event.value())
+              ) {
+                acc = [...acc, { name: event.value(), clValue }];
+              }
+            }
+          }
+          return acc;
+        }, []);
+
+    return { error: null, success: !!routerEvents.length, data: routerEvents };
+  }
+
+  return null;
+};

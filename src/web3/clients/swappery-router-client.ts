@@ -207,7 +207,7 @@ export class SwapperyRouterClient extends ContractClient {
             paymentAmount,
             runtimeArgs,
             cb: (deployHash: string) => 
-                this.addPendingDeploy(RouterEvents.Swap, deployHash),
+                this.addPendingDeploy(RouterEvents.SwapExactIn, deployHash),
             ttl,
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
@@ -260,7 +260,7 @@ export class SwapperyRouterClient extends ContractClient {
             paymentAmount,
             runtimeArgs,
             cb: (deployHash: string) => 
-                this.addPendingDeploy(RouterEvents.Swap, deployHash),
+                this.addPendingDeploy(RouterEvents.SwapExactOut, deployHash),
             ttl,
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
@@ -313,7 +313,7 @@ export class SwapperyRouterClient extends ContractClient {
             paymentAmount,
             runtimeArgs,
             cb: (deployHash: string) => 
-                this.addPendingDeploy(RouterEvents.Swap, deployHash),
+                this.addPendingDeploy(RouterEvents.SwapExactIn, deployHash),
             ttl,
         } as SwapperyRouterClient.ContractCallWithSignerPayload);
     }
@@ -362,6 +362,10 @@ export class SwapperyRouterClient extends ContractClient {
         );
         const pairContractHashString = Buffer.from(result.data).toString('hex');
         return pairContractHashString;
+    }
+
+    async getPendingDeploys() {
+        return this.pendingDeploys;
     }
 }
 export namespace SwapperyRouterClient {

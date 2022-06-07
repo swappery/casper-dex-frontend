@@ -259,8 +259,8 @@ export default function PoolFinder() {
 
           <div className="grid justify-items-center w-full">
             <button
-              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border py-2 disabled:opacity-50 disabled:cursor-not-allowed ${
-                currencyA ? "bg-lightyellow" : "border-lightyellow"
+              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border border-neutral py-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                currencyA && "bg-lightyellow"
               }`}
               onClick={() => {
                 setShowInputModal(true);
@@ -292,14 +292,15 @@ export default function PoolFinder() {
                   </>
                 )}
               </p>
+              {/* <ChevronIcon fill={`${currencyA ? "black" : "success"}`} /> */}
               <ChevronIcon />
             </button>
             <div className="w-[30px] h-[30px] border border-neutral rounded-[50%] text-[18px] text-neutral">
               +
             </div>
             <button
-              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border py-2 rounded-3xl disabled:opacity-50 disabled:cursor-not-allowed ${
-                currencyB ? "bg-lightyellow" : "border-lightyellow"
+              className={`hover:opacity-80 w-full flex justify-between items-center px-8 border border-neutral py-2 rounded-3xl disabled:opacity-50 disabled:cursor-not-allowed ${
+                currencyB && "bg-lightyellow"
               }`}
               onClick={() => {
                 setShowOutputModal(true);
@@ -332,6 +333,7 @@ export default function PoolFinder() {
                 )}
               </p>
               <ChevronIcon />
+              {/* <ChevronIcon fill={`${currencyB ? "black" : "accent"}`} /> */}
             </button>
           </div>
           {actionStatus === ActionStatus.REQ_EXECUTE_ACTION ? (

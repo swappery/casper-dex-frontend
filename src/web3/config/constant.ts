@@ -1,12 +1,16 @@
 export enum RouterEvents {
-  AddLiquidity = "add-liquidity",
-  RemoveLiquidity = "remove-liquidity",
-  Swap = "swap",
+  CreatePair = "create_pair",
+  AddLiquidity = "add_liquidity",
+  RemoveLiquidity = "remove_liquidity",
+  SwapExactIn = "swap_exact_in",
+  SwapExactOut = "swap_exact_out",
 }
 
 export const NODE_ADDRESS =
   process.env.REACT_APP_CASPER_NODE_ADDRESS ||
   "https://picaswap.io/.netlify/functions/cors?url=http://95.217.34.115:7777/rpc";
+
+export const EVENT_STREAM_ADDRESS = process.env.REACT_APP_EVENT_STREAM_ADDRESS;
 
 export const CHAIN_NAME = process.env.REACT_APP_CHAIN_NAME || "casper-test";
 
