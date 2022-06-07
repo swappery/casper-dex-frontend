@@ -8,6 +8,7 @@ module.exports = {
       lightgreen: "#E1F7D7",
       lightyellow: "#FFF8D4",
       lightred: "#FFE9E3",
+      darkgreen: "#1FC7D4",
     },
     fontFamily: {
       gotham: "Gotham",

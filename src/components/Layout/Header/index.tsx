@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState } from "react";
-import { createSearchParams, NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../../web3";
 import { shortenAddress } from "../../../utils/utils";
@@ -13,14 +13,21 @@ import swapperyDarkIcon from "../../../assets/images/tokens/token-dark.svg";
 import useSetting from "../../../store/useSetting";
 import { Themes } from "../../../config/constants/themes";
 import WalletModal from "../../WalletModal/WalletModal";
+import WalletIcon from "../../../components/Icon/Wallet";
+import EscapeIcon from "../../../components/Icon/Escape";
+
+const navigation = [
+  { name: "Swap", href: "/swap" },
+  { name: "Liquidity", href: "/liquidity" },
+  { name: "Farm", href: "/farm" },
+];
 
 export default function Header() {
   const [showWalletModal, setShowWalletModal] = useState<boolean>(false);
   const { theme, setTheme, swprPrice, setSwprPrice } = useSetting();
   const { activate, getSwapperyPrice } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
-  const [navbarOpen, setNavbarOpen] = useState(false);
-  const navigate = useNavigate();
+  const [navbarOpen, setNavbarOpen] = useState<boolean>(false);
 
   useEffect(() => {
     async function setPrice() {
@@ -35,14 +42,8 @@ export default function Header() {
     setNavbarOpen((prev) => !prev);
   };
 
-  const handleClick = (
-    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-    navigate({
-      pathname: "/swap",
-      search: createSearchParams({}).toString(),
-    });
+  const handleClose = () => {
+    setNavbarOpen(false);
   };
 
   return (
@@ -54,45 +55,78 @@ export default function Header() {
       </div>
       <div className="col-span-2 bg-secondary hidden xl:block">
         <div className="grid grid-cols-2">
-          <div className="flex justify-around items-center py-8 px-4 border-r-[0.5px] border-l-[0.5px] border-neutral text-neutral font-gotham">
-            <NavLink
-              to="/swap"
-              className={({ isActive }) => (isActive ? "font-bold" : "")}
-              onClick={handleClick}
-            >
-              Swap
-            </NavLink>
-            <NavLink
-              to="/liquidity"
-              className={({ isActive }) => (isActive ? "font-bold" : "")}
-            >
-              Liquidity
-            </NavLink>
-            <NavLink
-              to="/farm"
-              className={({ isActive }) => (isActive ? "font-bold" : "")}
-            >
-              Farm
-            </NavLink>
+          <div className="flex justify-around items-center py-8 px-4 border-r-[0.5px] border-l-[0.5px] border-neutral text-neutral font-gotham z-10">
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={({ isActive }) => (isActive ? "font-bold" : "")}
+              >
+                {item.name}
+              </NavLink>
+            ))}
           </div>
-          <div className="flex justify-around items-center py-8 px-4">
-            <button
-              className="hover:opacity-80 text-black font-orator-std text-[13px] rounded-xl bg-lightyellow py-0.5 px-3"
-              onClick={() => activate()}
-            >
-              {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
-            </button>
-            <div
-              className="flex items-center gap-1"
-              onClick={() => {
-                navigate({ pathname: "/swap" });
-              }}
-            >
-              <img
-                src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
-                className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
-                alt="Swappery Icon"
-              />
+          <div className="flex justify-around items-center py-8 px-4 z-10">
+            {isConnected ? (
+              <ul className="menu menu-horizontal p-0">
+                <li>
+                  <div className="relative py-1.5 px-0 hover:bg-transparent">
+                    <WalletIcon
+                      background={theme === Themes.DARK ? "" : "lightyellow"}
+                    />
+                    <div
+                      className={`flex items-center shadow rounded-2xl py-1 pr-2 pl-11 gap-1 ${
+                        theme === Themes.DARK ? "bg-[#232323]" : "bg-[#eff4f5]"
+                      }`}
+                    >
+                      <span className="text-neutral font-gotham font-bold">
+                        {shortenAddress(activeAddress)}
+                      </span>
+                      <svg
+                        className="fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
+                    <li>
+                      <a>Wallet</a>
+                    </li>
+                    <li>
+                      <a>Recent Transactions</a>
+                    </li>
+                    <li className="border-t border-neutral">
+                      <a className="flex justify-between">
+                        <span>Disconnect</span>
+                        <EscapeIcon
+                          fill={theme === Themes.DARK ? "lightyellow" : "black"}
+                        />
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            ) : (
+              <button
+                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3"
+                onClick={() => activate()}
+              >
+                Connect Wallet
+              </button>
+            )}
+            <div className="flex items-center gap-1">
+              <NavLink to="/swap">
+                <img
+                  src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
+                  className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
+                  alt="Swappery Icon"
+                />
+              </NavLink>
               <span className="text-neutral font-gotham font-bold">
                 ${swprPrice}
               </span>
@@ -181,7 +215,7 @@ export default function Header() {
       </div>
 
       <div className="col-span-3 grid grid-cols-2 bg-secondary xl:hidden">
-        <div className="relative py-1.5 px-2 border-r border-neutral">
+        <div className="relative py-1.5 px-2 border-r border-neutral z-10">
           <label className="swap swap-rotate bg-lightyellow p-[5px]">
             <input type="checkbox" onChange={handleToggle} />
             <svg
@@ -210,14 +244,56 @@ export default function Header() {
               <line x1="9.5" x2="9.5" y2="30" stroke="black" />
             </svg>
           </label>
-          <div className="dropdown absolute left-1/2 top-1/2">
-            <button
-              tabIndex={0}
-              className="hover:opacity-80 rounded-xl -translate-x-1/2 -translate-y-1/2 leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 ml-[18px]"
-              onClick={() => activate()}
-            >
-              {isConnected ? shortenAddress(activeAddress) : "Connect Wallet"}
-            </button>
+          <div className="dropdown absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            {isConnected ? (
+              <ul className="menu menu-horizontal p-0">
+                <li>
+                  <div className="relative py-1.5 px-0 hover:bg-transparent">
+                    <WalletIcon
+                      background={theme === Themes.DARK ? "" : "lightyellow"}
+                    />
+                    <div
+                      className={`flex items-center shadow rounded-2xl py-1 pr-2 pl-11 gap-1 ${
+                        theme === Themes.DARK ? "bg-[#232323]" : "bg-[#eff4f5]"
+                      }`}
+                    >
+                      <svg
+                        className="fill-current"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
+                    <li>
+                      <a>Wallet</a>
+                    </li>
+                    <li>
+                      <a>Recent Transactions</a>
+                    </li>
+                    <li className="border-t border-neutral">
+                      <a className="flex justify-between">
+                        <span>Disconnect</span>
+                        <EscapeIcon
+                          fill={theme === Themes.DARK ? "lightyellow" : "black"}
+                        />
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            ) : (
+              <button
+                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3"
+                onClick={() => activate()}
+              >
+                Connect Wallet
+              </button>
+            )}
             <ul
               tabIndex={0}
               className="dropdown-content menu p-2 shadow bg-success rounded-box w-52"
@@ -234,17 +310,14 @@ export default function Header() {
             </ul>
           </div>
         </div>
-        <div
-          className="flex justify-between items-center px-2"
-          onClick={() => {
-            navigate({ pathname: "/swap" });
-          }}
-        >
-          <img
-            src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
-            className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
-            alt="Swappery Icon"
-          />
+        <div className="flex justify-between items-center px-2">
+          <NavLink to="/swap">
+            <img
+              src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
+              className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
+              alt="Swappery Icon"
+            />
+          </NavLink>
           <span className="text-neutral font-gotham font-bold">
             ${swprPrice}
           </span>
@@ -332,25 +405,16 @@ export default function Header() {
           navbarOpen ? "" : "hidden"
         }`}
       >
-        <NavLink
-          to="/swap"
-          className={({ isActive }) => (isActive ? "font-bold" : "")}
-          onClick={handleClick}
-        >
-          Swap
-        </NavLink>
-        <NavLink
-          to="/liquidity"
-          className={({ isActive }) => (isActive ? "font-bold" : "")}
-        >
-          Liquidity
-        </NavLink>
-        <NavLink
-          to="/farm"
-          className={({ isActive }) => (isActive ? "font-bold" : "")}
-        >
-          Farm
-        </NavLink>
+        {navigation.map((item) => (
+          <NavLink
+            key={item.name}
+            to={item.href}
+            className={({ isActive }) => (isActive ? "font-bold" : "")}
+            // onClick={handleClose}
+          >
+            {item.name}
+          </NavLink>
+        ))}
       </div>
       <WalletModal
         show={showWalletModal}
