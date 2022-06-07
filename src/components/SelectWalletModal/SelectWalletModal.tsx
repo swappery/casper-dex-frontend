@@ -23,7 +23,7 @@ export default function ConnectModal({
       />
       <div className="modal">
         <div className="modal-box bg-success rounded-none p-0 relative">
-          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral">
+          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral font-bold">
             <p className="font-orator-std text-[24px]">Connect Wallet</p>
             <label
               onClick={() => {
@@ -48,7 +48,7 @@ export default function ConnectModal({
                   className="w-[50px] h-[50px] md:w-[70px] md:h-[70px]"
                   alt="Casper Signer"
                 />
-                <span className="text-[16px] lg:text-[20px] text-neutral ">
+                <span className="text-[12px] lg:text-[14px] text-neutral ">
                   Casper Signer
                 </span>
               </div>

@@ -115,14 +115,20 @@ const SearchInput = ({
         {filteredTokens?.map((item) => (
           <label
             key={item.symbol}
-            className="py-1 px-6 flex items-center gap-1 hover:bg-accent cursor-pointer"
+            className={`py-1 px-6 flex items-center gap-1 ${
+              item === selectedCurrency
+                ? "opacity-60"
+                : "hover:bg-accent cursor-pointer"
+            } ${item === otherSelectedCurrency ? "opacity-60" : ""}`}
             onClick={() => {
-              handleCurrencySelect(item);
+              if (item !== selectedCurrency) handleCurrencySelect(item);
             }}
           >
             <img src={item.logo} className="w-9 h-9" alt="Token" />
             <div className="font-orator-std">
-              <p className="text-[18px] text-neutral">{item.symbol}</p>
+              <p className="text-[18px] text-neutral font-bold">
+                {item.symbol}
+              </p>
               <p className="text-[14px]">{item.name}</p>
             </div>
           </label>

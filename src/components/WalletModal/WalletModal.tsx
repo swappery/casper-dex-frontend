@@ -1,5 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Themes } from "../../config/constants/themes";
+import { shortenAddress } from "../../utils/utils";
 import Escape from "../Icon/Escape";
 
 interface WalletModalProps {
@@ -33,7 +34,7 @@ export default function WalletModal({
       />
       <div className="modal">
         <div className="modal-box bg-success rounded-none p-0 relative">
-          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral">
+          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral font-bold">
             <p className="font-orator-std text-[24px]">Your Wallet</p>
             <label
               onClick={() => {
@@ -51,8 +52,9 @@ export default function WalletModal({
               </span>
             </div>
             <input
-              className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-primary rounded-[15px] text-[14px] md:text-[20px] text-neutral mb-2"
-              value={activeAddress}
+              className="font-orator-std font-bold focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-primary rounded-[15px] text-[14px] md:text-[20px] text-neutral mb-2"
+              readOnly
+              value={shortenAddress(activeAddress, 15)}
             />
             <div className="flex justify-between font-orator-std gap-2">
               <span className="text-[16px] lg:text-[20px] text-neutral ">
@@ -70,7 +72,7 @@ export default function WalletModal({
                 {swprBalance.toFixed(3)}
               </span>
             </div>
-            <div className="flex justify-end text-[16px] lg:text-[20px] mb-2 text-neutral font-orator-std gap-2">
+            <div className="flex justify-end text-[16px] lg:text-[20px] mb-2 text-neutral font-orator-std gap-2 font-bold">
               <a
                 href={`https://testnet.cspr.live/account/${activeAddress}`}
                 target="_blank"

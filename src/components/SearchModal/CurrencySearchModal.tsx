@@ -32,7 +32,7 @@ export default function CurrencySearchModal({
       />
       <div className="modal">
         <div className="modal-box bg-success rounded-none p-0 relative">
-          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral">
+          <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral font-bold">
             <p className="font-orator-std text-[24px]">Select a Token</p>
             <label
               onClick={() => {
