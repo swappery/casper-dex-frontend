@@ -205,7 +205,6 @@ export default function useCasperWeb3Provider() {
       undefined
     );
     await routerClient.setContractHash(routerContractHash);
-    console.log(routerClient.getPendingDeploys());
     if (await routerClient.isPairExists(inputCurrency.address, outputCurrency.address)) {
       let pairPackageHash = await routerClient.getPairFor(
         inputCurrency.address,

@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import {
@@ -316,7 +316,7 @@ export default function Swap() {
           outputCurrency.decimals
         );
 
-  const priceImpact = getPriceImpact(inputValue, outputValue, reserves);
+  const priceImpact = useMemo(()=>{return  Number(getPriceImpact(inputValue, outputValue, reserves).toFixed(10));},[inputValue, outputValue, reserves]);
 
   return (
     <div className="flex items-center bg-accent relative page-wrapper px-2 md:px-0">
@@ -509,8 +509,7 @@ export default function Swap() {
                     ></QuestionHelper>
                   </span>
                   <span>
-                    {priceImpact < 0.01 ? "<" : ""}
-                    {priceImpact}
+                    {priceImpact < 0.01 ? "< 0.01" : priceImpact}
                     {"%"}
                   </span>
                 </p>
@@ -528,7 +527,7 @@ export default function Swap() {
                       (
                         inputValue -
                         inputValue * 0.9975 ** reserves.length
-                      ).toFixed(5)
+                      ).toFixed(10)
                     )}{" "}
                     {inputCurrency.symbol}
                   </span>
