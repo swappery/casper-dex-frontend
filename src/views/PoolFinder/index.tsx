@@ -34,10 +34,12 @@ import { Pool } from "../../config/interface/pool";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import { InputField } from "../../config/interface/inputField";
+import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 
 export default function PoolFinder() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
   const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -218,7 +220,8 @@ export default function PoolFinder() {
   };
 
   const handleClickActionButton = async () => {
-    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
+      setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_ADD_LIQUIDITY) {
       navigate({
         pathname: "/add",
@@ -372,6 +375,11 @@ export default function PoolFinder() {
         show={showOutputModal}
         setShow={setShowOutputModal}
       />
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }

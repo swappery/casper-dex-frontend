@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
+import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 import { ActionType } from "../../config/interface/actionType";
 import useAction from "../../store/useAction";
 import useNetworkStatus from "../../store/useNetworkStatus";
@@ -8,6 +10,7 @@ import useCasperWeb3Provider from "../../web3";
 import LPTokenDetail from "./components/LPTokenDetail";
 
 export default function Liquidity() {
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const { activate } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { accountListString } = useWalletStatus();
@@ -71,7 +74,7 @@ export default function Liquidity() {
           ) : (
             <button
               className="hover:opacity-80 mt-20 mb-4 md:my-16 text-black text-[14px] md:text-[15px] leading-[34px] rounded-3xl bg-lightgreen border border-black py-1.5 px-2 md:px-5"
-              onClick={() => activate()}
+              onClick={() => setShowConnectModal(true)}
             >
               CONNECT WALLET TO VIEW LIQUIDITY
             </button>
@@ -92,6 +95,11 @@ export default function Liquidity() {
           </button>
         </div>
       </div>
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }

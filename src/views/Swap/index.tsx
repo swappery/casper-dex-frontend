@@ -32,10 +32,12 @@ import { ChainName } from "../../config/constants/chainName";
 import { CLPublicKey } from "casper-js-sdk";
 import SwitchButton from "../../components/Button/switchButton";
 import QuestionHelper from "../../components/QuestionHelper";
+import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 
 export default function Swap() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
   const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -236,7 +238,8 @@ export default function Swap() {
   }, [searchParams]);
 
   const handleClickActionButton = async () => {
-    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
+      setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
       await wrapCspr(
         inputCurrencyAmounts.amount.sub(inputCurrencyAmounts.balance)
@@ -555,6 +558,11 @@ export default function Swap() {
         show={showOutputModal}
         setShow={setShowOutputModal}
       />
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }
