@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Themes } from "../../config/constants/themes";
-import { shortenAddress } from "../../utils/utils";
-import Escape from "../Icon/Escape";
+import ExternalIcon from "../Icon/External";
 
 interface WalletModalProps {
   theme: string;
@@ -51,24 +50,26 @@ export default function WalletModal({
                 your address
               </span>
             </div>
-            <input
-              className="font-orator-std font-bold focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-primary rounded-[15px] text-[14px] md:text-[20px] text-neutral mb-2"
-              readOnly
-              value={shortenAddress(activeAddress, 15)}
-            />
+            <div className="mb-5 relative">
+              <input
+                className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-primary rounded-[15px] text-[14px] md:text-[20px] text-neutral"
+                value={activeAddress}
+              />
+            </div>
+
             <div className="flex justify-between font-orator-std gap-2">
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 CSPR Balance
               </span>
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 {csprBalance.toFixed(1)}
               </span>
             </div>
             <div className="flex justify-between font-orator-std gap-2 mb-2">
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 SWPR Balance
               </span>
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 {swprBalance.toFixed(3)}
               </span>
             </div>
@@ -76,10 +77,13 @@ export default function WalletModal({
               <a
                 href={`https://testnet.cspr.live/account/${activeAddress}`}
                 target="_blank"
+                className="flex items-center gap-2 hover:opacity-80"
               >
-                <span> View on CsprLive</span>
+                <span className="font-bold text-[16px]">View on CsprLive</span>
+                <ExternalIcon
+                  fill={theme === Themes.DARK ? "lightyellow" : "black"}
+                />
               </a>
-              <Escape fill={theme === Themes.DARK ? "lightyellow" : "black"} />
             </div>
             <div className="flex justify-center">
               <button
