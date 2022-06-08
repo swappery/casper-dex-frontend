@@ -33,10 +33,12 @@ import { Pool } from "../../config/interface/pool";
 import useWalletStatus from "../../store/useWalletStatus";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
+import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 
 export default function RemoveLiquidity() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
   const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -261,7 +263,8 @@ export default function RemoveLiquidity() {
   }, [actionStatus]);
 
   const handleClickActionButton = async () => {
-    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
+      setShowConnectModal(true);
     else if (currentPool && currencyA && currencyB)
       if (actionStatus === ActionStatus.REQ_APPROVE_LIQUIDITY) {
         await approve(liquidityAmount, currentPool.contractHash);
@@ -792,6 +795,11 @@ export default function RemoveLiquidity() {
         show={showOutputModal}
         setShow={setShowOutputModal}
       />
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }

@@ -34,10 +34,12 @@ import { InputField } from "../../config/interface/inputField";
 import { TokenAmount } from "../../config/interface/tokenAmounts";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import { ActionStatus } from "../../config/interface/actionStatus";
+import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 
 export default function AddLiquidity() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
   const [showOutputModal, setShowOutputModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
@@ -314,7 +316,8 @@ export default function AddLiquidity() {
   }, [searchParams]);
 
   const handleClickActionButton = async () => {
-    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
+      setShowConnectModal(true);
     else if (currencyA && currencyB && currencyAAmounts && currencyBAmounts)
       if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
         await wrapCspr(currencyAAmounts.amount.sub(currencyAAmounts.balance));
@@ -560,6 +563,11 @@ export default function AddLiquidity() {
         show={showOutputModal}
         setShow={setShowOutputModal}
       />
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }
