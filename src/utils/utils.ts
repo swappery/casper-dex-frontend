@@ -89,3 +89,33 @@ export const getDeploy = async (NODE_URL: string, deployHash: string) => {
   }
   throw Error("Timeout after " + i + "s. Something's wrong");
 };
+
+export enum ExplorerDataType {
+  DEPLOY = "deploy",
+  CONTRACT = "contract",
+  ACCOUNT = "account",
+  BLOCK = "block",
+}
+
+export function getCsprExplorerLink(
+  data: string,
+  type: ExplorerDataType
+): string {
+  const prefix = "https://cspr.live/";
+
+  switch (type) {
+    case ExplorerDataType.DEPLOY:
+      return `${prefix}/deploy/${data}`;
+
+    case ExplorerDataType.CONTRACT:
+      return `${prefix}/contract/${data}`;
+
+    case ExplorerDataType.BLOCK:
+      return `${prefix}/block/${data}`;
+
+    case ExplorerDataType.ACCOUNT:
+      return `${prefix}/account/${data}`;
+    default:
+      return `${prefix}`;
+  }
+}

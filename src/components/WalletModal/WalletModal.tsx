@@ -3,6 +3,7 @@ import { Themes } from "../../config/constants/themes";
 import ExternalIcon from "../Icon/External";
 import useClipboard from "react-use-clipboard";
 import Copy from "../Icon/Copy";
+import { ExplorerDataType, getCsprExplorerLink } from "../../utils/utils";
 
 interface WalletModalProps {
   theme: string;
@@ -89,7 +90,10 @@ export default function WalletModal({
             </div>
             <div className="flex justify-end text-[16px] lg:text-[20px] mb-2 text-neutral font-orator-std gap-2 font-bold">
               <a
-                href={`https://testnet.cspr.live/account/${activeAddress}`}
+                href={getCsprExplorerLink(
+                  activeAddress,
+                  ExplorerDataType.ACCOUNT
+                )}
                 target="_blank"
                 className="flex items-center gap-2 hover:opacity-80"
               >

@@ -149,7 +149,7 @@ export default function Header() {
               </button>
             )}
             <div className="flex items-center gap-1">
-              <NavLink to="/swap">
+              <NavLink to="/swap" target="_blank">
                 <img
                   src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
                   className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
@@ -335,7 +335,7 @@ export default function Header() {
           </div>
         </div>
         <div className="flex justify-between items-center px-2">
-          <NavLink to="/swap">
+          <NavLink to="/swap" target="_blank">
             <img
               src={theme === Themes.LIGHT ? swapperyIcon : swapperyDarkIcon}
               className="w-9 h-9 transform transition duration-500 hover:scale-110 hover:cursor-pointer"
