@@ -53,15 +53,16 @@ export default function WalletModal({
           <div className="p-7">
             <div className="flex justify-start font-orator-std gap-2 mb-2">
               <span className="text-[14px] lg:text-[18px] text-neutral ">
-                your address
+                YOUR ADDRESS
               </span>
             </div>
             <div className="flex items-center bg-primary rounded-[15px] w-full py-[6px] px-3 md:py-2 md:px-5 font-orator-std text-neutral">
-              <p className="font-bold focus:outline-none text-[14px] md:text-[20px] text-clip overflow-clip">
-                {activeAddress}
-              </p>
+              <input
+                className="font-bold focus:outline-none bg-transparent w-full text-[14px] md:text-[20px]"
+                value={activeAddress}
+              />
               <div
-                className="tooltip px-1"
+                className="flex items-center tooltip px-1"
                 data-tip={isCopied ? "copied" : "copy"}
               >
                 <button className="hover:opacity-80" onClick={setCopied}>
@@ -71,7 +72,7 @@ export default function WalletModal({
                 </button>
               </div>
             </div>
-            <div className="flex justify-between font-orator-std gap-2">
+            <div className="flex justify-between font-orator-std gap-2 mt-3 px-1">
               <span className="text-[16px] lg:text-[18px] text-neutral ">
                 CSPR Balance
               </span>
@@ -79,7 +80,7 @@ export default function WalletModal({
                 {csprBalance.toFixed(1)}
               </span>
             </div>
-            <div className="flex justify-between font-orator-std gap-2 mb-2">
+            <div className="flex justify-between font-orator-std gap-2 mb-2 px-1">
               <span className="text-[16px] lg:text-[18px] text-neutral ">
                 SWPR Balance
               </span>

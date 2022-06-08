@@ -142,7 +142,7 @@ export default function Header() {
               </ul>
             ) : (
               <button
-                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 font-bold"
+                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] sm:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 font-bold"
                 onClick={() => setShowConnectModal(true)}
               >
                 Connect Wallet
@@ -326,7 +326,7 @@ export default function Header() {
               </ul>
             ) : (
               <button
-                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] md:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 font-bold"
+                className="hover:opacity-80 mb-1.5 sm:mb-1 ml-7 sm:ml-0 rounded-xl leading-[11px] sm:leading-[16px] text-black font-orator-std text-[11px] xl:text-[13px] bg-lightyellow p-1 lg:px-3 font-bold"
                 onClick={() => setShowConnectModal(true)}
               >
                 Connect Wallet
