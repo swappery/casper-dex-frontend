@@ -1,8 +1,8 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Themes } from "../../config/constants/themes";
-import Copy from "../Icon/Copy";
-import Visit from "../Icon/Visit";
+import ExternalIcon from "../Icon/External";
 import useClipboard from "react-use-clipboard";
+import Copy from "../Icon/Copy";
 
 interface WalletModalProps {
   theme: string;
@@ -71,18 +71,18 @@ export default function WalletModal({
               </div>
             </div>
             <div className="flex justify-between font-orator-std gap-2">
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 CSPR Balance
               </span>
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 {csprBalance.toFixed(1)}
               </span>
             </div>
             <div className="flex justify-between font-orator-std gap-2 mb-2">
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 SWPR Balance
               </span>
-              <span className="text-[16px] lg:text-[20px] text-neutral ">
+              <span className="text-[16px] lg:text-[18px] text-neutral ">
                 {swprBalance.toFixed(3)}
               </span>
             </div>
@@ -90,10 +90,13 @@ export default function WalletModal({
               <a
                 href={`https://testnet.cspr.live/account/${activeAddress}`}
                 target="_blank"
+                className="flex items-center gap-2 hover:opacity-80"
               >
-                <span> View on CsprLive</span>
+                <span className="font-bold text-[16px]">View on CsprLive</span>
+                <ExternalIcon
+                  fill={theme === Themes.DARK ? "lightyellow" : "black"}
+                />
               </a>
-              <Visit fill={theme === Themes.DARK ? "lightyellow" : "black"} />
             </div>
             <div className="flex justify-center">
               <button

@@ -1,4 +1,4 @@
-export default function Visit({ fill }: { fill?: string }) {
+export default function External({ fill }: { fill?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
