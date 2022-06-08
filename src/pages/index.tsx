@@ -9,7 +9,15 @@ import { Routes, Route } from "react-router-dom";
 import { Header, Footer } from "../components";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useLocation } from "react-router-dom";
+import { getCustomMeta } from "../config/constants/meta";
+import useSetting from "../store/useSetting";
 export default function Pages() {
+  const location = useLocation();
+  const pageMeta = getCustomMeta(location.pathname);
+  const { swprPrice } = useSetting();
+  const pageTitle = [pageMeta.title, swprPrice].join(" - $");
+  document.title = pageTitle;
   return (
     <>
       <Header />
