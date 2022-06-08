@@ -40,7 +40,7 @@ app.use("/api/cors", function (req, res, next) {
       },
       function (error, response, body) {
         if (error) {
-          console.error("error: " + response.statusCode);
+          console.error("error: " + error);
         }
       }
     ).pipe(res);
