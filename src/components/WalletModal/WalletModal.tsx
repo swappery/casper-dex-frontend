@@ -1,7 +1,8 @@
 /* eslint-disable react/jsx-no-target-blank */
 import { Themes } from "../../config/constants/themes";
-import { shortenAddress } from "../../utils/utils";
-import Escape from "../Icon/Escape";
+import Copy from "../Icon/Copy";
+import Visit from "../Icon/Visit";
+import useClipboard from "react-use-clipboard";
 
 interface WalletModalProps {
   theme: string;
@@ -23,6 +24,9 @@ export default function WalletModal({
   handleDisconnect,
 }: WalletModalProps) {
   setShow(!!activeAddress && activeAddress !== "" && show);
+  const [isCopied, setCopied] = useClipboard(activeAddress, {
+    successDuration: 2000,
+  });
   return (
     <>
       <input
@@ -51,11 +55,21 @@ export default function WalletModal({
                 your address
               </span>
             </div>
-            <input
-              className="font-orator-std font-bold focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-primary rounded-[15px] text-[14px] md:text-[20px] text-neutral mb-2"
-              readOnly
-              value={shortenAddress(activeAddress, 15)}
-            />
+            <div className="flex items-center bg-primary rounded-[15px] w-full py-[6px] px-3 md:py-2 md:px-5 font-orator-std text-neutral">
+              <p className="font-bold focus:outline-none text-[14px] md:text-[20px] text-clip overflow-clip">
+                {activeAddress}
+              </p>
+              <div
+                className="tooltip px-1"
+                data-tip={isCopied ? "copied" : "copy"}
+              >
+                <button className="hover:opacity-80" onClick={setCopied}>
+                  <Copy
+                    fill={theme === Themes.DARK ? "lightyellow" : "black"}
+                  />
+                </button>
+              </div>
+            </div>
             <div className="flex justify-between font-orator-std gap-2">
               <span className="text-[16px] lg:text-[20px] text-neutral ">
                 CSPR Balance
@@ -79,7 +93,7 @@ export default function WalletModal({
               >
                 <span> View on CsprLive</span>
               </a>
-              <Escape fill={theme === Themes.DARK ? "lightyellow" : "black"} />
+              <Visit fill={theme === Themes.DARK ? "lightyellow" : "black"} />
             </div>
             <div className="flex justify-center">
               <button
