@@ -340,11 +340,11 @@ export default function PoolFinder() {
               {/* <ChevronIcon fill={`${currencyB ? "black" : "accent"}`} /> */}
             </button>
           </div>
-          {actionStatus === ActionStatus.REQ_EXECUTE_ACTION ? (
+          {actionStatus === ActionStatus.REQ_EXECUTE_ACTION && currentPool ? (
             <LPTokenDetail
               isManage={false}
-              poolInfo={currentPool!}
-              key={currentPool!.contractPackageHash}
+              poolInfo={currentPool}
+              key={currentPool.contractPackageHash}
             />
           ) : (
             <></>
