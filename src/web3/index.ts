@@ -466,8 +466,8 @@ export default function useCasperWeb3Provider() {
     let stateRootHash = await client.getStateRootHash();
     let accountBalance = BigNumber.from(0);
     if (!isConnected) return 0;
-    let accountBalanceUref = await client.getAccountBalanceUrefByPublicKey(stateRootHash, CLPublicKey.fromHex(activeAddress));
     try {
+      let accountBalanceUref = await client.getAccountBalanceUrefByPublicKey(stateRootHash, CLPublicKey.fromHex(activeAddress));
       accountBalance = await client.getAccountBalance(stateRootHash, accountBalanceUref);
     } catch(error) {
     }
