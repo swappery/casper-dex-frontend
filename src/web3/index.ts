@@ -36,7 +36,7 @@ export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
 
   const { addAccount } = useWalletStatus();
-  const {setPending} = useAction();
+  const {setPending, actionType} = useAction();
 
   async function activate(requireConnection = true): Promise<void> {
     try {
@@ -478,6 +478,10 @@ export default function useCasperWeb3Provider() {
     initialize();
     activate(false);
   }, []);
+
+  useEffect(() => {
+    setPending(false);
+  }, [actionType]);
 
   return {
     activate,
