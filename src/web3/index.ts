@@ -38,12 +38,6 @@ export default function useCasperWeb3Provider() {
   const { addAccount } = useWalletStatus();
   const {setPending} = useAction();
 
-  let routerClient = new SwapperyRouterClient(
-      NODE_ADDRESS,
-      CHAIN_NAME,
-      undefined
-    );
-
   async function activate(requireConnection = true): Promise<void> {
     try {
       if (!!activeAddress && activeAddress !== "") return;
@@ -196,6 +190,12 @@ export default function useCasperWeb3Provider() {
   }
 
   async function isPairExist(inputCurrency: Token, outputCurrency: Token): Promise<boolean> {
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     return await routerClient.isPairExists(
       inputCurrency.address,
       outputCurrency.address,
@@ -203,6 +203,12 @@ export default function useCasperWeb3Provider() {
   }
 
   async function getReserves(inputCurrency: Token, outputCurrency: Token): Promise<BigNumber[]> {
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     if (await routerClient.isPairExists(inputCurrency.address, outputCurrency.address)) {
       let pairPackageHash = await routerClient.getPairFor(
         inputCurrency.address,
@@ -248,6 +254,12 @@ export default function useCasperWeb3Provider() {
     if (!isConnected) return;
     setPending(true);
     let txHash;
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     try {
       txHash = await routerClient.addLiquidity(
         publicKey,
@@ -283,6 +295,12 @@ export default function useCasperWeb3Provider() {
     if (!isConnected) return;
     setPending(true);
     let txHash;
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     try {
       txHash = await routerClient.removeLiquidity(
         publicKey,
@@ -318,6 +336,12 @@ export default function useCasperWeb3Provider() {
     if (!isConnected) return;
     setPending(true);
     let txHash;
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     try {
       txHash = await routerClient.swapExactIn(
         publicKey,
@@ -352,6 +376,12 @@ export default function useCasperWeb3Provider() {
     if (!isConnected) return;
     setPending(true);
     let txHash;
+    let routerClient = new SwapperyRouterClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
     try {
       txHash = await routerClient.swapExactOut(
         publicKey,
@@ -381,6 +411,12 @@ export default function useCasperWeb3Provider() {
     const usdtToken = testnetTokens.USDT;
 
     if (await isPairExist(swprToken, usdtToken)) {
+      let routerClient = new SwapperyRouterClient(
+          NODE_ADDRESS,
+          CHAIN_NAME,
+          undefined
+        );
+      await routerClient.setContractHash(ROUTER_CONTRACT_HASH);
         let pairPackageHash = await routerClient.getPairFor(
           swprToken.address,
           usdtToken.address
@@ -440,7 +476,6 @@ export default function useCasperWeb3Provider() {
   useEffect(() => {
     initialize();
     activate(false);
-    routerClient.setContractHash(ROUTER_CONTRACT_HASH);
   }, []);
 
   return {
