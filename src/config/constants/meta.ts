@@ -24,7 +24,7 @@ export const getCustomMeta = (path: string): PageMeta => {
   switch (basePath) {
     case '/':
       return {
-        title: "Home')} | Swappery",
+        title: "Home | Swappery",
       }
     case '/swap':
       return {
