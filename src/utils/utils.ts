@@ -101,7 +101,7 @@ export function getCsprExplorerLink(
   data: string,
   type: ExplorerDataType
 ): string {
-  const prefix = "https://testnet.cspr.live/";
+  const prefix = "https://testnet.cspr.live";
 
   switch (type) {
     case ExplorerDataType.DEPLOY:
