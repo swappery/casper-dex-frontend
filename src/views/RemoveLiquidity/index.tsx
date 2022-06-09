@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useCallback } from "react";
+import React from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import ActionButton from "../../components/Button/actionButton";
@@ -262,7 +262,7 @@ export default function RemoveLiquidity() {
     }
   }, [actionStatus]);
 
-  const handleClickActionButton = useCallback(async () => {
+  const handleClickActionButton = async () => {
     if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
       setShowConnectModal(true);
     else if (currentPool && currencyA && currencyB)
@@ -276,20 +276,19 @@ export default function RemoveLiquidity() {
           liquidityAmount
         );
       }
-  }, []);
+  };
 
   if (actionType !== ActionType.REMOVE_LIQUIDITY)
     setActionType(ActionType.REMOVE_LIQUIDITY);
 
-  const withLiquidityLimit = useCallback(({ floatValue }: any) => {
-    return currentPool
+  const withLiquidityLimit = ({ floatValue }: any) =>
+    currentPool
       ? floatValue <
-          amountWithoutDecimals(
-            BigNumber.from(currentPool.balance),
-            BigNumber.from(currentPool.decimals).toNumber()
-          )
+        amountWithoutDecimals(
+          BigNumber.from(currentPool.balance),
+          BigNumber.from(currentPool.decimals).toNumber()
+        )
       : false;
-  }, []);
 
   const priceAasB = useMemo(() => {
     if (currentPool)

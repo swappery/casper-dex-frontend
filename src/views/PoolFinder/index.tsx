@@ -12,7 +12,7 @@ import LPTokenDetail from "../Pool/components/LPTokenDetail";
 import { BigNumber } from "ethers";
 import useCasperWeb3Provider from "../../web3";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useSetting from "../../store/useSetting";
 import { Themes } from "../../config/constants/themes";
 import useAction from "../../store/useAction";
@@ -219,7 +219,7 @@ export default function PoolFinder() {
     return false;
   };
 
-  const handleClickActionButton = useCallback(async () => {
+  const handleClickActionButton = async () => {
     if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
       setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_ADD_LIQUIDITY) {
@@ -234,7 +234,7 @@ export default function PoolFinder() {
       setPool(activeAddress, currentPool!);
       navigate({ pathname: "/liquidity" });
     }
-  }, []);
+  };
 
   //Initialize action
   if (actionType !== ActionType.IMPORT_POOL) {

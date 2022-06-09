@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { Link, useSearchParams } from "react-router-dom";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 
 import NumberFormat from "react-number-format";
@@ -314,7 +314,7 @@ export default function AddLiquidity() {
     );
   }, [searchParams]);
 
-  const handleClickActionButton = useCallback(async () => {
+  const handleClickActionButton = async () => {
     if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
       setShowConnectModal(true);
     else if (currencyA && currencyB && currencyAAmounts && currencyBAmounts)
@@ -335,30 +335,28 @@ export default function AddLiquidity() {
           currencyBAmounts.amount
         );
       }
-  }, []);
+  };
 
   if (actionType !== ActionType.ADD_LIQUIDITY) {
     setActionType(ActionType.ADD_LIQUIDITY);
     initialize();
   }
 
-  const withALimit = useCallback(({ floatValue }: any) => {
-    return !currencyA || !currentPool
+  const withALimit = ({ floatValue }: any) =>
+    !currencyA || !currentPool
       ? false
       : currentPool.totalSupply.eq(0)
       ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[0], currencyA.decimals);
-  }, []);
 
-  const withBLimit = useCallback(({ floatValue }: any) => {
-    return !currencyB || !currentPool
+  const withBLimit = ({ floatValue }: any) =>
+    !currencyB || !currentPool
       ? false
       : currentPool.totalSupply.eq(0)
       ? true
       : floatValue <
         amountWithoutDecimals(currentPool.reserves[1], currencyB.decimals);
-  }, []);
 
   const valueA = useMemo(() => {
     if (

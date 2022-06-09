@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import {
@@ -237,7 +237,7 @@ export default function Swap() {
     );
   }, [searchParams]);
 
-  const handleClickActionButton = useCallback(async () => {
+  const handleClickActionButton = async () => {
     if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
       setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
@@ -269,8 +269,8 @@ export default function Swap() {
         outputCurrencyAmounts.amount
       );
     }
-  }, []);
-  const handleClickSwithButton = useCallback(() => {
+  };
+  const handleClickSwithButton = () => {
     setSearchParams({
       input: outputCurrency.address,
       output: inputCurrency.address,
@@ -281,14 +281,14 @@ export default function Swap() {
     setInputCurrencyAmounts(outputCurrencyAmounts);
     setOutputCurrencyAmounts(tempAmount);
     setReserves(reverseDoubleArray(reserves));
-  }, []);
+  };
 
   if (actionType !== ActionType.SWAP) {
     setActionType(ActionType.SWAP);
     initialize();
   }
 
-  const withTargetLimit = useCallback(({ floatValue }: any) => {
+  const withTargetLimit = ({ floatValue }: any) => {
     return (
       floatValue <
       amountWithoutDecimals(
@@ -296,7 +296,7 @@ export default function Swap() {
         outputCurrency.decimals
       )
     );
-  }, []);
+  };
 
   const inputValue = useMemo(() => {
     return inputField === InputField.INPUT_B
