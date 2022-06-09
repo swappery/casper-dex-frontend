@@ -464,6 +464,7 @@ export default function useCasperWeb3Provider() {
   async function getCSPRBalance() {
     const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
     let stateRootHash = await client.getStateRootHash();
+    if (!isConnected) return 0;
     let accountBalanceUref = await client.getAccountBalanceUrefByPublicKey(stateRootHash, CLPublicKey.fromHex(activeAddress));
     try {
       let accountBalance = await client.getAccountBalance(stateRootHash, accountBalanceUref);
