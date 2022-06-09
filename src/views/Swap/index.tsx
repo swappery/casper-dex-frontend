@@ -115,7 +115,7 @@ export default function Swap() {
   //Update path to swap input currency to output
   useEffect(() => {
     async function handleUpdateReserves() {
-      if (!inputCurrency || !outputCurrency) return;
+      if (!inputCurrency || !outputCurrency || isPending) return;
       setFetching(true);
       if (await isPairExist(inputCurrency, outputCurrency)) {
         setReserves([await getReserves(inputCurrency, outputCurrency)]);
@@ -464,7 +464,7 @@ export default function Swap() {
                 <p className="flex justify-between">
                   {inputField === InputField.INPUT_A ? (
                     <>
-                      <span>
+                      <span className="flex">
                         Minimum Recieved
                         <QuestionHelper
                           text={
@@ -484,7 +484,7 @@ export default function Swap() {
                     </>
                   ) : (
                     <>
-                      <span>
+                      <span className="flex">
                         Maximum Sold
                         <QuestionHelper
                           text={
@@ -505,7 +505,7 @@ export default function Swap() {
                   )}
                 </p>
                 <p className="flex justify-between">
-                  <span>
+                  <span className="flex">
                     Price Impact
                     <QuestionHelper
                       text={
@@ -519,7 +519,7 @@ export default function Swap() {
                   </span>
                 </p>
                 <p className="flex justify-between">
-                  <span>
+                  <span className="flex">
                     Liquidity Provider Fee
                     <QuestionHelper
                       text={

@@ -239,6 +239,7 @@ export default function PoolFinder() {
   //Initialize action
   if (actionType !== ActionType.IMPORT_POOL) {
     setActionType(ActionType.IMPORT_POOL);
+    setActionStatus(ActionStatus.REQ_SELECT_CURRENCY);
     initialize();
   }
 
