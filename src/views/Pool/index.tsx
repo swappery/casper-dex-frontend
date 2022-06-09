@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createSearchParams, useNavigate } from "react-router-dom";
 import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 import { ActionType } from "../../config/interface/actionType";
@@ -17,8 +17,12 @@ export default function Liquidity() {
   const navigate = useNavigate();
   const { actionType, setActionType } = useAction();
 
-  const accountList: AccountList = deserialize(accountListString);
-  const poolMap = accountList.get(activeAddress)?.poolList;
+  const accountList: AccountList = useMemo(() => {
+    return deserialize(accountListString);
+  }, [accountListString]);
+  const poolMap = useMemo(() => {
+    return accountList.get(activeAddress)?.poolList;
+  }, [accountList, activeAddress]);
   if (actionType !== ActionType.VIEW_LIQUIDITY)
     setActionType(ActionType.VIEW_LIQUIDITY);
 

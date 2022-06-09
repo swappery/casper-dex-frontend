@@ -443,7 +443,6 @@ export default function useCasperWeb3Provider() {
     routerClient.setContractHash(ROUTER_CONTRACT_HASH);
   }, []);
 
-
   return {
     activate,
     disconnect,

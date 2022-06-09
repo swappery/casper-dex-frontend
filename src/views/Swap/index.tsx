@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import ActionButton from "../../components/Button/actionButton";
 import NumberFormat from "react-number-format";
 import {
@@ -237,7 +237,7 @@ export default function Swap() {
     );
   }, [searchParams]);
 
-  const handleClickActionButton = async () => {
+  const handleClickActionButton = useCallback(async () => {
     if (actionStatus === ActionStatus.REQ_CONNECT_WALLET)
       setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
@@ -269,8 +269,8 @@ export default function Swap() {
         outputCurrencyAmounts.amount
       );
     }
-  };
-  const handleClickSwithButton = () => {
+  }, []);
+  const handleClickSwithButton = useCallback(() => {
     setSearchParams({
       input: outputCurrency.address,
       output: inputCurrency.address,
@@ -281,22 +281,25 @@ export default function Swap() {
     setInputCurrencyAmounts(outputCurrencyAmounts);
     setOutputCurrencyAmounts(tempAmount);
     setReserves(reverseDoubleArray(reserves));
-  };
+  }, []);
 
   if (actionType !== ActionType.SWAP) {
     setActionType(ActionType.SWAP);
     initialize();
   }
 
-  const withTargetLimit = ({ floatValue }: any) =>
-    floatValue <
-    amountWithoutDecimals(
-      reserves[reserves.length - 1][1],
-      outputCurrency.decimals
+  const withTargetLimit = useCallback(({ floatValue }: any) => {
+    return (
+      floatValue <
+      amountWithoutDecimals(
+        reserves[reserves.length - 1][1],
+        outputCurrency.decimals
+      )
     );
+  }, []);
 
-  const inputValue =
-    inputField === InputField.INPUT_B
+  const inputValue = useMemo(() => {
+    return inputField === InputField.INPUT_B
       ? getAmountsIn(
           outputCurrencyAmounts.amount,
           reserves,
@@ -306,9 +309,16 @@ export default function Swap() {
           inputCurrencyAmounts.amount,
           inputCurrency.decimals
         );
+  }, [
+    inputField,
+    inputCurrency,
+    inputCurrencyAmounts,
+    outputCurrencyAmounts,
+    reserves,
+  ]);
 
-  const outputValue =
-    inputField === InputField.INPUT_A
+  const outputValue = useMemo(() => {
+    return inputField === InputField.INPUT_A
       ? getAmountsOut(
           inputCurrencyAmounts.amount,
           reserves,
@@ -318,6 +328,13 @@ export default function Swap() {
           outputCurrencyAmounts.amount,
           outputCurrency.decimals
         );
+  }, [
+    inputField,
+    inputCurrencyAmounts,
+    outputCurrency,
+    outputCurrencyAmounts,
+    reserves,
+  ]);
 
   const priceImpact = useMemo(() => {
     return Number(getPriceImpact(inputValue, outputValue, reserves).toFixed(3));
