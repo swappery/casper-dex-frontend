@@ -1,7 +1,6 @@
 #!/bin/sh     
-git pull
-yarn install
-yarn build
-cd ..
+sudo git pull origin main
+sudo yarn install
+sudo yarn build
 sudo systemctl restart nginx
-pm2 restart all
+sudo pm2 restart all
