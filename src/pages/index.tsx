@@ -16,7 +16,7 @@ export default function Pages() {
   const location = useLocation();
   const pageMeta = getCustomMeta(location.pathname);
   const { swprPrice } = useSetting();
-  const pageTitle = [pageMeta.title, swprPrice].join(" - $");
+  const pageTitle = [pageMeta.title, swprPrice].join(" - ");
   document.title = pageTitle;
   return (
     <>
