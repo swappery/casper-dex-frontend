@@ -29,6 +29,7 @@ export const getAmountsOut = (amount: BigNumber, reserves: BigNumber[][], decima
 
 export const getAmountsIn = (amount: BigNumber, reserves: BigNumber[][], decimals: number) => {
   let tempAmount = amount;
+  if (amount.eq(0)) return 0;
   reserves.forEach((reserve) => {
     if(reserve[0].eq(0) || reserve[1].eq(0)) { tempAmount = BigNumber.from(0); return; }
     tempAmount = reserve[0]
