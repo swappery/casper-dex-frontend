@@ -4,4 +4,4 @@ yarn install
 yarn build
 cd ..
 sudo systemctl restart nginx
-sudo pm2 restart all
+pm2 restart all
