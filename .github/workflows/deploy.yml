@@ -20,4 +20,4 @@ jobs:
           instance-ids: ${{ secrets.INSTANCE_ID  }}
           comment: Deploy the main branch
           working-directory: /home/ubuntu/casper-dex-frontend
-          command: git pull & yarn build
+          command: /bin/sh ./deploy.sh
