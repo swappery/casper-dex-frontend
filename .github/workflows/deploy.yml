@@ -1,4 +1,4 @@
-name: Deploy using AWS SSM Send-Command
+name: AWS SSM Send-Command Example
 
 on:
   push:
@@ -6,16 +6,24 @@ on:
 
 jobs:
   start:
-    runs-on: [self-hosted, ubuntu-22.04]
+    runs-on: ubuntu-latest
 
     steps:
-      - name: AWS SSM Send Command
+      - uses: actions/checkout@v2
+
+      - name: AWS SSM Send-Command
         uses: peterkimzz/aws-ssm-send-command@master
+        id: ssm
         with:
           aws-region: us-west-2
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID  }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY  }}
-          instance-ids: ${{ secrets.INSTANCE_ID  }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          instance-ids: ${{ secrets.INSTANCE_ID }}
+
           working-directory: /home/ubuntu/casper-dex-frontend
           command: git pull
-          comment: Git Pull
+          comment: Hello world!
+
+      # Catch SSM outputs
+      - name: Get the outputs
+        run: echo "The Command id is ${{ steps.ssm.outputs.command-id }}"
