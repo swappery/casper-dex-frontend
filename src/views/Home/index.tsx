@@ -1,7 +1,6 @@
 import { NavLink } from "react-router-dom";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
-import { shortenAddress } from "../../utils/utils";
 import TokenomicsTable from "./components/TokenomicsTable";
 import "./home.css";
 import logo from "../../assets/images/logo-huge.png";
@@ -16,7 +15,7 @@ import { Themes } from "../../config/constants/themes";
 export default function Home() {
   const { theme } = useSetting();
   const { activate } = useCasperWeb3Provider();
-  const { isConnected, activeAddress } = useNetworkStatus();
+  const { isConnected } = useNetworkStatus();
 
   return (
     <div className="bg-accent overflow-hidden">
