@@ -33,6 +33,7 @@ import { CLPublicKey } from "casper-js-sdk";
 import SwitchButton from "../../components/Button/switchButton";
 import QuestionHelper from "../../components/QuestionHelper";
 import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
+import { ROUTER_CONTRACT_PACKAGE_HASH } from "../../web3/config/constant";
 
 export default function Swap() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
@@ -88,7 +89,9 @@ export default function Swap() {
       if (!isConnected || !inputCurrency) return;
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(inputCurrency.address)),
-        allowance: BigNumber.from(await allowanceOf(inputCurrency.address)),
+        allowance: BigNumber.from(
+          await allowanceOf(inputCurrency.address, ROUTER_CONTRACT_PACKAGE_HASH)
+        ),
         amount: inputCurrencyAmounts.amount,
         limit: inputCurrencyAmounts.limit,
       };
@@ -103,7 +106,12 @@ export default function Swap() {
       if (!isConnected || !outputCurrency) return;
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(outputCurrency.address)),
-        allowance: BigNumber.from(await allowanceOf(outputCurrency.address)),
+        allowance: BigNumber.from(
+          await allowanceOf(
+            outputCurrency.address,
+            ROUTER_CONTRACT_PACKAGE_HASH
+          )
+        ),
         amount: outputCurrencyAmounts.amount,
         limit: outputCurrencyAmounts.limit,
       };

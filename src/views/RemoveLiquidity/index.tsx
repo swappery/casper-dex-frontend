@@ -26,6 +26,7 @@ import {
   CHAIN_NAME,
   NODE_ADDRESS,
   ROUTER_CONTRACT_HASH,
+  ROUTER_CONTRACT_PACKAGE_HASH,
 } from "../../web3/config/constant";
 import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
 import { SwapperyPairClient } from "../../web3/clients/swappery-pair-client";
@@ -165,7 +166,9 @@ export default function RemoveLiquidity() {
             totalSupply: await pairClient.totalSupply(),
             reserves: reserves,
             balance: BigNumber.from(await balanceOf(pairContractHash)),
-            allowance: BigNumber.from(await allowanceOf(pairContractHash)),
+            allowance: BigNumber.from(
+              await allowanceOf(pairContractHash, ROUTER_CONTRACT_PACKAGE_HASH)
+            ),
           };
           if (
             currentPool &&

@@ -7,6 +7,8 @@ import {
   CasperServiceByJsonRPC,
   CLValueParsers,
   CLMap,
+  encodeBase16,
+  CLKey,
 } from "casper-js-sdk";
 import { WCSPRClient } from "./clients/wcspr-client";
 import { ERC20SignerClient } from "./clients/erc20signer-client";
@@ -15,6 +17,8 @@ import { BigNumber, BigNumberish } from "ethers";
 import {
   CHAIN_NAME,
   INSTALL_FEE,
+  MASTER_CHEF_CONTRACT_HASH,
+  MASTER_CHEF_CONTRACT_PACKAGE_HASH,
   NODE_ADDRESS,
   RouterEvents,
   ROUTER_CONTRACT_HASH,
@@ -26,11 +30,15 @@ import { useEffect } from "react";
 import { SwapperyRouterClient } from "./clients/swappery-router-client";
 import { SwapperyPairClient } from "./clients/swappery-pair-client";
 import useWalletStatus from "../store/useWalletStatus";
-import { amountWithoutDecimals, getDeploy } from "../utils/utils";
+import { amountWithoutDecimals, getDeploy, getTokenFromAddress } from "../utils/utils";
 import { Token } from "../config/interface/token";
 import { toast } from "react-toastify";
 import { testnetTokens } from "../config/constants/tokens";
 import useAction from "../store/useAction";
+import { MasterChefClient } from "./clients/master-chef-client";
+import { SUPPORTED_TOKENS } from "../config/constants";
+import { ChainName } from "../config/constants/chainName";
+import { FarmInfo, FarmUserInfo, LpToken } from "../store/useMasterChef";
 
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
@@ -108,14 +116,14 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function allowanceOf(contractHash: string) {
+  async function allowanceOf(contractHash: string, spender: string) {
     const erc20 = new ERC20SignerClient(NODE_ADDRESS, CHAIN_NAME, undefined);
     await erc20.setContractHash(contractHash);
     let allowance;
     try {
       allowance = await erc20.allowances(
         CLPublicKey.fromHex(activeAddress),
-        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH))
+        CLValueBuilder.byteArray(decodeBase16(spender))
       );
     } catch (error) {
       return 0;
@@ -474,6 +482,179 @@ export default function useCasperWeb3Provider() {
     return amountWithoutDecimals(BigNumber.from(accountBalance), 9);
   }
 
+  async function getFarmList() {
+    let farmList = [];
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    let poolList = await masterChef.poolList();
+    for (let i = 0; i < poolList.length; i++) {
+      let pairPackageHash = encodeBase16(poolList[i].lpToken.value().data);
+      let pairContractHash = await getContractHashFromPackage(pairPackageHash);
+      let pairClient = new SwapperyPairClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+      await pairClient.setContractHash(pairContractHash!);
+      let tokens: Token[] = [];
+      try {
+        let tokensAddress = await pairClient.getTokens();
+        for (let j = 0; j < tokensAddress.length; j++) {
+          tokens.push(getTokenFromAddress(encodeBase16(tokensAddress[j]), SUPPORTED_TOKENS[ChainName.TESTNET])!);
+        }
+      } catch (error) {
+      }
+      let lpToken: LpToken = {
+        contractHash: pairContractHash!,
+        contractPackageHash: pairPackageHash,
+        tokens: tokens,
+        decimals: await pairClient.decimals(),
+      }
+      
+      let farm: FarmInfo = {
+        lpToken: lpToken,
+        allocPoint: poolList[i].allocPoint,
+        lastRewardBlockTime: poolList[i].lastRewardBlockTime,
+        accCakePerShare: poolList[i].accCakePerShare,
+        liquidity: await pairClient.getBallanceOfContract(new CLKey(CLValueBuilder.byteArray(decodeBase16(MASTER_CHEF_CONTRACT_PACKAGE_HASH))))
+      }
+      farmList.push(farm);
+    }
+    return farmList;
+  }
+
+  async function getContractHashFromPackage(packageHash: string) {
+    const client = new CasperServiceByJsonRPC(NODE_ADDRESS);
+        const { block } = await client.getLatestBlockInfo();
+
+    if (block) {
+      const stateRootHash = block.header.state_root_hash;
+      const blockState = await client.getBlockState(
+        stateRootHash,
+        `hash-${packageHash}`,
+        []
+      );
+      let contractHash =
+        blockState.ContractPackage?.versions[
+          blockState.ContractPackage.versions.length - 1
+        ].contractHash.slice(9)!;
+      return contractHash;
+    }
+  }
+  
+  async function getUserInfo(publicKey: CLPublicKey, farms: FarmInfo[]) {
+    let userData = [];
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    for (let i = 0; i < farms.length; i++) {
+      let currentTime = Number((new Date().getTime() / 1000).toFixed());
+      let userInfo = await masterChef.getUserInfo(CLValueBuilder.key(CLValueBuilder.byteArray(decodeBase16(farms[i].lpToken.contractPackageHash))), publicKey);
+      let acc = BigNumber.from(farms[i].accCakePerShare);
+      if (currentTime > farms[i].lastRewardBlockTime && !BigNumber.from(farms[i].liquidity).eq(0)) {
+        let cakePerBlock = BigNumber.from(await masterChef.cakePerBlock());
+        let totalAllocPoint = BigNumber.from(await masterChef.totalAllocPoint());
+        let multiplier = BigNumber.from(await masterChef.bonusMultiplier());
+        multiplier = multiplier.mul(currentTime - Number(farms[i].lastRewardBlockTime));
+        
+        let cakeReward = multiplier.mul(cakePerBlock).mul(farms[i].allocPoint).div(totalAllocPoint);
+        acc = acc.add(cakeReward.mul(1e12).div(farms[i].liquidity));
+      }
+      let pendingCake: BigNumberish = BigNumber.from(userInfo.amount).mul(acc).div(10 ** 12).sub(userInfo.rewardDebt);
+      let data: FarmUserInfo = { amount: userInfo.amount, rewardDebt: userInfo.rewardDebt, pendingCake: pendingCake };
+      userData.push(data);
+    }
+    return userData;
+  }
+
+  async function deposit(farm: FarmInfo, amount: BigNumberish) {
+    if (!isConnected) return;
+    setPending(true);
+    let txHash;
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    try {
+      txHash = await masterChef.deposit(CLPublicKey.fromHex(activeAddress), farm, amount, TRANSFER_FEE);
+    } catch (err) {
+      setPending(false);
+      return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setPending(false);
+      toast.success("Deposit");
+      return txHash;
+    } catch (error) {
+      setPending(false);
+      return txHash;
+    }
+  }
+
+  async function withdraw(farm: FarmInfo, amount: BigNumberish) {
+    if (!isConnected) return;
+    setPending(true);
+    let txHash;
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    try {
+      txHash = await masterChef.withdraw(CLPublicKey.fromHex(activeAddress), farm, amount, TRANSFER_FEE);
+    } catch (err) {
+      setPending(false);
+      return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setPending(false);
+      toast.success("Withdraw");
+      return txHash;
+    } catch (error) {
+      setPending(false);
+      return txHash;
+    }
+  }
+
+  async function harvest(farm: FarmInfo) {
+    if (!isConnected) return;
+    setPending(true);
+    let txHash;
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    try {
+      txHash = await masterChef.withdraw(CLPublicKey.fromHex(activeAddress), farm, 0, TRANSFER_FEE);
+    } catch (err) {
+      setPending(false);
+      return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setPending(false);
+      toast.success("Harvest");
+      return txHash;
+    } catch (error) {
+      setPending(false);
+      return txHash;
+    }
+  }
+
   useEffect(() => {
     initialize();
     activate(false);
@@ -498,6 +679,11 @@ export default function useCasperWeb3Provider() {
     swapExactOut,
     getSwapperyPrice,
     getCSPRBalance,
+    getFarmList,
+    getUserInfo,
+    deposit,
+    withdraw,
+    harvest,
   };
 }
 

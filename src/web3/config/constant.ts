@@ -23,5 +23,11 @@ export const ROUTER_CONTRACT_HASH =
 export const ROUTER_CONTRACT_PACKAGE_HASH =
   "40e52abd5dc4069be51af7496d5aa2b9a2b7b82e739f0bad9c6ca8c5a570dd8e";
 
+export const MASTER_CHEF_CONTRACT_HASH = "3af86927ea23b4a52fd0e35ed06d96e0c424eaf288c182bd64ac282e067be6f5";
+
+export const MASTER_CHEF_CONTRACT_PACKAGE_HASH = "def08d69e938ae451f3df29b1bc67988ccaaed5fe150f6c0b503adde7d0411da";
+
 export const TRANSFER_FEE = 10 * 10 ** 9;
 export const INSTALL_FEE = 3 * 10 ** 9;
+
+export const CONTRACT_PACKAGE_PREFIX = "contract-package-wasm";

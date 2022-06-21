@@ -22,6 +22,7 @@ import {
   CHAIN_NAME,
   NODE_ADDRESS,
   ROUTER_CONTRACT_HASH,
+  ROUTER_CONTRACT_PACKAGE_HASH,
 } from "../../web3/config/constant";
 import { SwapperyRouterClient } from "../../web3/clients/swappery-router-client";
 import { CasperServiceByJsonRPC, CLPublicKey } from "casper-js-sdk";
@@ -85,7 +86,9 @@ export default function AddLiquidity() {
       if (!isConnected || !currencyA) return;
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(currencyA.address)),
-        allowance: BigNumber.from(await allowanceOf(currencyA.address)),
+        allowance: BigNumber.from(
+          await allowanceOf(currencyA.address, ROUTER_CONTRACT_PACKAGE_HASH)
+        ),
         amount: currencyAAmounts ? currencyAAmounts.amount : BigNumber.from(0),
         limit: currencyAAmounts ? currencyAAmounts.limit : BigNumber.from(0),
       };
@@ -99,7 +102,9 @@ export default function AddLiquidity() {
       if (!isConnected || !currencyB) return;
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(currencyB.address)),
-        allowance: BigNumber.from(await allowanceOf(currencyB.address)),
+        allowance: BigNumber.from(
+          await allowanceOf(currencyB.address, ROUTER_CONTRACT_PACKAGE_HASH)
+        ),
         amount: currencyBAmounts ? currencyBAmounts.amount : BigNumber.from(0),
         limit: currencyBAmounts ? currencyBAmounts.limit : BigNumber.from(0),
       };
@@ -166,7 +171,9 @@ export default function AddLiquidity() {
             totalSupply: BigNumber.from(await pairClient.totalSupply()),
             reserves: reserves,
             balance: BigNumber.from(await balanceOf(pairContractHash)),
-            allowance: BigNumber.from(await allowanceOf(pairContractHash)),
+            allowance: BigNumber.from(
+              await allowanceOf(pairContractHash, ROUTER_CONTRACT_PACKAGE_HASH)
+            ),
           };
           setCurrentPool(pool);
           setPool(activeAddress, pool);
