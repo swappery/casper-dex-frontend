@@ -34,7 +34,6 @@ import { amountWithoutDecimals, getDeploy, getTokenFromAddress } from "../utils/
 import { Token } from "../config/interface/token";
 import { toast } from "react-toastify";
 import { testnetTokens } from "../config/constants/tokens";
-import useAction from "../store/useAction";
 import { MasterChefClient } from "./clients/master-chef-client";
 import { SUPPORTED_TOKENS } from "../config/constants";
 import { ChainName } from "../config/constants/chainName";
@@ -44,7 +43,6 @@ export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
 
   const { addAccount } = useWalletStatus();
-  const {setPending, actionType} = useAction();
 
   async function activate(requireConnection = true): Promise<void> {
     try {
@@ -143,7 +141,7 @@ export default function useCasperWeb3Provider() {
     return balance;
   }
 
-  async function approve(amount: BigNumberish, address: string, spender: string) {
+  async function approve(amount: BigNumberish, address: string, spender: string, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     let txHash = "";
     setPending(true);
@@ -172,7 +170,7 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function wrapCspr(amount: BigNumberish) {
+  async function wrapCspr(amount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     let txHash = "";
     setPending(true);
@@ -257,7 +255,7 @@ export default function useCasperWeb3Provider() {
     inputCurrency: Token,
     inputCurrencyAmount: BigNumberish,
     outputCurrency: Token,
-    outputCurrencyAmount: BigNumberish
+    outputCurrencyAmount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>
   ) {
     if (!isConnected) return;
     setPending(true);
@@ -298,7 +296,7 @@ export default function useCasperWeb3Provider() {
     publicKey: CLPublicKey,
     inputCurrencyAddress: string,
     outputCurrencyAddress: string,
-    liquidityAmount: BigNumberish
+    liquidityAmount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>
   ) {
     if (!isConnected) return;
     setPending(true);
@@ -339,7 +337,7 @@ export default function useCasperWeb3Provider() {
     inputCurrency: Token,
     outputCurrency: Token,
     inputCurrencyAmount: BigNumberish,
-    outputCurrencyLimit: BigNumberish
+    outputCurrencyLimit: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>
   ) {
     if (!isConnected) return;
     setPending(true);
@@ -379,7 +377,7 @@ export default function useCasperWeb3Provider() {
     inputCurrency: Token,
     outputCurrency: Token,
     inputCurrencyLimit: BigNumberish,
-    outputCurrencyAmount: BigNumberish
+    outputCurrencyAmount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>
   ) {
     if (!isConnected) return;
     setPending(true);
@@ -579,7 +577,7 @@ export default function useCasperWeb3Provider() {
     return userData;
   }
 
-  async function deposit(farm: FarmInfo, amount: BigNumberish) {
+  async function deposit(farm: FarmInfo, amount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     setPending(true);
     let txHash;
@@ -606,7 +604,7 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function withdraw(farm: FarmInfo, amount: BigNumberish) {
+  async function withdraw(farm: FarmInfo, amount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     setPending(true);
     let txHash;
@@ -633,7 +631,7 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function enterStaking(amount: BigNumberish) {
+  async function enterStaking(amount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     setPending(true);
     let txHash;
@@ -660,7 +658,7 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function leaveStaking(amount: BigNumberish) {
+  async function leaveStaking(amount: BigNumberish, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     setPending(true);
     let txHash;
@@ -687,7 +685,7 @@ export default function useCasperWeb3Provider() {
     }
   }
 
-  async function harvest(farm: FarmInfo) {
+  async function harvest(farm: FarmInfo, setPending: React.Dispatch<React.SetStateAction<boolean>>) {
     if (!isConnected) return;
     setPending(true);
     let txHash;
@@ -718,10 +716,6 @@ export default function useCasperWeb3Provider() {
     initialize();
     activate(false);
   }, []);
-
-  useEffect(() => {
-    setPending(false);
-  }, [actionType]);
 
   return {
     activate,

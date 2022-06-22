@@ -35,6 +35,7 @@ import useWalletStatus from "../../store/useWalletStatus";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
+import { parseFixed } from "@ethersproject/bignumber";
 
 export default function RemoveLiquidity() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
@@ -43,6 +44,7 @@ export default function RemoveLiquidity() {
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
+  const [isPending, setPending] = useState<boolean>(false);
   const [layout, setLayout] = useState<boolean>(false);
   const [sliderValue, setSliderValue] = useState<number>(0);
 
@@ -67,13 +69,8 @@ export default function RemoveLiquidity() {
   } = useCasperWeb3Provider();
   const { setPool } = useWalletStatus();
   const { isConnected, activeAddress } = useNetworkStatus();
-  const {
-    actionType,
-    actionStatus,
-    isPending,
-    setActionType,
-    setActionStatus,
-  } = useAction();
+  const { actionType, actionStatus, setActionType, setActionStatus } =
+    useAction();
   const {
     currencyA,
     currencyB,
@@ -273,14 +270,16 @@ export default function RemoveLiquidity() {
         await approve(
           liquidityAmount,
           currentPool.contractHash,
-          ROUTER_CONTRACT_PACKAGE_HASH
+          ROUTER_CONTRACT_PACKAGE_HASH,
+          setPending
         );
       } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
         await removeLiquidity(
           CLPublicKey.fromHex(activeAddress),
           currencyA.address,
           currencyB.address,
-          liquidityAmount
+          liquidityAmount,
+          setPending
         );
       }
   };
@@ -494,20 +493,17 @@ export default function RemoveLiquidity() {
                       onKeyDown={() => {
                         setInputField(InputField.INPUT_LIQUIDITY);
                       }}
+                      maxLength={20}
                       onValueChange={async (values) => {
                         const { value } = values;
                         const amount = parseFloat(value) || 0;
                         setLiquidityAmount(
-                          BigNumber.from(
-                            (currentPool
-                              ? amount *
-                                10 **
-                                  BigNumber.from(
-                                    currentPool.decimals
-                                  ).toNumber()
-                              : 0
-                            ).toFixed()
-                          )
+                          currentPool
+                            ? parseFixed(
+                                amount.toFixed(currentPool.decimals.toNumber()),
+                                currentPool.decimals
+                              )
+                            : BigNumber.from(0)
                         );
                       }}
                     />
@@ -558,16 +554,17 @@ export default function RemoveLiquidity() {
                       onKeyDown={() => {
                         setInputField(InputField.INPUT_A);
                       }}
+                      maxLength={20}
                       onValueChange={async (values) => {
                         const { value } = values;
                         const amount = parseFloat(value) || 0;
                         setCurrencyAAmount(
-                          BigNumber.from(
-                            (currencyA
-                              ? amount * 10 ** currencyA.decimals
-                              : 0
-                            ).toFixed()
-                          )
+                          currencyA
+                            ? parseFixed(
+                                amount.toFixed(currencyA.decimals),
+                                currencyA.decimals
+                              )
+                            : BigNumber.from(0)
                         );
                       }}
                     />
@@ -611,16 +608,17 @@ export default function RemoveLiquidity() {
                       onKeyDown={() => {
                         setInputField(InputField.INPUT_B);
                       }}
+                      maxLength={20}
                       onValueChange={async (values) => {
                         const { value } = values;
                         const amount = parseFloat(value) || 0;
                         setCurrencyBAmount(
-                          BigNumber.from(
-                            (currencyB
-                              ? amount * 10 ** currencyB.decimals
-                              : 0
-                            ).toFixed()
-                          )
+                          currencyB
+                            ? parseFixed(
+                                amount.toFixed(currencyB.decimals),
+                                currencyB.decimals
+                              )
+                            : BigNumber.from(0)
                         );
                       }}
                     />

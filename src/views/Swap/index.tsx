@@ -34,6 +34,7 @@ import SwitchButton from "../../components/Button/switchButton";
 import QuestionHelper from "../../components/QuestionHelper";
 import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
 import { ROUTER_CONTRACT_PACKAGE_HASH } from "../../web3/config/constant";
+import { parseFixed, formatFixed } from "@ethersproject/bignumber";
 
 export default function Swap() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
@@ -42,6 +43,7 @@ export default function Swap() {
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
+  const [isPending, setPending] = useState<boolean>(false);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -63,13 +65,8 @@ export default function Swap() {
     setFetching,
   } = useSwap();
   const { isConnected, activeAddress } = useNetworkStatus();
-  const {
-    actionType,
-    actionStatus,
-    isPending,
-    setActionType,
-    setActionStatus,
-  } = useAction();
+  const { actionType, actionStatus, setActionType, setActionStatus } =
+    useAction();
   const { slippageTolerance } = useSetting();
   const {
     activate,
@@ -250,13 +247,15 @@ export default function Swap() {
       setShowConnectModal(true);
     else if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
       await wrapCspr(
-        inputCurrencyAmounts.amount.sub(inputCurrencyAmounts.balance)
+        inputCurrencyAmounts.amount.sub(inputCurrencyAmounts.balance),
+        setPending
       );
     } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
       await approve(
         inputCurrencyAmounts.amount,
         inputCurrency.address,
-        ROUTER_CONTRACT_PACKAGE_HASH
+        ROUTER_CONTRACT_PACKAGE_HASH,
+        setPending
       );
     } else if (
       actionStatus === ActionStatus.REQ_EXECUTE_ACTION &&
@@ -267,7 +266,8 @@ export default function Swap() {
         inputCurrency,
         outputCurrency,
         inputCurrencyAmounts.amount,
-        outputCurrencyAmounts.limit
+        outputCurrencyAmounts.limit,
+        setPending
       );
     } else if (
       actionStatus === ActionStatus.REQ_EXECUTE_ACTION &&
@@ -278,7 +278,8 @@ export default function Swap() {
         inputCurrency,
         outputCurrency,
         inputCurrencyAmounts.limit,
-        outputCurrencyAmounts.amount
+        outputCurrencyAmounts.amount,
+        setPending
       );
     }
   };
@@ -293,6 +294,27 @@ export default function Swap() {
     setInputCurrencyAmounts(outputCurrencyAmounts);
     setOutputCurrencyAmounts(tempAmount);
     setReserves(reverseDoubleArray(reserves));
+  };
+
+  const handleClickMaxButton = () => {
+    setInputField(InputField.INPUT_A);
+    const percentage = (TOTAL_SHARE + slippageTolerance) / TOTAL_SHARE;
+    const newAmounts: TokenAmount = {
+      balance: inputCurrencyAmounts.balance,
+      allowance: inputCurrencyAmounts.allowance,
+      amount: inputCurrencyAmounts.balance,
+      limit: BigNumber.from(
+        (
+          amountWithoutDecimals(
+            inputCurrencyAmounts.balance,
+            inputCurrency.decimals
+          ) *
+          percentage ** reserves.length *
+          10 ** inputCurrency.decimals
+        ).toFixed()
+      ),
+    };
+    setInputCurrencyAmounts(newAmounts);
   };
 
   if (actionType !== ActionType.SWAP) {
@@ -370,55 +392,85 @@ export default function Swap() {
         </div>
         <div className="col-span-12 md:col-span-8 lg:col-start-5 lg:col-end-12 border bg-success">
           <div className="px-2 py-6 md:p-8 2xl:py-12 font-orator-std text-black">
-            <div className="flex justify-between items-center rounded-[45px] border border-neutral py-4 px-5 md:px-6">
-              <NumberFormat
-                value={inputValue}
-                className="md:h-fit max-w-[60%] xl:max-w-[65%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px]  disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isSpinning}
-                thousandSeparator={false}
-                onKeyDown={() => {
-                  setInputField(InputField.INPUT_A);
-                }}
-                onValueChange={async (values) => {
-                  const { value } = values;
-                  const amount = parseFloat(value) || 0;
-                  const percentage =
-                    (TOTAL_SHARE + slippageTolerance) / TOTAL_SHARE;
-                  const newAmounts: TokenAmount = {
-                    balance: inputCurrencyAmounts.balance,
-                    allowance: inputCurrencyAmounts.allowance,
-                    amount: BigNumber.from(
-                      (amount * 10 ** inputCurrency.decimals).toFixed()
-                    ),
-                    limit: BigNumber.from(
-                      (
-                        amount *
-                        percentage ** reserves.length *
-                        10 ** inputCurrency.decimals
-                      ).toFixed()
-                    ),
-                  };
-                  setInputCurrencyAmounts(newAmounts);
-                }}
-              />
-              <div className="flex items-center md:gap-2">
-                <button
-                  className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => {
-                    setShowInputModal(true);
-                  }}
-                  disabled={isSpinning}
-                >
-                  <span className="text-[14px] md:text-[19px]">
-                    {inputCurrency.symbol}
-                  </span>
-                  <ChevronIcon />
-                </button>
-                <img
-                  src={inputCurrency.logo}
-                  className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
-                  alt="CSPR Token"
-                />
+            <div className="flex flex-col rounded-[45px] border border-neutral pt-4 pb-1 px-5 md:px-6">
+              <div className="flex justify-between items-center">
+                <div className="flex md:h-fit max-w-[60%] xl:max-w-[65%] w-full">
+                  <div
+                    className={`flex w-full justify-between bg-lightblue rounded-[30px] ${
+                      isSpinning ? "opacity-50" : "opacity-100"
+                    }`}
+                  >
+                    <NumberFormat
+                      value={inputValue}
+                      className="md:h-fit max-w-[70%] xl:max-w-[90%] w-full focus:outline-none py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[22px] disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={isSpinning}
+                      thousandSeparator={false}
+                      onKeyDown={() => {
+                        setInputField(InputField.INPUT_A);
+                      }}
+                      maxLength={20}
+                      onValueChange={async (values) => {
+                        const { value } = values;
+                        const amount = parseFloat(value) || 0;
+                        const percentage =
+                          (TOTAL_SHARE + slippageTolerance) / TOTAL_SHARE;
+                        const newAmounts: TokenAmount = {
+                          balance: inputCurrencyAmounts.balance,
+                          allowance: inputCurrencyAmounts.allowance,
+                          amount: parseFixed(
+                            amount.toFixed(inputCurrency.decimals),
+                            inputCurrency.decimals
+                          ),
+                          limit: parseFixed(
+                            (amount * percentage ** reserves.length).toFixed(
+                              inputCurrency.decimals
+                            ),
+                            inputCurrency.decimals
+                          ),
+                        };
+                        setInputCurrencyAmounts(newAmounts);
+                      }}
+                    />
+                    <button
+                      onClick={handleClickMaxButton}
+                      className="hover:opacity-80 outline-none bg-transparent rounded-2xl px-5 py-1 disabled:cursor-not-allowed"
+                      disabled={isSpinning}
+                    >
+                      MAX
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center md:gap-2">
+                  <button
+                    className="hover:opacity-80 cursor-pointer md:h-fit flex gap-2 items-center py-[6px] px-3 bg-lightblue rounded-[20px] disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => {
+                      setShowInputModal(true);
+                    }}
+                    disabled={isSpinning}
+                  >
+                    <span className="text-[14px] md:text-[19px]">
+                      {inputCurrency.symbol}
+                    </span>
+                    <ChevronIcon />
+                  </button>
+                  <img
+                    src={inputCurrency.logo}
+                    className="w-[30px] h-[30px] md:w-[50px] md:h-[50px]"
+                    alt="CSPR Token"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-start text-[8px] md:text-[12px] px-3">
+                <span>
+                  Balance:{" "}
+                  {formatFixed(
+                    inputCurrencyAmounts.balance,
+                    inputCurrency.decimals
+                  )}{" "}
+                  {inputCurrency.symbol}
+                </span>
               </div>
             </div>
             <div className="flex justify-center">
@@ -437,6 +489,7 @@ export default function Swap() {
                 onKeyDown={() => {
                   setInputField(InputField.INPUT_B);
                 }}
+                maxLength={20}
                 onValueChange={async (values) => {
                   const { value } = values;
                   const amount = parseFloat(value) || 0;
@@ -445,15 +498,15 @@ export default function Swap() {
                   const newAmounts: TokenAmount = {
                     balance: outputCurrencyAmounts.balance,
                     allowance: outputCurrencyAmounts.allowance,
-                    amount: BigNumber.from(
-                      (amount * 10 ** outputCurrency.decimals).toFixed()
+                    amount: parseFixed(
+                      amount.toFixed(outputCurrency.decimals),
+                      outputCurrency.decimals
                     ),
-                    limit: BigNumber.from(
-                      (
-                        amount *
-                        percentage ** reserves.length *
-                        10 ** outputCurrency.decimals
-                      ).toFixed()
+                    limit: parseFixed(
+                      (amount * percentage ** reserves.length).toFixed(
+                        outputCurrency.decimals
+                      ),
+                      outputCurrency.decimals
                     ),
                   };
                   setOutputCurrencyAmounts(newAmounts);

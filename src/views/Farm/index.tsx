@@ -4,19 +4,19 @@ import useSetting from "../../store/useSetting";
 import StakingBox from "./components/StakingBox";
 import logo from "../../assets/images/farm/farm-logo-huge.png";
 import logoWhite from "../../assets/images/farm/farm-logo-white-huge.png";
-import useMasterChefStatus from "../../store/useMasterChef";
+import useMasterChefStatus, { FarmUserInfo } from "../../store/useMasterChef";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 import SkeletonBox from "../../components/SkeletonBox";
-import useAction from "../../store/useAction";
+import { BigNumber } from "ethers";
 
 export default function Farm() {
+  const [isPending, setPending] = useState<boolean>(false);
   const { getFarmList, getUserInfo } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { theme } = useSetting();
-  const { isPending } = useAction();
 
   const {
     farmList,
@@ -30,22 +30,33 @@ export default function Farm() {
   const handleUpdateFarms = useCallback(async () => {
     let farmList = await getFarmList();
     setFarmList(farmList);
-    let userInfo = await getUserInfo(
-      CLPublicKey.fromHex(activeAddress),
-      farmList
-    );
-    setUserData(userInfo);
-  }, [activeAddress]);
+    if (isConnected) {
+      let userInfo = await getUserInfo(
+        CLPublicKey.fromHex(activeAddress),
+        farmList
+      );
+      setUserData(userInfo);
+    } else {
+      let userData: FarmUserInfo[] = [];
+      farmList.forEach((element) => {
+        userData.push({
+          amount: BigNumber.from(0),
+          pendingCake: BigNumber.from(0),
+          rewardDebt: BigNumber.from(0),
+        });
+      });
+      setUserData(userData);
+    }
+  }, [activeAddress, isConnected]);
 
   useEffect(() => {
     async function handleFetch() {
-      if (!isConnected) return;
-      setFetching(true);
+      if (farmList.length === 0) setFetching(true);
       await handleUpdateFarms();
       setFetching(false);
     }
     handleFetch();
-  }, [activeAddress, isConnected]);
+  }, [activeAddress]);
 
   useEffect(() => {
     async function handleFetch() {
@@ -79,13 +90,14 @@ export default function Farm() {
               </div>
             </>
           ) : (
-            farmList.map((farm, index) => {
+            userData.map((user, index) => {
               return (
                 <StakingBox
-                  farm={farm}
-                  userInfo={userData[index]}
+                  farm={farmList[index]}
+                  userInfo={user}
                   index={index}
-                  key={farm.lpToken.contractHash}
+                  key={farmList[index].lpToken.contractHash}
+                  setState={setPending}
                 />
               );
             })

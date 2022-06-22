@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
 import { FarmInfo } from "../../store/useMasterChef";
-import useAction from "../../store/useAction";
 import { MASTER_CHEF_CONTRACT_PACKAGE_HASH } from "../../web3/config/constant";
 import { formatFixed } from "@ethersproject/bignumber";
 
@@ -21,6 +20,7 @@ interface StakingModalProps {
   farm: FarmInfo;
   show: boolean;
   setShow: (show: boolean) => void;
+  setState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default function StakingModal({
@@ -31,6 +31,7 @@ export default function StakingModal({
   farm,
   show,
   setShow,
+  setState,
 }: StakingModalProps) {
   const [actionDisabled, setActionDisabled] = useState<boolean>(true);
   const [actionText, setActionText] = useState<string>("");
@@ -39,7 +40,7 @@ export default function StakingModal({
   const { isConnected } = useNetworkStatus();
   const { activate, deposit, withdraw, approve, enterStaking, leaveStaking } =
     useCasperWeb3Provider();
-  const { isPending } = useAction();
+  const [isPending, setPending] = useState<boolean>(false);
 
   useEffect(() => {
     setSliderValue(
@@ -47,7 +48,11 @@ export default function StakingModal({
         ? 0
         : amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
     );
-  }, []);
+  }, [balance, currentAmount]);
+
+  useEffect(() => {
+    setState(isPending);
+  }, [isPending]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSliderValue(parseFloat(event.target.value));
@@ -87,6 +92,7 @@ export default function StakingModal({
                 ).toFixed()
               )
             )
+      // parseFixed(sliderValue.toString(), HIDDEN_LENGTH)
     );
   }, [sliderValue]);
 
@@ -124,16 +130,17 @@ export default function StakingModal({
       approve(
         amount.sub(currentAmount),
         farm.lpToken.contractHash,
-        MASTER_CHEF_CONTRACT_PACKAGE_HASH
+        MASTER_CHEF_CONTRACT_PACKAGE_HASH,
+        setPending
       );
     else if (actionText === "Deposit") {
       if (farm.lpToken.tokens.length === 0)
-        enterStaking(amount.sub(currentAmount));
-      else deposit(farm, amount.sub(currentAmount));
+        enterStaking(amount.sub(currentAmount), setPending);
+      else deposit(farm, amount.sub(currentAmount), setPending);
     } else if (actionText === "Withdraw")
       if (farm.lpToken.tokens.length === 0)
-        leaveStaking(amount.sub(currentAmount));
-      else withdraw(farm, currentAmount.sub(amount));
+        leaveStaking(amount.sub(currentAmount), setPending);
+      else withdraw(farm, currentAmount.sub(amount), setPending);
   };
 
   return (

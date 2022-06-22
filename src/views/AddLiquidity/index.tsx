@@ -35,6 +35,7 @@ import { TokenAmount } from "../../config/interface/tokenAmounts";
 import CurrencySearchModal from "../../components/SearchModal/CurrencySearchModal";
 import { ActionStatus } from "../../config/interface/actionStatus";
 import ConnectModal from "../../components/SelectWalletModal/SelectWalletModal";
+import { parseFixed } from "@ethersproject/bignumber";
 
 export default function AddLiquidity() {
   const [showInputModal, setShowInputModal] = useState<boolean>(false);
@@ -43,6 +44,7 @@ export default function AddLiquidity() {
   const [text, setText] = useState<string>("");
   const [isDisabled, setDisabled] = useState<boolean>(false);
   const [isSpinning, setSpinning] = useState<boolean>(false);
+  const [isPending, setPending] = useState<boolean>(false);
   const { theme } = useSetting();
   const {
     activate,
@@ -54,13 +56,8 @@ export default function AddLiquidity() {
     addLiquidity,
   } = useCasperWeb3Provider();
   const { setPool } = useWalletStatus();
-  const {
-    actionType,
-    actionStatus,
-    isPending,
-    setActionType,
-    setActionStatus,
-  } = useAction();
+  const { actionType, actionStatus, setActionType, setActionStatus } =
+    useAction();
   const [searchParams] = useSearchParams();
   const { isConnected, activeAddress } = useNetworkStatus();
   const {
@@ -326,20 +323,28 @@ export default function AddLiquidity() {
       setShowConnectModal(true);
     else if (currencyA && currencyB && currencyAAmounts && currencyBAmounts)
       if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
-        await wrapCspr(currencyAAmounts.amount.sub(currencyAAmounts.balance));
+        await wrapCspr(
+          currencyAAmounts.amount.sub(currencyAAmounts.balance),
+          setPending
+        );
       } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
         await approve(
           currencyAAmounts.amount,
           currencyA.address,
-          ROUTER_CONTRACT_PACKAGE_HASH
+          ROUTER_CONTRACT_PACKAGE_HASH,
+          setPending
         );
       } else if (actionStatus === ActionStatus.REQ_WRAP_OUTPUT_CURRENCY) {
-        await wrapCspr(currencyBAmounts.amount.sub(currencyBAmounts.balance));
+        await wrapCspr(
+          currencyBAmounts.amount.sub(currencyBAmounts.balance),
+          setPending
+        );
       } else if (actionStatus === ActionStatus.REQ_APPROVE_OUTPUT_CURRENCY) {
         await approve(
           currencyBAmounts.amount,
           currencyB.address,
-          ROUTER_CONTRACT_PACKAGE_HASH
+          ROUTER_CONTRACT_PACKAGE_HASH,
+          setPending
         );
       } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
         await addLiquidity(
@@ -347,7 +352,8 @@ export default function AddLiquidity() {
           currencyA,
           currencyAAmounts.amount,
           currencyB,
-          currencyBAmounts.amount
+          currencyBAmounts.amount,
+          setPending
         );
       }
   };
@@ -448,6 +454,7 @@ export default function AddLiquidity() {
                   onKeyDown={() => {
                     setInputField(InputField.INPUT_A);
                   }}
+                  maxLength={20}
                   isAllowed={withALimit}
                   onValueChange={async (values) => {
                     const { value } = values;
@@ -456,11 +463,13 @@ export default function AddLiquidity() {
                       const newAmounts: TokenAmount = {
                         balance: currencyAAmounts.balance,
                         allowance: currencyAAmounts.allowance,
-                        amount: BigNumber.from(
-                          (amount * 10 ** currencyA.decimals).toFixed()
+                        amount: parseFixed(
+                          amount.toFixed(currencyA.decimals),
+                          currencyA.decimals
                         ),
-                        limit: BigNumber.from(
-                          (amount * 10 ** currencyA.decimals).toFixed()
+                        limit: parseFixed(
+                          amount.toFixed(currencyA.decimals),
+                          currencyA.decimals
                         ),
                       };
                       setCurrencyAAmounts(newAmounts);
@@ -505,6 +514,7 @@ export default function AddLiquidity() {
                   onKeyDown={() => {
                     setInputField(InputField.INPUT_B);
                   }}
+                  maxLength={20}
                   isAllowed={withBLimit}
                   onValueChange={async (values) => {
                     const { value } = values;
@@ -513,11 +523,13 @@ export default function AddLiquidity() {
                       const newAmounts: TokenAmount = {
                         balance: currencyBAmounts.balance,
                         allowance: currencyBAmounts.allowance,
-                        amount: BigNumber.from(
-                          (amount * 10 ** currencyB.decimals).toFixed()
+                        amount: parseFixed(
+                          amount.toFixed(currencyB.decimals),
+                          currencyB.decimals
                         ),
-                        limit: BigNumber.from(
-                          (amount * 10 ** currencyB.decimals).toFixed()
+                        limit: parseFixed(
+                          amount.toFixed(currencyB.decimals),
+                          currencyB.decimals
                         ),
                       };
                       setCurrencyBAmounts(newAmounts);

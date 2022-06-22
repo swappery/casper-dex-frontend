@@ -20,9 +20,11 @@ export default function Liquidity() {
   const accountList: AccountList = useMemo(() => {
     return deserialize(accountListString);
   }, [accountListString]);
+
   const poolMap = useMemo(() => {
     return accountList.get(activeAddress)?.poolList;
   }, [accountList, activeAddress]);
+
   if (actionType !== ActionType.VIEW_LIQUIDITY)
     setActionType(ActionType.VIEW_LIQUIDITY);
 

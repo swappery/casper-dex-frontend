@@ -7,7 +7,6 @@ import ConnectModal from "../../../components/SelectWalletModal/SelectWalletModa
 import StakingModal from "../../../components/StakingModal/StakingModal";
 import { testnetTokens } from "../../../config/constants/tokens";
 import { ActionStatus } from "../../../config/interface/actionStatus";
-import useAction from "../../../store/useAction";
 import { FarmInfo, FarmUserInfo } from "../../../store/useMasterChef";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
@@ -18,9 +17,16 @@ interface StakingBoxProps {
   farm: FarmInfo;
   userInfo: FarmUserInfo;
   index: number;
+  setState: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
-  const { isPending } = useAction();
+export default function StakingBox({
+  farm,
+  userInfo,
+  index,
+  setState,
+}: StakingBoxProps) {
+  const [isPending, setPending] = useState<boolean>(false);
+  const [isChildPending, setChildPending] = useState<boolean>(false);
   const [allowance, setAllowance] = useState<BigNumber>(BigNumber.from(0));
   const [balance, setBalance] = useState<BigNumber>(BigNumber.from(0));
   const { isConnected, activeAddress } = useNetworkStatus();
@@ -38,7 +44,11 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
 
   useEffect(() => {
     async function getBalance() {
-      if (!isConnected) return;
+      if (!isConnected) {
+        setBalance(BigNumber.from(0));
+        setAllowance(BigNumber.from(0));
+        return;
+      }
       setFetching(true);
       setBalance(BigNumber.from(await balanceOf(farm.lpToken.contractHash)));
       setAllowance(
@@ -53,6 +63,14 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
     }
     getBalance();
   }, [activeAddress, isPending]);
+
+  useEffect(() => {
+    setState(isPending);
+  }, [isPending]);
+
+  useEffect(() => {
+    setState(isChildPending);
+  }, [isChildPending]);
 
   useEffect(() => {
     if (!isConnected) setCurrentStatus(ActionStatus.REQ_CONNECT_WALLET);
@@ -99,8 +117,8 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
   }, [currentStatus]);
 
   const handleHarvest = () => {
-    if (!harvestDisabled) {
-      harvest(farm);
+    if (!harvestDisabled && !isPending) {
+      harvest(farm, setPending);
     }
   };
 
@@ -166,9 +184,9 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
           </p>
         </div>
         <ActionButton
-          text="Harvest"
+          text={isPending ? "Pending" : "Harvest"}
           isDisabled={harvestDisabled}
-          isSpinning={false}
+          isSpinning={isPending}
           handleClick={handleHarvest}
         />
         <ActionButton
@@ -186,6 +204,7 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
         currentAmount={BigNumber.from(userInfo.amount)}
         decimals={farm.lpToken.decimals.toNumber()}
         farm={farm}
+        setState={setChildPending}
       ></StakingModal>
       <ConnectModal
         show={showConnectModal}

@@ -2,7 +2,7 @@ import { CLErrorCodes, CLType, CLTypeTag, CLU32BytesParser, CLValue, CLValueByte
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { MaxUint256, NegativeOne, One, Zero } from '@ethersproject/constants';
 import { arrayify, concat } from '@ethersproject/bytes';
-import { CLPoolInfo, CLPoolInfoBytesParser, CLPoolInfoType, PoolInfo } from "./pool_info";
+import { CLPoolInfo, CLPoolInfoBytesParser} from "./pool_info";
 import { Ok, Err } from 'ts-results';
 
 export const toBytesNumber = (bitSize: number, signed: boolean) => (
