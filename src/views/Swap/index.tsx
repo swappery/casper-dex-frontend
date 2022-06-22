@@ -462,7 +462,7 @@ export default function Swap() {
                 </div>
               </div>
 
-              <div className="flex justify-start text-[8px] md:text-[12px] px-3">
+              <div className="flex justify-start text-[8px] md:text-[12px] px-3 pt-1 text-neutral">
                 <span>
                   Balance:{" "}
                   {formatFixed(
