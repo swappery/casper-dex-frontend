@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Themes } from "../../config/constants/themes";
 import useSetting from "../../store/useSetting";
 import StakingBox from "./components/StakingBox";
@@ -5,16 +6,17 @@ import logo from "../../assets/images/farm/farm-logo-huge.png";
 import logoWhite from "../../assets/images/farm/farm-logo-white-huge.png";
 import useMasterChefStatus from "../../store/useMasterChef";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
-import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import SkeletonBox from "../../components/SkeletonBox";
+import useAction from "../../store/useAction";
 
 export default function Farm() {
   const { getFarmList, getUserInfo } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
   const { theme } = useSetting();
+  const { isPending } = useAction();
 
   const {
     farmList,
@@ -25,22 +27,33 @@ export default function Farm() {
     setFetching,
   } = useMasterChefStatus();
 
+  const handleUpdateFarms = useCallback(async () => {
+    let farmList = await getFarmList();
+    setFarmList(farmList);
+    let userInfo = await getUserInfo(
+      CLPublicKey.fromHex(activeAddress),
+      farmList
+    );
+    setUserData(userInfo);
+  }, [activeAddress]);
+
   useEffect(() => {
-    async function handleUpdateFarms() {
+    async function handleFetch() {
       if (!isConnected) return;
       setFetching(true);
-      let farmList = await getFarmList();
-      console.log(farmList);
-      setFarmList(farmList);
-      let userInfo = await getUserInfo(
-        CLPublicKey.fromHex(activeAddress),
-        farmList
-      );
-      setUserData(userInfo);
+      await handleUpdateFarms();
       setFetching(false);
     }
-    handleUpdateFarms();
-  }, [activeAddress]);
+    handleFetch();
+  }, [activeAddress, isConnected]);
+
+  useEffect(() => {
+    async function handleFetch() {
+      if (!isConnected) return;
+      await handleUpdateFarms();
+    }
+    handleFetch();
+  }, [isPending]);
 
   return (
     <div className="bg-accent overflow-hidden page-wrapper font-orator-std">
@@ -56,7 +69,7 @@ export default function Farm() {
       </div>
       <div className="2xl:container 2xl:mx-auto py-[30px] xl:py-[80px] px-[20px] md:px-[80px] lg:px-0">
         <div className="grid grid-cols-11">
-          {isFetching && (
+          {isFetching ? (
             <>
               <div className={"col-span-12 lg:col-start-2 lg:col-end-6"}>
                 <SkeletonBox />
@@ -65,18 +78,18 @@ export default function Farm() {
                 <SkeletonBox />
               </div>
             </>
-          )}
-          {!isFetching &&
+          ) : (
             farmList.map((farm, index) => {
               return (
                 <StakingBox
-                  farm={farmList[index]}
+                  farm={farm}
                   userInfo={userData[index]}
                   index={index}
-                  key={index}
+                  key={farm.lpToken.contractHash}
                 />
               );
-            })}
+            })
+          )}
         </div>
       </div>
     </div>

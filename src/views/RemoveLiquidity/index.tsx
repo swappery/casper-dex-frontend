@@ -270,7 +270,11 @@ export default function RemoveLiquidity() {
       setShowConnectModal(true);
     else if (currentPool && currencyA && currencyB)
       if (actionStatus === ActionStatus.REQ_APPROVE_LIQUIDITY) {
-        await approve(liquidityAmount, currentPool.contractHash);
+        await approve(
+          liquidityAmount,
+          currentPool.contractHash,
+          ROUTER_CONTRACT_PACKAGE_HASH
+        );
       } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
         await removeLiquidity(
           CLPublicKey.fromHex(activeAddress),

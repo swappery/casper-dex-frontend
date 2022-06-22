@@ -22,7 +22,7 @@ import {
   NODE_ADDRESS,
   RouterEvents,
   ROUTER_CONTRACT_HASH,
-  ROUTER_CONTRACT_PACKAGE_HASH,
+  SYRUP_TOKEN_CONTRACT_HASH,
   TRANSFER_FEE,
   WCSPR_CONTRACT_HASH,
 } from "./config/constant";
@@ -143,7 +143,7 @@ export default function useCasperWeb3Provider() {
     return balance;
   }
 
-  async function approve(amount: BigNumberish, address: string) {
+  async function approve(amount: BigNumberish, address: string, spender: string) {
     if (!isConnected) return;
     let txHash = "";
     setPending(true);
@@ -154,7 +154,7 @@ export default function useCasperWeb3Provider() {
       txHash = await erc20.approveWithSigner(
         clPK,
         amount,
-        CLValueBuilder.byteArray(decodeBase16(ROUTER_CONTRACT_PACKAGE_HASH)),
+        CLValueBuilder.byteArray(decodeBase16(spender)),
         TRANSFER_FEE
       );
     } catch (err) {
@@ -514,13 +514,18 @@ export default function useCasperWeb3Provider() {
         tokens: tokens,
         decimals: await pairClient.decimals(),
       }
-      
+      let syrupClient = new ERC20SignerClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+      await syrupClient.setContractHash(SYRUP_TOKEN_CONTRACT_HASH);
       let farm: FarmInfo = {
         lpToken: lpToken,
         allocPoint: poolList[i].allocPoint,
         lastRewardBlockTime: poolList[i].lastRewardBlockTime,
         accCakePerShare: poolList[i].accCakePerShare,
-        liquidity: await pairClient.getBallanceOfContract(new CLKey(CLValueBuilder.byteArray(decodeBase16(MASTER_CHEF_CONTRACT_PACKAGE_HASH))))
+        liquidity: tokens.length===0?BigNumber.from(await syrupClient.totalSupply()): await pairClient.getBallanceOfContract(new CLKey(CLValueBuilder.byteArray(decodeBase16(MASTER_CHEF_CONTRACT_PACKAGE_HASH))))
       }
       farmList.push(farm);
     }
@@ -628,6 +633,60 @@ export default function useCasperWeb3Provider() {
     }
   }
 
+  async function enterStaking(amount: BigNumberish) {
+    if (!isConnected) return;
+    setPending(true);
+    let txHash;
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    try {
+      txHash = await masterChef.enterStaking(CLPublicKey.fromHex(activeAddress), amount, TRANSFER_FEE);
+    } catch (err) {
+      setPending(false);
+      return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setPending(false);
+      toast.success("Deposit");
+      return txHash;
+    } catch (error) {
+      setPending(false);
+      return txHash;
+    }
+  }
+
+  async function leaveStaking(amount: BigNumberish) {
+    if (!isConnected) return;
+    setPending(true);
+    let txHash;
+    let masterChef = new MasterChefClient(
+        NODE_ADDRESS,
+        CHAIN_NAME,
+        undefined
+      );
+    await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
+    try {
+      txHash = await masterChef.leaveStaking(CLPublicKey.fromHex(activeAddress), amount, TRANSFER_FEE);
+    } catch (err) {
+      setPending(false);
+      return;
+    }
+    try {
+      await getDeploy(NODE_ADDRESS, txHash!);
+      setPending(false);
+      toast.success("Withdraw");
+      return txHash;
+    } catch (error) {
+      setPending(false);
+      return txHash;
+    }
+  }
+
   async function harvest(farm: FarmInfo) {
     if (!isConnected) return;
     setPending(true);
@@ -639,7 +698,7 @@ export default function useCasperWeb3Provider() {
       );
     await masterChef.setContractHash(MASTER_CHEF_CONTRACT_HASH);
     try {
-      txHash = await masterChef.withdraw(CLPublicKey.fromHex(activeAddress), farm, 0, TRANSFER_FEE);
+      txHash = await masterChef.harvest(CLPublicKey.fromHex(activeAddress), farm, TRANSFER_FEE);
     } catch (err) {
       setPending(false);
       return;
@@ -683,6 +742,8 @@ export default function useCasperWeb3Provider() {
     getUserInfo,
     deposit,
     withdraw,
+    enterStaking,
+    leaveStaking,
     harvest,
   };
 }

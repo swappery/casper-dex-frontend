@@ -24,7 +24,6 @@ export default function WalletModal({
   setShow,
   handleDisconnect,
 }: WalletModalProps) {
-  setShow(!!activeAddress && activeAddress !== "" && show);
   const [isCopied, setCopied] = useClipboard(activeAddress, {
     successDuration: 2000,
   });
@@ -60,6 +59,7 @@ export default function WalletModal({
               <input
                 className="font-bold focus:outline-none bg-transparent w-full text-[14px] md:text-[20px]"
                 value={activeAddress}
+                readOnly
               />
               <div
                 className="flex items-center tooltip px-1"

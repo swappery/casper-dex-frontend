@@ -1,26 +1,22 @@
 import {
-    CLValueBuilder,
     CLValueParsers,
     RuntimeArgs,
-    decodeBase16,
-    CLList,
     CLPublicKey,
     CLU256,
-    CLByteArray,
-    encodeBase16,
     CLString,
     CLKey,
     CLAccountHash,
+    CLValueBuilder,
 } from "casper-js-sdk";
 import blake from "blakejs";
 import { concat } from "@ethersproject/bytes";
 import { BigNumberish } from "@ethersproject/bignumber";
 import { helpers, constants, utils } from "casper-js-client-helper";
 import ContractClient from "casper-js-client-helper/dist/casper-contract-client";
-import { CONTRACT_PACKAGE_PREFIX, RouterEvents, WCSPR_CONTRACT_HASH } from "../config/constant";
+import { CONTRACT_PACKAGE_PREFIX, RouterEvents } from "../config/constant";
 import { contractCallFn } from "./utils";
-import { CLPoolInfoBytesParser, PoolInfo } from "../config/CLValue";
-import { CLUserInfo, CLUserInfoBytesParser, UserInfo } from "../config/CLValue/user_info";
+import { CLPoolInfo, CLPoolInfoBytesParser } from "../config/CLValue";
+import { CLUserInfo, CLUserInfoBytesParser } from "../config/CLValue/user_info";
 import { FarmInfo } from "../../store/useMasterChef";
 const {
     setClient,
@@ -31,6 +27,7 @@ const { DEFAULT_TTL } = constants;
 export class MasterChefClient extends ContractClient {
     protected namedKeys?: {
         userList: string;
+        poolList: string;
     };
 
     async setContractHash(hash: string) {
@@ -39,6 +36,7 @@ export class MasterChefClient extends ContractClient {
             hash,
             [
                 "user_list",
+                "pool_list"
             ]
         );
         this.contractHash = hash;
@@ -83,12 +81,24 @@ export class MasterChefClient extends ContractClient {
         const data = await contractSimpleGetter(
             this.nodeAddress,
             this.contractHash!,
-            ["pool_list"]
+            ["lp_token_list"]
         );
         let poolList = [];
         for (let i = 0; i < data.length; i++) {
-            let pool = new CLPoolInfoBytesParser().fromBytesWithRemainder(data[i].data).result.unwrap();
-            poolList.push(pool.data);
+            let lp = CLValueBuilder.key(CLValueBuilder.byteArray(data[i].data));
+            const keyBytes = CLValueParsers.toBytes(lp).unwrap();
+            const itemKey = Buffer.from(keyBytes).toString("base64");
+            try {
+                const result = await utils.contractDictionaryGetter(
+                    this.nodeAddress,
+                    itemKey,
+                    this.namedKeys!.poolList
+                );
+                let poolInfo: CLPoolInfo = new CLPoolInfoBytesParser().fromBytesWithRemainder(result.val.data).result.unwrap();
+                poolList.push(poolInfo.data);
+            }
+            catch (err: any) {
+            }
         }
         return poolList;
     }
@@ -186,7 +196,69 @@ export class MasterChefClient extends ContractClient {
                 this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
             ttl,
         } as MasterChefClient.ContractCallWithSignerPayload);
-    }   
+    }
+     async enterStaking(
+        publicKey: CLPublicKey,
+        amount: BigNumberish,
+        paymentAmount: BigNumberish,
+        ttl = DEFAULT_TTL
+    ) {
+        const runtimeArgs = RuntimeArgs.fromMap({
+            amount: new CLU256(amount),
+        });
+
+        return await this.contractCallWithSigner({
+            publicKey,
+            entryPoint: "enter_staking",
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) =>
+                this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
+            ttl,
+        } as MasterChefClient.ContractCallWithSignerPayload);
+    }
+
+    async leaveStaking(
+        publicKey: CLPublicKey,
+        amount: BigNumberish,
+        paymentAmount: BigNumberish,
+        ttl = DEFAULT_TTL
+    ) {
+        const runtimeArgs = RuntimeArgs.fromMap({
+            amount: new CLU256(amount),
+        });
+
+        return await this.contractCallWithSigner({
+            publicKey,
+            entryPoint: "leave_staking",
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) =>
+                this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
+            ttl,
+        } as MasterChefClient.ContractCallWithSignerPayload);
+    }
+
+    async harvest(
+        publicKey: CLPublicKey,
+        farm: FarmInfo,
+        paymentAmount: BigNumberish,
+        ttl = DEFAULT_TTL
+    ) {
+        const runtimeArgs = RuntimeArgs.fromMap({
+            lp_token: new CLString(CONTRACT_PACKAGE_PREFIX + farm.lpToken.contractPackageHash),
+        });
+
+        return await this.contractCallWithSigner({
+            publicKey,
+            entryPoint: "harvest",
+            paymentAmount,
+            runtimeArgs,
+            cb: (deployHash: string) =>
+                this.addPendingDeploy(RouterEvents.AddLiquidity, deployHash),
+            ttl,
+        } as MasterChefClient.ContractCallWithSignerPayload);
+    }
 }
 export namespace MasterChefClient {
     export interface ContractCallWithSignerPayload {

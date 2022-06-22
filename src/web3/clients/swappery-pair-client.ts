@@ -2,17 +2,18 @@ import { helpers, utils } from "casper-js-client-helper";
 import { CLKey, CLValueParsers } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import { ERC20SignerClient } from "./erc20signer-client";
+import { parseFixed } from "@ethersproject/bignumber";
 
 const { contractSimpleGetter } = helpers;
 export class SwapperyPairClient extends ERC20SignerClient {
     async getReserves() {
         let reserves = [];
-        reserves.push(parseInt(await contractSimpleGetter(
+        reserves.push(BigNumber.from(await contractSimpleGetter(
             this.nodeAddress,
             this.contractHash!,
             ["reserve0"]
         )));
-        reserves.push(parseInt(await contractSimpleGetter(
+        reserves.push(BigNumber.from(await contractSimpleGetter(
             this.nodeAddress,
             this.contractHash!,
             ["reserve1"]
@@ -44,11 +45,11 @@ export class SwapperyPairClient extends ERC20SignerClient {
                 itemKey,
                 this.namedKeys!.balances
             );
-            balance = parseInt(result.toString());
+            balance = parseFixed(result.toString());
         } catch (err) {
         // exception when no tokens in user account
-            balance = 0;
+            balance = BigNumber.from(0);
         }
-        return BigNumber.from(balance);
+        return balance;
     }
 }

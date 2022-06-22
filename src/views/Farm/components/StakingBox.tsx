@@ -1,10 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { BigNumber } from "ethers";
 import { useEffect, useState } from "react";
 import ActionButton from "../../../components/Button/actionButton";
 import PairDetail from "../../../components/PairDetail";
+import ConnectModal from "../../../components/SelectWalletModal/SelectWalletModal";
 import StakingModal from "../../../components/StakingModal/StakingModal";
 import { testnetTokens } from "../../../config/constants/tokens";
 import { ActionStatus } from "../../../config/interface/actionStatus";
+import useAction from "../../../store/useAction";
 import { FarmInfo, FarmUserInfo } from "../../../store/useMasterChef";
 import useNetworkStatus from "../../../store/useNetworkStatus";
 import { amountWithoutDecimals } from "../../../utils/utils";
@@ -17,15 +20,17 @@ interface StakingBoxProps {
   index: number;
 }
 export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
+  const { isPending } = useAction();
   const [allowance, setAllowance] = useState<BigNumber>(BigNumber.from(0));
   const [balance, setBalance] = useState<BigNumber>(BigNumber.from(0));
   const { isConnected, activeAddress } = useNetworkStatus();
-  const [isFetching, setFetching] = useState<boolean>();
+  const [isFetching, setFetching] = useState<boolean>(false);
   const [harvestDisabled, setHarvestDisabled] = useState<boolean>(true);
   const [actionText, setActionText] = useState<string>("");
   const [actionDisabled, setActionDisabled] = useState<boolean>(false);
   const [actionSpinning, setActionSpinning] = useState<boolean>(false);
   const [showStakingModal, setShowStakingModal] = useState<boolean>(false);
+  const [showConnectModal, setShowConnectModal] = useState<boolean>(false);
   const { activate, balanceOf, allowanceOf, harvest } = useCasperWeb3Provider();
   const [currentStatus, setCurrentStatus] = useState<ActionStatus>(
     ActionStatus.REQ_CONNECT_WALLET
@@ -47,15 +52,16 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
       setFetching(false);
     }
     getBalance();
-  }, [activeAddress]);
+  }, [activeAddress, isPending]);
 
   useEffect(() => {
     if (!isConnected) setCurrentStatus(ActionStatus.REQ_CONNECT_WALLET);
     else if (isFetching) setCurrentStatus(ActionStatus.LOADING);
-    else if (balance.eq(0))
+    // else if (isPending) setCurrentStatus(ActionStatus.PENDING);
+    else if (balance.add(userInfo.amount).eq(0))
       setCurrentStatus(ActionStatus.INSUFFICIENT_LIQUIDITY_AMOUNT);
     else setCurrentStatus(ActionStatus.REQ_EXECUTE_ACTION);
-  }, [isConnected, balance]);
+  }, [isConnected, balance, isFetching, allowance, isPending]);
 
   useEffect(() => {
     if (BigNumber.from(userInfo.pendingCake).eq(0) || !isConnected)
@@ -72,6 +78,11 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
         break;
       case ActionStatus.LOADING:
         setActionText("Loading");
+        setActionDisabled(false);
+        setActionSpinning(true);
+        break;
+      case ActionStatus.PENDING:
+        setActionText("Pending");
         setActionDisabled(false);
         setActionSpinning(true);
         break;
@@ -94,7 +105,8 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
   };
 
   const handleAction = () => {
-    if (currentStatus === ActionStatus.REQ_CONNECT_WALLET) activate();
+    if (currentStatus === ActionStatus.REQ_CONNECT_WALLET)
+      setShowConnectModal(true);
     else if (currentStatus === ActionStatus.REQ_EXECUTE_ACTION)
       setShowStakingModal(true);
   };
@@ -169,12 +181,17 @@ export default function StakingBox({ farm, userInfo, index }: StakingBoxProps) {
       <StakingModal
         show={showStakingModal}
         setShow={setShowStakingModal}
-        balance={balance}
+        balance={balance.add(userInfo.amount)}
         allowance={allowance}
         currentAmount={BigNumber.from(userInfo.amount)}
         decimals={farm.lpToken.decimals.toNumber()}
         farm={farm}
       ></StakingModal>
+      <ConnectModal
+        show={showConnectModal}
+        setShow={setShowConnectModal}
+        handleConnect={activate}
+      ></ConnectModal>
     </div>
   );
 }

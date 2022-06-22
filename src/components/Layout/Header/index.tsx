@@ -116,7 +116,9 @@ export default function Header() {
                   <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
                     <li
                       onClick={() => {
-                        setShowWalletModal(true);
+                        setShowWalletModal(
+                          !!activeAddress && activeAddress !== "" && true
+                        );
                       }}
                     >
                       <span>Wallet</span>
@@ -300,7 +302,9 @@ export default function Header() {
                   <ul className="bg-accent border border-neutral left-0 sm:right-0 sm:left-auto font-orator-std text-neutral">
                     <li
                       onClick={() => {
-                        setShowWalletModal(true);
+                        setShowWalletModal(
+                          !!activeAddress && activeAddress !== "" && true
+                        );
                       }}
                     >
                       <span>Wallet</span>
@@ -448,12 +452,12 @@ export default function Header() {
         swprBalance={swprBalance}
         setShow={setShowWalletModal}
         handleDisconnect={disconnect}
-      ></WalletModal>
+      />
       <ConnectModal
         show={showConnectModal}
         setShow={setShowConnectModal}
         handleConnect={activate}
-      ></ConnectModal>
+      />
     </header>
   );
 }

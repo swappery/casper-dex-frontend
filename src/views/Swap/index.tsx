@@ -123,7 +123,7 @@ export default function Swap() {
   //Update path to swap input currency to output
   useEffect(() => {
     async function handleUpdateReserves() {
-      if (!inputCurrency || !outputCurrency || isPending) return;
+      if (!inputCurrency || !outputCurrency) return;
       setFetching(true);
       if (await isPairExist(inputCurrency, outputCurrency)) {
         setReserves([await getReserves(inputCurrency, outputCurrency)]);
@@ -253,7 +253,11 @@ export default function Swap() {
         inputCurrencyAmounts.amount.sub(inputCurrencyAmounts.balance)
       );
     } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
-      await approve(inputCurrencyAmounts.amount, inputCurrency.address);
+      await approve(
+        inputCurrencyAmounts.amount,
+        inputCurrency.address,
+        ROUTER_CONTRACT_PACKAGE_HASH
+      );
     } else if (
       actionStatus === ActionStatus.REQ_EXECUTE_ACTION &&
       inputField === InputField.INPUT_A

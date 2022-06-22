@@ -2,12 +2,14 @@ import { sleep } from "casper-js-client-helper/dist/helpers/utils";
 import { CasperClient } from "casper-js-sdk";
 import { BigNumber } from "ethers";
 import { Token } from "../config/interface/token";
+import { formatFixed } from "@ethersproject/bignumber";
 
 export const shortenAddress = (address: string, length: number = 4) => {
     return address.slice(0, length + 1) + "..." + address.slice(-length);
 }
 export const amountWithoutDecimals = (amount: BigNumber, decimals: number) => {
-    return BigNumber.from(amount).div(10 ** decimals).toNumber() + BigNumber.from(amount).mod(10 ** decimals).toNumber() / 10 ** decimals;
+  let result = formatFixed(amount, decimals);
+  return parseFloat(result);
 }
 
 export const deserialize = (serializedString: string) => {

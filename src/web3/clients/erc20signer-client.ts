@@ -12,6 +12,7 @@ import { BigNumber, BigNumberish } from "@ethersproject/bignumber";
 
 import { contractCallFn } from "./utils";
 import { RecipientType } from "casper-js-client-helper/dist/types";
+import { parseFixed } from "@ethersproject/bignumber";
 
 const { DEFAULT_TTL } = constants;
 const { ERC20Events } = erc20constants;
@@ -22,12 +23,12 @@ export class ERC20SignerClient extends ERC20Client {
     let balance;
     try {
       balance = await this.balanceOf(publicKey);
-      balance = parseInt(balance);
+      balance = parseFixed(balance);
     } catch (err) {
       // exception when no tokens in user account
-      return 0;
+      balance = BigNumber.from(0);
     }
-    return balance ? BigNumber.from(balance) : 0;
+    return balance;
   }
 
   async approveWithSigner(

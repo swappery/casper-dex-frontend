@@ -328,11 +328,19 @@ export default function AddLiquidity() {
       if (actionStatus === ActionStatus.REQ_WRAP_INPUT_CURRENCY) {
         await wrapCspr(currencyAAmounts.amount.sub(currencyAAmounts.balance));
       } else if (actionStatus === ActionStatus.REQ_APPROVE_INPUT_CURRENCY) {
-        await approve(currencyAAmounts.amount, currencyA.address);
+        await approve(
+          currencyAAmounts.amount,
+          currencyA.address,
+          ROUTER_CONTRACT_PACKAGE_HASH
+        );
       } else if (actionStatus === ActionStatus.REQ_WRAP_OUTPUT_CURRENCY) {
         await wrapCspr(currencyBAmounts.amount.sub(currencyBAmounts.balance));
       } else if (actionStatus === ActionStatus.REQ_APPROVE_OUTPUT_CURRENCY) {
-        await approve(currencyBAmounts.amount, currencyB.address);
+        await approve(
+          currencyBAmounts.amount,
+          currencyB.address,
+          ROUTER_CONTRACT_PACKAGE_HASH
+        );
       } else if (actionStatus === ActionStatus.REQ_EXECUTE_ACTION) {
         await addLiquidity(
           CLPublicKey.fromHex(activeAddress),

@@ -1,19 +1,17 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/jsx-no-target-blank */
-import { Themes } from "../../config/constants/themes";
-import ExternalIcon from "../Icon/External";
-import useClipboard from "react-use-clipboard";
-import Copy from "../Icon/Copy";
-import {
-  amountWithoutDecimals,
-  ExplorerDataType,
-  getCsprExplorerLink,
-} from "../../utils/utils";
+import { amountWithoutDecimals } from "../../utils/utils";
 import ActionButton from "../Button/actionButton";
 import { BigNumber } from "ethers";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
 import { FarmInfo } from "../../store/useMasterChef";
+import useAction from "../../store/useAction";
+import { MASTER_CHEF_CONTRACT_PACKAGE_HASH } from "../../web3/config/constant";
+import { formatFixed } from "@ethersproject/bignumber";
+
+const HIDDEN_LENGTH = 5;
 
 interface StakingModalProps {
   balance: BigNumber;
@@ -34,43 +32,108 @@ export default function StakingModal({
   show,
   setShow,
 }: StakingModalProps) {
+  const [actionDisabled, setActionDisabled] = useState<boolean>(true);
   const [actionText, setActionText] = useState<string>("");
   const [amount, setAmount] = useState<BigNumber>(currentAmount);
   const [sliderValue, setSliderValue] = useState<number>(0);
-  const { isConnected, activeAddress } = useNetworkStatus();
-  const { activate, deposit, withdraw } = useCasperWeb3Provider();
+  const { isConnected } = useNetworkStatus();
+  const { activate, deposit, withdraw, approve, enterStaking, leaveStaking } =
+    useCasperWeb3Provider();
+  const { isPending } = useAction();
 
-  const defaultSliderValue = useMemo(() => {
-    return balance.eq(0) ? 0 : currentAmount.mul(100).div(balance).toNumber();
-  }, [currentAmount, balance]);
+  useEffect(() => {
+    setSliderValue(
+      balance.eq(0)
+        ? 0
+        : amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
+    );
+  }, []);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSliderValue(parseInt(event.target.value, 10));
+    setSliderValue(parseFloat(event.target.value));
   };
 
   const handleSetValue = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
+    console.log("balance  " + formatFixed(balance));
+    console.log("allowance  " + formatFixed(allowance));
+    console.log("currentAmount  " + formatFixed(currentAmount));
+    console.log("liquidity  " + formatFixed(farm.liquidity));
+
     const button: HTMLButtonElement = event.currentTarget;
-    setSliderValue(parseInt(button.value, 10));
+    const value = parseInt(button.value, 10);
+    setSliderValue(
+      Number(
+        amountWithoutDecimals(
+          balance.mul(value).div(100),
+          decimals - HIDDEN_LENGTH
+        ).toFixed()
+      )
+    );
   };
 
   useEffect(() => {
-    if (sliderValue !== defaultSliderValue)
-      setAmount(balance.mul(sliderValue).div(100));
+    setAmount(
+      sliderValue === 0
+        ? BigNumber.from(0)
+        : balance
+            .mul(Number(sliderValue.toFixed()))
+            .div(
+              Number(
+                amountWithoutDecimals(
+                  balance,
+                  decimals - HIDDEN_LENGTH
+                ).toFixed()
+              )
+            )
+    );
   }, [sliderValue]);
 
   useEffect(() => {
-    if (!isConnected) setActionText("Connect Wallet");
-    else if (amount.gt(currentAmount)) setActionText("Deposit");
-    else if (amount.lt(currentAmount)) setActionText("Withdraw");
-  }, [isConnected, amount]);
+    if (!isConnected) {
+      setActionText("Connect Wallet");
+      setActionDisabled(false);
+    } else if (amount.eq(currentAmount)) {
+      setActionText("Set Amount");
+      setActionDisabled(true);
+    } else if (isPending) {
+      setActionText("Pending");
+      setActionDisabled(false);
+    } else if (
+      amount.gt(currentAmount) &&
+      amount.sub(currentAmount).gt(allowance)
+    ) {
+      setActionText("Approve");
+      setActionDisabled(false);
+    } else if (
+      amount.gt(currentAmount) &&
+      amount.sub(currentAmount).lte(allowance)
+    ) {
+      setActionText("Deposit");
+      setActionDisabled(false);
+    } else if (amount.lt(currentAmount)) {
+      setActionText("Withdraw");
+      setActionDisabled(false);
+    }
+  }, [isConnected, amount, isPending, allowance]);
 
   const handleAction = () => {
     if (actionText === "Connect Wallet") activate();
-    else if (actionText === "Deposit") deposit(farm, amount.sub(currentAmount));
-    else if (actionText === "Withdraw")
-      withdraw(farm, currentAmount.sub(amount));
+    else if (actionText === "Approve")
+      approve(
+        amount.sub(currentAmount),
+        farm.lpToken.contractHash,
+        MASTER_CHEF_CONTRACT_PACKAGE_HASH
+      );
+    else if (actionText === "Deposit") {
+      if (farm.lpToken.tokens.length === 0)
+        enterStaking(amount.sub(currentAmount));
+      else deposit(farm, amount.sub(currentAmount));
+    } else if (actionText === "Withdraw")
+      if (farm.lpToken.tokens.length === 0)
+        leaveStaking(amount.sub(currentAmount));
+      else withdraw(farm, currentAmount.sub(amount));
   };
 
   return (
@@ -83,7 +146,7 @@ export default function StakingModal({
         readOnly
       />
       <div className="modal">
-        <div className="modal-box bg-success rounded-none p-0 relative w-11/12 max-w-5xl">
+        <div className="modal-box bg-success rounded-none p-0 relative w-5/6 max-w-5xl">
           <div className="flex justify-between items-center text-neutral p-6 border-b border-neutral font-bold">
             <p className="font-orator-std text-[24px]">Staking</p>
             <label
@@ -98,15 +161,21 @@ export default function StakingModal({
           <div className="p-7 font-orator-std">
             <div className="border border-neutral px-3 sm:px-6 py-5">
               <p className="text-[32px] md:text-[40px] text-left text-neutral mb-3">
-                {amountWithoutDecimals(amount, decimals)}/
-                {amountWithoutDecimals(balance, decimals)}
+                {Number(
+                  amountWithoutDecimals(amount, decimals).toFixed(HIDDEN_LENGTH)
+                )}
+                /
+                {Number(
+                  amountWithoutDecimals(balance, decimals).toFixed(
+                    HIDDEN_LENGTH
+                  )
+                )}
               </p>
               <input
                 type="range"
-                min="0"
-                max="100"
+                min={0}
+                max={amountWithoutDecimals(balance, decimals - HIDDEN_LENGTH)}
                 value={sliderValue}
-                defaultValue={defaultSliderValue}
                 onChange={handleChange}
                 className="range range-xs"
               />
@@ -143,8 +212,8 @@ export default function StakingModal({
             </div>
             <ActionButton
               text={actionText}
-              isDisabled={false}
-              isSpinning={false}
+              isDisabled={actionDisabled}
+              isSpinning={isPending}
               handleClick={handleAction}
             />
           </div>
