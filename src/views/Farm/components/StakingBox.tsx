@@ -17,12 +17,14 @@ interface StakingBoxProps {
   farm: FarmInfo;
   userInfo: FarmUserInfo;
   index: number;
+  count: number;
   setState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function StakingBox({
   farm,
   userInfo,
   index,
+  count,
   setState,
 }: StakingBoxProps) {
   const [isPending, setPending] = useState<boolean>(false);
@@ -131,7 +133,9 @@ export default function StakingBox({
   return (
     <div
       className={`col-span-12 justify-center items-center ${
-        index % 2 === 0
+        index === count - 1 && index % 2 === 0
+          ? "lg:col-start-4 lg:col-end-9 lg:px-10"
+          : index % 2 === 0
           ? "lg:col-start-2 lg:col-end-6"
           : "lg:col-start-7 lg:col-end-11"
       }`}

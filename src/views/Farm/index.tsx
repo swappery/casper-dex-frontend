@@ -115,6 +115,12 @@ export default function Farm() {
                 <SkeletonBox />
               </div>
             </>
+          ) : filteredUsers.length === 0 ? (
+            <div className={"col-span-12 lg:col-start-2 lg:col-end-11"}>
+              <p className="text-center text-[24px] xl:text-[60px] font-bold py-[40px] xl:py-[75px] text-neutral">
+                Not Found
+              </p>
+            </div>
           ) : (
             filteredUsers.map((user, index) => {
               return (
@@ -122,6 +128,7 @@ export default function Farm() {
                   farm={filteredFarms[index]}
                   userInfo={user}
                   index={index}
+                  count={filteredFarms.length}
                   key={filteredFarms[index].lpToken.contractHash}
                   setState={setPending}
                 />

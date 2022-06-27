@@ -21,7 +21,7 @@ export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: st
     return lowerSearchParts.every(
       (p) =>
         p.length === 0 ||
-        sParts.some((sp) => sp.startsWith(p) || sp.endsWith(p))
+        sParts.some((sp) => sp.includes(p))
     );
   };
   let filteredFarms:FarmInfo[] = [];
