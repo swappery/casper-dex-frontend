@@ -16,6 +16,7 @@ import useNetworkStatus from "../store/useNetworkStatus";
 import { BigNumber, BigNumberish } from "ethers";
 import {
   CHAIN_NAME,
+  FarmEvents,
   INSTALL_FEE,
   MASTER_CHEF_CONTRACT_HASH,
   MASTER_CHEF_CONTRACT_PACKAGE_HASH,
@@ -38,7 +39,6 @@ import { MasterChefClient } from "./clients/master-chef-client";
 import { SUPPORTED_TOKENS } from "../config/constants";
 import { ChainName } from "../config/constants/chainName";
 import { FarmInfo, FarmUserInfo, LpToken } from "../store/useMasterChef";
-
 export default function useCasperWeb3Provider() {
   const { setActiveAddress, activeAddress, isConnected } = useNetworkStatus();
 
@@ -461,10 +461,10 @@ export default function useCasperWeb3Provider() {
               BigNumber.from(reserves_res[0]),
             ];
 
-          return Number((reserves[1].toNumber() / reserves[0].toNumber()).toFixed(3));
+          return Number((amountWithoutDecimals(reserves[1]) / amountWithoutDecimals(reserves[0])).toFixed(3));
         }
       }
-    return Number("0");
+    return Number("0.0");
   }
 
   async function getCSPRBalance() {
@@ -742,7 +742,7 @@ export default function useCasperWeb3Provider() {
   };
 }
 
-export const RouterEventParser = (
+export const routerEventParser = (
   {
     eventNames,
   }: { eventNames: RouterEvents[] },
@@ -775,8 +775,69 @@ export const RouterEventParser = (
           return acc;
         }, []);
 
-    return { error: null, success: !!routerEvents.length, data: routerEvents };
+    return {
+      error: null,
+      success: !!routerEvents.length,
+      data: routerEvents,
+      account: value.body.DeployProcessed.account,
+      deploy: value.body.DeployProcessed.deploy_hash
+    };
   }
 
-  return null;
+  return {
+    error: true,
+    account: value.body.DeployProcessed.account,
+    deploy: value.body.DeployProcessed.deploy_hash,
+    message: value.body.DeployProcessed.execution_result.Failure.error_message
+  };
+};
+
+export const farmEventParser = (
+  {
+    eventNames,
+  }: { eventNames: FarmEvents[] },
+  value: any
+) => {
+  if (value.body.DeployProcessed.execution_result.Success) {
+    const { transforms } =
+      value.body.DeployProcessed.execution_result.Success.effect;
+
+        const farmEvents = transforms.reduce((acc: any, val: any) => {
+          if (
+            val.transform.hasOwnProperty("WriteCLValue") &&
+            typeof val.transform.WriteCLValue.parsed === "object" &&
+            val.transform.WriteCLValue.parsed !== null
+          ) {
+            const maybeCLValue = CLValueParsers.fromJSON(
+              val.transform.WriteCLValue
+            );
+            const clValue = maybeCLValue.unwrap();
+            if (clValue && clValue instanceof CLMap) {
+              const event = clValue.get(CLValueBuilder.string("event_type"));
+              if (
+                event &&
+                eventNames.includes(event.value())
+              ) {
+                acc = [...acc, { name: event.value(), clValue }];
+              }
+            }
+          }
+          return acc;
+        }, []);
+
+    return {
+      error: null,
+      success: !!farmEvents.length,
+      data: farmEvents,
+      account: value.body.DeployProcessed.account,
+      deploy: value.body.DeployProcessed.deploy_hash
+    };
+  }
+
+  return {
+    error: true,
+    account: value.body.DeployProcessed.account,
+    deploy: value.body.DeployProcessed.deploy_hash,
+    message: value.body.DeployProcessed.execution_result.Failure.error_message
+  };
 };

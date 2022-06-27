@@ -14,22 +14,22 @@ const LPTokenDetail = ({ isManage, poolInfo }: LPTokenProps) => {
   const { setCurrentPool } = useRemoveLiquidityStatus();
   const balance = amountWithoutDecimals(
     BigNumber.from(poolInfo.balance),
-    BigNumber.from(poolInfo.decimals).toNumber()
+    poolInfo.decimals
   );
   const shareOfPool =
     (amountWithoutDecimals(
       BigNumber.from(poolInfo.balance),
-      BigNumber.from(poolInfo.decimals).toNumber()
+      poolInfo.decimals
     ) /
       amountWithoutDecimals(
         BigNumber.from(poolInfo.totalSupply),
-        BigNumber.from(poolInfo.decimals).toNumber()
+        poolInfo.decimals
       )) *
     100;
   const pooledToken0 =
     (amountWithoutDecimals(
       BigNumber.from(poolInfo.reserves[0]),
-      BigNumber.from(poolInfo.decimals).toNumber()
+      poolInfo.decimals
     ) *
       shareOfPool) /
     100;

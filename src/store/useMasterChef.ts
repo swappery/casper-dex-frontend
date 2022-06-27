@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish } from "ethers";
+import { BigNumberish } from "ethers";
 import create, { State } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Token } from "../config/interface/token";
@@ -6,7 +6,7 @@ export interface LpToken {
     contractPackageHash: string;
     contractHash: string;
     tokens: Token[];
-    decimals: BigNumber;
+    decimals: number;
 }
 export interface FarmInfo {
     lpToken: LpToken;

@@ -5,7 +5,7 @@ export interface Pool {
   contractPackageHash: string;
   contractHash: string;
   tokens: Token[];
-  decimals: BigNumber;
+  decimals: number;
   totalSupply: BigNumber;
   reserves: BigNumber[];
   balance: BigNumber;

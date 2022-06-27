@@ -51,7 +51,7 @@ export default function StakingModal({
   }, [balance, currentAmount]);
 
   useEffect(() => {
-    setState(isPending);
+    if (!isPending) setState(isPending);
   }, [isPending]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,11 +60,6 @@ export default function StakingModal({
 
   const handleSetValue = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-
-    console.log("balance  " + formatFixed(balance));
-    console.log("allowance  " + formatFixed(allowance));
-    console.log("currentAmount  " + formatFixed(currentAmount));
-    console.log("liquidity  " + formatFixed(farm.liquidity));
 
     const button: HTMLButtonElement = event.currentTarget;
     const value = parseInt(button.value, 10);
@@ -139,7 +134,7 @@ export default function StakingModal({
       else deposit(farm, amount.sub(currentAmount), setPending);
     } else if (actionText === "Withdraw")
       if (farm.lpToken.tokens.length === 0)
-        leaveStaking(amount.sub(currentAmount), setPending);
+        leaveStaking(currentAmount.sub(amount), setPending);
       else withdraw(farm, currentAmount.sub(amount), setPending);
   };
 

@@ -164,7 +164,7 @@ export default function AddLiquidity() {
             contractPackageHash: pairPackageHash,
             contractHash: pairContractHash,
             tokens: [currencyA, currencyB],
-            decimals: BigNumber.from(await pairClient.decimals()),
+            decimals: await pairClient.decimals(),
             totalSupply: BigNumber.from(await pairClient.totalSupply()),
             reserves: reserves,
             balance: BigNumber.from(await balanceOf(pairContractHash)),

@@ -62,7 +62,7 @@ export default function StakingBox({
       setFetching(false);
     }
     getBalance();
-  }, [activeAddress, isPending]);
+  }, [activeAddress, isPending, isChildPending]);
 
   useEffect(() => {
     setState(isPending);
@@ -76,9 +76,9 @@ export default function StakingBox({
     if (!isConnected) setCurrentStatus(ActionStatus.REQ_CONNECT_WALLET);
     else if (isFetching) setCurrentStatus(ActionStatus.LOADING);
     // else if (isPending) setCurrentStatus(ActionStatus.PENDING);
-    else if (balance.add(userInfo.amount).eq(0))
+    else if (balance.add(userInfo.amount).eq(0)) {
       setCurrentStatus(ActionStatus.INSUFFICIENT_LIQUIDITY_AMOUNT);
-    else setCurrentStatus(ActionStatus.REQ_EXECUTE_ACTION);
+    } else setCurrentStatus(ActionStatus.REQ_EXECUTE_ACTION);
   }, [isConnected, balance, isFetching, allowance, isPending]);
 
   useEffect(() => {
@@ -130,7 +130,7 @@ export default function StakingBox({
   };
   return (
     <div
-      className={`col-span-12 ${
+      className={`col-span-12 justify-center items-center ${
         index % 2 === 0
           ? "lg:col-start-2 lg:col-end-6"
           : "lg:col-start-7 lg:col-end-11"
@@ -147,7 +147,7 @@ export default function StakingBox({
               {Number(
                 amountWithoutDecimals(
                   BigNumber.from(farm.liquidity),
-                  farm.lpToken.decimals.toNumber()
+                  farm.lpToken.decimals
                 ).toFixed(5)
               )}
             </span>
@@ -177,7 +177,7 @@ export default function StakingBox({
               {Number(
                 amountWithoutDecimals(
                   BigNumber.from(userInfo.amount),
-                  farm.lpToken.decimals.toNumber()
+                  farm.lpToken.decimals
                 ).toFixed(5)
               )}
             </span>
@@ -202,7 +202,7 @@ export default function StakingBox({
         balance={balance.add(userInfo.amount)}
         allowance={allowance}
         currentAmount={BigNumber.from(userInfo.amount)}
-        decimals={farm.lpToken.decimals.toNumber()}
+        decimals={farm.lpToken.decimals}
         farm={farm}
         setState={setChildPending}
       ></StakingModal>

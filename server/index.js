@@ -1,6 +1,9 @@
 const express = require("express");
 const request = require("request");
 const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
+const { CasperStreamer } = require("./casperStreamer");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -52,7 +55,17 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "../build/index.html"));
 });
 
-app.listen(PORT, (err) => {
+const server = http.createServer(app);
+
+server.listen(PORT, (err) => {
   if (err) throw err;
   console.log(`> Ready on http://localhost:${PORT}`);
 });
+
+const io = new Server(server);
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+});
+
+const casperStreamer = new CasperStreamer(io);

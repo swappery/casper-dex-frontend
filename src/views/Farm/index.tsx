@@ -6,13 +6,15 @@ import logo from "../../assets/images/farm/farm-logo-huge.png";
 import logoWhite from "../../assets/images/farm/farm-logo-white-huge.png";
 import useMasterChefStatus, { FarmUserInfo } from "../../store/useMasterChef";
 import useNetworkStatus from "../../store/useNetworkStatus";
-import { useCallback, useEffect, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from "react";
 import useCasperWeb3Provider from "../../web3";
 import { CLPublicKey } from "casper-js-sdk";
 import SkeletonBox from "../../components/SkeletonBox";
 import { BigNumber } from "ethers";
+import { filterFarms } from "./filtering";
 
 export default function Farm() {
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [isPending, setPending] = useState<boolean>(false);
   const { getFarmList, getUserInfo } = useCasperWeb3Provider();
   const { isConnected, activeAddress } = useNetworkStatus();
@@ -66,6 +68,14 @@ export default function Farm() {
     handleFetch();
   }, [isPending]);
 
+  const handleChangeQuery = (event: ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const { filteredFarms, filteredUsers } = useMemo(() => {
+    return filterFarms(farmList, userData, searchQuery);
+  }, [farmList, userData, searchQuery]);
+
   return (
     <div className="bg-accent overflow-hidden page-wrapper font-orator-std">
       <div className="relative pt-[80px] xl:pt-[143px]">
@@ -80,6 +90,16 @@ export default function Farm() {
       </div>
       <div className="2xl:container 2xl:mx-auto py-[30px] xl:py-[80px] px-[20px] md:px-[80px] lg:px-0">
         <div className="grid grid-cols-11">
+          <div className="col-span-12 lg:col-start-8 lg:col-end-11">
+            <input
+              className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral"
+              placeholder="Search Farm"
+              value={searchQuery}
+              onChange={handleChangeQuery}
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-11">
           {isFetching ? (
             <>
               <div className={"col-span-12 lg:col-start-2 lg:col-end-6"}>
@@ -88,15 +108,21 @@ export default function Farm() {
               <div className={"col-span-12 lg:col-start-7 lg:col-end-11"}>
                 <SkeletonBox />
               </div>
+              <div className={"col-span-12 lg:col-start-2 lg:col-end-6"}>
+                <SkeletonBox />
+              </div>
+              <div className={"col-span-12 lg:col-start-7 lg:col-end-11"}>
+                <SkeletonBox />
+              </div>
             </>
           ) : (
-            userData.map((user, index) => {
+            filteredUsers.map((user, index) => {
               return (
                 <StakingBox
-                  farm={farmList[index]}
+                  farm={filteredFarms[index]}
                   userInfo={user}
                   index={index}
-                  key={farmList[index].lpToken.contractHash}
+                  key={filteredFarms[index].lpToken.contractHash}
                   setState={setPending}
                 />
               );

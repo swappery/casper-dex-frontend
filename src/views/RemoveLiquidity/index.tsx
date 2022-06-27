@@ -292,33 +292,30 @@ export default function RemoveLiquidity() {
       ? floatValue <
         amountWithoutDecimals(
           BigNumber.from(currentPool.balance),
-          BigNumber.from(currentPool.decimals).toNumber()
+          currentPool.decimals
         )
       : false;
 
   const priceAasB = useMemo(() => {
     if (currentPool)
       return (
-        BigNumber.from(currentPool.reserves[1]).toNumber() /
-        BigNumber.from(currentPool.reserves[0]).toNumber()
+        amountWithoutDecimals(currentPool.reserves[1]) /
+        amountWithoutDecimals(currentPool.reserves[0])
       );
   }, [currentPool]);
 
   const priceBasA = useMemo(() => {
     if (currentPool)
       return (
-        BigNumber.from(currentPool.reserves[0]).toNumber() /
-        BigNumber.from(currentPool.reserves[1]).toNumber()
+        amountWithoutDecimals(currentPool.reserves[0]) /
+        amountWithoutDecimals(currentPool.reserves[1])
       );
   }, [currentPool]);
 
   const liquidityValue = useMemo(() => {
     if (inputField === InputField.INPUT_LIQUIDITY)
       return currentPool
-        ? amountWithoutDecimals(
-            liquidityAmount,
-            BigNumber.from(currentPool.decimals).toNumber()
-          )
+        ? amountWithoutDecimals(liquidityAmount, currentPool.decimals)
         : 0;
     else if (inputField === InputField.INPUT_A)
       return currentPool
@@ -326,7 +323,7 @@ export default function RemoveLiquidity() {
             currencyAAmount
               .mul(BigNumber.from(currentPool.totalSupply))
               .div(BigNumber.from(currentPool.reserves[0])),
-            BigNumber.from(currentPool.decimals).toNumber()
+            currentPool.decimals
           )
         : 0;
     else if (inputField === InputField.INPUT_B)
@@ -335,7 +332,7 @@ export default function RemoveLiquidity() {
             currencyBAmount
               .mul(BigNumber.from(currentPool.totalSupply))
               .div(BigNumber.from(currentPool.reserves[1])),
-            BigNumber.from(currentPool.decimals).toNumber()
+            currentPool.decimals
           )
         : 0;
   }, [
@@ -500,7 +497,7 @@ export default function RemoveLiquidity() {
                         setLiquidityAmount(
                           currentPool
                             ? parseFixed(
-                                amount.toFixed(currentPool.decimals.toNumber()),
+                                amount.toFixed(currentPool.decimals),
                                 currentPool.decimals
                               )
                             : BigNumber.from(0)

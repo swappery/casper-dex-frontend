@@ -4,10 +4,12 @@ import { BigNumber } from "ethers";
 import { Token } from "../config/interface/token";
 import { formatFixed } from "@ethersproject/bignumber";
 
+export const CAPSER_DEFAULT_DECIMALS = 9;
+
 export const shortenAddress = (address: string, length: number = 4) => {
     return address.slice(0, length + 1) + "..." + address.slice(-length);
 }
-export const amountWithoutDecimals = (amount: BigNumber, decimals: number) => {
+export const amountWithoutDecimals = (amount: BigNumber, decimals = CAPSER_DEFAULT_DECIMALS) => {
   let result = formatFixed(amount, decimals);
   return parseFloat(result);
 }
@@ -37,7 +39,7 @@ export const getAmountsIn = (amount: BigNumber, reserves: BigNumber[][], decimal
     tempAmount = reserve[0]
       .mul(tempAmount)
       .mul(1000)
-      .div(reserve[1].sub(tempAmount).mul(998))
+      .div(reserve[1].sub(tempAmount).mul(998)).abs()
       .add(1);
   });
   return amountWithoutDecimals(tempAmount, decimals);
@@ -47,7 +49,7 @@ export const getPriceImpact = (input: number, output: number, reserves: BigNumbe
   let fullOutput = input;
   reserves.forEach((reserve) => {
     if(reserve[0].eq(0) || reserve[1].eq(0)) { fullOutput = 0; return; }
-    fullOutput = fullOutput * reserve[1].toNumber() / reserve[0].toNumber();
+    fullOutput = fullOutput * amountWithoutDecimals(reserve[1]) / amountWithoutDecimals(reserve[0]);
   });
   return (fullOutput - output) / fullOutput * 100;
 }

@@ -83,7 +83,16 @@ export default function Swap() {
   //Set user balance & allowance of input currency
   useEffect(() => {
     async function handleChange() {
-      if (!isConnected || !inputCurrency) return;
+      if (!isConnected || !inputCurrency) {
+        const currencyAmount: TokenAmount = {
+          balance: BigNumber.from(0),
+          allowance: BigNumber.from(0),
+          amount: inputCurrencyAmounts.amount,
+          limit: inputCurrencyAmounts.limit,
+        };
+        setInputCurrencyAmounts(currencyAmount);
+        return;
+      }
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(inputCurrency.address)),
         allowance: BigNumber.from(
@@ -100,7 +109,16 @@ export default function Swap() {
   //Set user balance & allowance of output currency
   useEffect(() => {
     async function handleChange() {
-      if (!isConnected || !outputCurrency) return;
+      if (!isConnected || !outputCurrency) {
+        const currencyAmount: TokenAmount = {
+          balance: BigNumber.from(0),
+          allowance: BigNumber.from(0),
+          amount: outputCurrencyAmounts.amount,
+          limit: outputCurrencyAmounts.limit,
+        };
+        setOutputCurrencyAmounts(currencyAmount);
+        return;
+      }
       const currencyAmount: TokenAmount = {
         balance: BigNumber.from(await balanceOf(outputCurrency.address)),
         allowance: BigNumber.from(
@@ -283,7 +301,7 @@ export default function Swap() {
       );
     }
   };
-  const handleClickSwithButton = () => {
+  const handleClickSwitchButton = () => {
     setSearchParams({
       input: outputCurrency.address,
       output: inputCurrency.address,
@@ -462,20 +480,22 @@ export default function Swap() {
                 </div>
               </div>
 
-              <div className="flex justify-start text-[8px] md:text-[12px] px-3 pt-1 text-neutral">
+              <div className="flex justify-start text-[8px] md:text-[12px] px-3 pt-1 text-neutral cursor-pointer">
                 <span>
                   Balance:{" "}
                   {formatFixed(
                     inputCurrencyAmounts.balance,
                     inputCurrency.decimals
                   )}{" "}
-                  {inputCurrency.symbol}
+                  {inputCurrency.isNative
+                    ? "W" + inputCurrency.symbol
+                    : inputCurrency.symbol}
                 </span>
               </div>
             </div>
             <div className="flex justify-center">
               <SwitchButton
-                handleClick={handleClickSwithButton}
+                handleClick={handleClickSwitchButton}
                 isDisabled={isSpinning}
               />
             </div>
