@@ -62,13 +62,19 @@ export default function StakingBox({
   }, [activeAddress, farm]);
 
   useEffect(() => {
-    setFetching(true);
-    handleFetchBalance();
-    setFetching(false);
+    async function handleFetch() {
+      setFetching(true);
+      await handleFetchBalance();
+      setFetching(false);
+    }
+    handleFetch();
   }, [activeAddress]);
 
   useEffect(() => {
-    handleFetchBalance();
+    async function handleFetch() {
+      await handleFetchBalance();
+    }
+    handleFetch();
   }, [isPending, isChildPending]);
 
   useEffect(() => {

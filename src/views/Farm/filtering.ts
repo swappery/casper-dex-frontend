@@ -1,7 +1,16 @@
 import { FarmInfo, FarmUserInfo } from "../../store/useMasterChef";
 
-export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: string) {
-  if (search.length === 0) return { filteredFarms:farms, filteredUsers:users };
+export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: string, stakedOnly: boolean) {
+  let farmList:FarmInfo[] = [];
+  let userList:FarmUserInfo[] = [];
+  farms.forEach((farm, index) => {
+    if (!(stakedOnly && users[index].amount <= 0)) {
+      farmList.push(farm);
+      userList.push(users[index]);        
+    }
+  });
+
+  if (search.length === 0) return { filteredFarms: farmList, filteredUsers: userList };
 
   const lowerSearchParts = search
     .toLowerCase()
@@ -9,7 +18,7 @@ export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: st
     .filter((s) => s.length > 0);
 
   if (lowerSearchParts.length === 0) {
-    return { filteredFarms:farms, filteredUsers:users };
+    return { filteredFarms:farmList, filteredUsers:userList };
   }
 
   const matchesSearch = (s: string): boolean => {
@@ -26,11 +35,12 @@ export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: st
   };
   let filteredFarms:FarmInfo[] = [];
   let filteredUsers:FarmUserInfo[] = [];
-  farms.forEach((farm, index) => {
+  farmList.forEach((farm, index) => {
     const { lpToken } = farm;
+    console.log(userList[index].amount)
     if ((lpToken.tokens.length === 0 && matchesSearch("swpr")) || (lpToken.tokens.length === 2 && matchesSearch(lpToken.tokens[0].symbol)) || (lpToken.tokens.length === 2 && matchesSearch(lpToken.tokens[1].symbol))) {
       filteredFarms.push(farm);
-      filteredUsers.push(users[index]);
+      filteredUsers.push(userList[index]);      
     }
   });
   return { filteredFarms, filteredUsers };

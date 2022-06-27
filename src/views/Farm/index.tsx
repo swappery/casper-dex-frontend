@@ -12,8 +12,10 @@ import { CLPublicKey } from "casper-js-sdk";
 import SkeletonBox from "../../components/SkeletonBox";
 import { BigNumber } from "ethers";
 import { filterFarms } from "./filtering";
+import StakedToggle from "../../components/Toggle";
 
 export default function Farm() {
+  const [stakedOnly, setStakedOnly] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [isPending, setPending] = useState<boolean>(false);
   const { getFarmList, getUserInfo } = useCasperWeb3Provider();
@@ -73,8 +75,8 @@ export default function Farm() {
   };
 
   const { filteredFarms, filteredUsers } = useMemo(() => {
-    return filterFarms(farmList, userData, searchQuery);
-  }, [farmList, userData, searchQuery]);
+    return filterFarms(farmList, userData, searchQuery, stakedOnly);
+  }, [farmList, userData, searchQuery, stakedOnly]);
 
   return (
     <div className="bg-accent overflow-hidden page-wrapper font-orator-std">
@@ -90,6 +92,12 @@ export default function Farm() {
       </div>
       <div className="2xl:container 2xl:mx-auto py-[30px] xl:py-[80px] px-[20px] md:px-[80px] lg:px-0">
         <div className="grid grid-cols-11">
+          <div className="col-span-12 lg:col-start-6 lg:col-end-8 justify-end items-end">
+            <StakedToggle
+              checked={stakedOnly}
+              setChecked={setStakedOnly}
+            ></StakedToggle>
+          </div>
           <div className="col-span-12 lg:col-start-8 lg:col-end-11">
             <input
               className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral"
@@ -117,7 +125,7 @@ export default function Farm() {
             </>
           ) : filteredUsers.length === 0 ? (
             <div className={"col-span-12 lg:col-start-2 lg:col-end-11"}>
-              <p className="text-center text-[24px] xl:text-[60px] font-bold py-[40px] xl:py-[75px] text-neutral">
+              <p className="text-center text-[48px] xl:text-[80px] font-bold py-[40px] xl:py-[75px] text-neutral">
                 Not Found
               </p>
             </div>

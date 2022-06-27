@@ -102,6 +102,7 @@ export default function StakingModal({
       sliderValue ===
       amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
     ) {
+      console.log(amountWithoutDecimals(currentAmount));
       setActionText("Set Amount");
       setActionDisabled(true);
     } else if (
