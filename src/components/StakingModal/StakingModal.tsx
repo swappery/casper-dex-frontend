@@ -102,7 +102,6 @@ export default function StakingModal({
       sliderValue ===
       amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
     ) {
-      console.log(amountWithoutDecimals(currentAmount));
       setActionText("Set Amount");
       setActionDisabled(true);
     } else if (
@@ -166,7 +165,7 @@ export default function StakingModal({
           </div>
           <div className="p-7 font-orator-std">
             <div className="border border-neutral px-3 sm:px-6 py-5">
-              <p className="text-[20px] md:text-[32px] text-left text-neutral mb-3">
+              <p className="text[12px] lg:text-[32px] text-left text-neutral mb-3">
                 {Number(
                   amountWithoutDecimals(amount, decimals).toFixed(HIDDEN_LENGTH)
                 )}
@@ -189,28 +188,28 @@ export default function StakingModal({
                 <button
                   onClick={handleSetValue}
                   value="25"
-                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
+                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-2 sm:px-5 py-1"
                 >
                   25%
                 </button>
                 <button
                   onClick={handleSetValue}
                   value="50"
-                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
+                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-2 sm:px-5 py-1"
                 >
                   50%
                 </button>
                 <button
                   onClick={handleSetValue}
                   value="75"
-                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
+                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-2 sm:px-5 py-1"
                 >
                   75%
                 </button>
                 <button
                   onClick={handleSetValue}
                   value="100"
-                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-5 py-1"
+                  className="hover:opacity-80 outline-none bg-lightblue rounded-2xl px-2 sm:px-5 py-1"
                 >
                   MAX
                 </button>

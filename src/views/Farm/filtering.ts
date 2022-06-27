@@ -37,7 +37,6 @@ export function filterFarms(farms: FarmInfo[], users: FarmUserInfo[], search: st
   let filteredUsers:FarmUserInfo[] = [];
   farmList.forEach((farm, index) => {
     const { lpToken } = farm;
-    console.log(userList[index].amount)
     if ((lpToken.tokens.length === 0 && matchesSearch("swpr")) || (lpToken.tokens.length === 2 && matchesSearch(lpToken.tokens[0].symbol)) || (lpToken.tokens.length === 2 && matchesSearch(lpToken.tokens[1].symbol))) {
       filteredFarms.push(farm);
       filteredUsers.push(userList[index]);      

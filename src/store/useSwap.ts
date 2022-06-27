@@ -3,7 +3,7 @@ import create, { State } from "zustand";
 import { InputField } from "../config/interface/inputField";
 import { Token } from "../config/interface/token";
 import { TokenAmount } from "../config/interface/tokenAmounts";
-import { devtools } from "zustand/middleware";
+// import { devtools } from "zustand/middleware";
 import { testnetTokens } from "../config/constants/tokens";
 
 interface SwapStatus extends State {
@@ -24,11 +24,11 @@ interface SwapStatus extends State {
     setFetching: (isFetching: boolean) => void;
 }
 
-const useSwap = create<SwapStatus>(devtools((set) => ({
+const useSwap = create<SwapStatus>((set) => ({
     inputCurrency: testnetTokens.CSPR,
     outputCurrency: testnetTokens.SWPR,
-    inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
-    outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+    inputCurrencyAmounts: { balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0) },
+    outputCurrencyAmounts: { balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0) },
     reserves: [[BigNumber.from(0), BigNumber.from(0)]],
     inputField: InputField.INPUT_A,
     isFetching: false,
@@ -36,31 +36,31 @@ const useSwap = create<SwapStatus>(devtools((set) => ({
         return {
             inputCurrency: testnetTokens.CSPR,
             outputCurrency: testnetTokens.SWPR,
-            inputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
-            outputCurrencyAmounts: {balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0)},
+            inputCurrencyAmounts: { balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0) },
+            outputCurrencyAmounts: { balance: BigNumber.from(0), allowance: BigNumber.from(0), amount: BigNumber.from(0), limit: BigNumber.from(0) },
             reserves: [[BigNumber.from(0), BigNumber.from(0)]],
             inputField: InputField.INPUT_A,
         };
     }),
     setInputCurrency: (currency: Token) => set(() => {
-        return {inputCurrency: currency};
+        return { inputCurrency: currency };
     }),
     setOutputCurrency: (currency: Token) => set(() => {
-        return {outputCurrency: currency};
+        return { outputCurrency: currency };
     }),
     setInputCurrencyAmounts: (currencyAmount: TokenAmount) => set(() => {
-        return {inputCurrencyAmounts: currencyAmount};
+        return { inputCurrencyAmounts: currencyAmount };
     }),
     setOutputCurrencyAmounts: (currencyAmount: TokenAmount) => set(() => {
-        return {outputCurrencyAmounts: currencyAmount};
+        return { outputCurrencyAmounts: currencyAmount };
     }),
     setReserves: (reserves: BigNumber[][]) => set(() => ({
-    reserves,
+        reserves,
     })),
     setInputField: (field: InputField) => set(() => {
-        return {inputField: field};
+        return { inputField: field };
     }),
-    setFetching: (isFetching: boolean) => set(() => ({isFetching})),
-})));
+    setFetching: (isFetching: boolean) => set(() => ({ isFetching })),
+}));
 
 export default useSwap;

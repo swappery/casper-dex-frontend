@@ -1,5 +1,5 @@
 import create, { State } from "zustand";
-import { devtools } from "zustand/middleware";
+// import { devtools } from "zustand/middleware";
 import { InputField } from "../config/interface/inputField";
 import { Pool } from "../config/interface/pool";
 import { Token } from "../config/interface/token";
@@ -17,7 +17,7 @@ interface RemoveLiquidityStatus extends State {
     setFetching: (isFetching: boolean) => void;
 }
 
-const useRemoveLiquidityStatus = create<RemoveLiquidityStatus>(devtools(
+const useRemoveLiquidityStatus = create<RemoveLiquidityStatus>(
     (set) => ({
         inputField: InputField.INPUT_A,
         isFetching: false,
@@ -27,6 +27,6 @@ const useRemoveLiquidityStatus = create<RemoveLiquidityStatus>(devtools(
         setInputField: (inputField: InputField) => set(() => ({inputField})),
         setFetching: (isFetching: boolean) => set(() => ({isFetching})),
     })
-));
+);
 
 export default useRemoveLiquidityStatus;

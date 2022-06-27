@@ -1,6 +1,6 @@
 import { BigNumberish } from "ethers";
 import create, { State } from "zustand";
-import { devtools } from "zustand/middleware";
+// import { devtools } from "zustand/middleware";
 import { Token } from "../config/interface/token";
 export interface LpToken {
     contractPackageHash: string;
@@ -29,7 +29,7 @@ interface MasterChefStatus extends State {
     setFetching: (isFetching: boolean) => void;
 }
 
-const useMasterChefStatus = create<MasterChefStatus>(devtools(
+const useMasterChefStatus = create<MasterChefStatus>(
     (set) => ({
         farmList: [],
         userData: [],
@@ -38,6 +38,6 @@ const useMasterChefStatus = create<MasterChefStatus>(devtools(
         setUserData: (userData: FarmUserInfo[]) => set(() => ({userData})),
         setFetching: (isFetching: boolean) => set(() => ({isFetching})),
     })
-));
+);
 
 export default useMasterChefStatus;
