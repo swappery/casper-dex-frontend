@@ -8,7 +8,6 @@ import useNetworkStatus from "../../store/useNetworkStatus";
 import useCasperWeb3Provider from "../../web3";
 import { FarmInfo } from "../../store/useMasterChef";
 import { MASTER_CHEF_CONTRACT_PACKAGE_HASH } from "../../web3/config/constant";
-import { formatFixed } from "@ethersproject/bignumber";
 
 const HIDDEN_LENGTH = 5;
 
@@ -20,7 +19,7 @@ interface StakingModalProps {
   farm: FarmInfo;
   show: boolean;
   setShow: (show: boolean) => void;
-  setState: React.Dispatch<React.SetStateAction<boolean>>;
+  setState: (state: boolean) => void;
 }
 
 export default function StakingModal({
@@ -35,7 +34,7 @@ export default function StakingModal({
 }: StakingModalProps) {
   const [actionDisabled, setActionDisabled] = useState<boolean>(true);
   const [actionText, setActionText] = useState<string>("");
-  const [amount, setAmount] = useState<BigNumber>(currentAmount);
+  const [amount, setAmount] = useState<BigNumber>(BigNumber.from(0));
   const [sliderValue, setSliderValue] = useState<number>(0);
   const { isConnected } = useNetworkStatus();
   const { activate, deposit, withdraw, approve, enterStaking, leaveStaking } =
@@ -43,15 +42,16 @@ export default function StakingModal({
   const [isPending, setPending] = useState<boolean>(false);
 
   useEffect(() => {
+    setAmount(currentAmount);
     setSliderValue(
       balance.eq(0)
         ? 0
         : amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
     );
-  }, [balance, currentAmount]);
+  }, []);
 
   useEffect(() => {
-    if (!isPending) setState(isPending);
+    setState(isPending);
   }, [isPending]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +75,7 @@ export default function StakingModal({
 
   useEffect(() => {
     setAmount(
-      sliderValue === 0
+      sliderValue === 0 || balance.eq(0)
         ? BigNumber.from(0)
         : balance
             .mul(Number(sliderValue.toFixed()))
@@ -95,12 +95,15 @@ export default function StakingModal({
     if (!isConnected) {
       setActionText("Connect Wallet");
       setActionDisabled(false);
-    } else if (amount.eq(currentAmount)) {
-      setActionText("Set Amount");
-      setActionDisabled(true);
     } else if (isPending) {
       setActionText("Pending");
       setActionDisabled(false);
+    } else if (
+      sliderValue ===
+      amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
+    ) {
+      setActionText("Set Amount");
+      setActionDisabled(true);
     } else if (
       amount.gt(currentAmount) &&
       amount.sub(currentAmount).gt(allowance)
@@ -117,7 +120,7 @@ export default function StakingModal({
       setActionText("Withdraw");
       setActionDisabled(false);
     }
-  }, [isConnected, amount, isPending, allowance]);
+  }, [isConnected, sliderValue, amount, isPending, allowance]);
 
   const handleAction = () => {
     if (actionText === "Connect Wallet") activate();
@@ -142,7 +145,7 @@ export default function StakingModal({
     <>
       <input
         type="checkbox"
-        id={"user-wallet-modal"}
+        id={"staking " + farm.lpToken.contractHash + " modal"}
         className="modal-toggle"
         checked={show}
         readOnly
@@ -162,7 +165,7 @@ export default function StakingModal({
           </div>
           <div className="p-7 font-orator-std">
             <div className="border border-neutral px-3 sm:px-6 py-5">
-              <p className="text-[32px] md:text-[40px] text-left text-neutral mb-3">
+              <p className="text-[20px] md:text-[32px] text-left text-neutral mb-3">
                 {Number(
                   amountWithoutDecimals(amount, decimals).toFixed(HIDDEN_LENGTH)
                 )}

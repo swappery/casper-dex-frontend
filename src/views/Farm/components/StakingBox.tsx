@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { BigNumber } from "ethers";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ActionButton from "../../../components/Button/actionButton";
 import PairDetail from "../../../components/PairDetail";
 import ConnectModal from "../../../components/SelectWalletModal/SelectWalletModal";
@@ -18,7 +18,7 @@ interface StakingBoxProps {
   userInfo: FarmUserInfo;
   index: number;
   count: number;
-  setState: React.Dispatch<React.SetStateAction<boolean>>;
+  setState: (state: boolean) => void;
 }
 export default function StakingBox({
   farm,
@@ -44,27 +44,32 @@ export default function StakingBox({
     ActionStatus.REQ_CONNECT_WALLET
   );
 
-  useEffect(() => {
-    async function getBalance() {
-      if (!isConnected) {
-        setBalance(BigNumber.from(0));
-        setAllowance(BigNumber.from(0));
-        return;
-      }
-      setFetching(true);
-      setBalance(BigNumber.from(await balanceOf(farm.lpToken.contractHash)));
-      setAllowance(
-        BigNumber.from(
-          await allowanceOf(
-            farm.lpToken.contractHash,
-            MASTER_CHEF_CONTRACT_PACKAGE_HASH
-          )
-        )
-      );
-      setFetching(false);
+  const handleFetchBalance = useCallback(async () => {
+    if (!isConnected) {
+      setBalance(BigNumber.from(0));
+      setAllowance(BigNumber.from(0));
+      return;
     }
-    getBalance();
-  }, [activeAddress, isPending, isChildPending]);
+    setBalance(BigNumber.from(await balanceOf(farm.lpToken.contractHash)));
+    setAllowance(
+      BigNumber.from(
+        await allowanceOf(
+          farm.lpToken.contractHash,
+          MASTER_CHEF_CONTRACT_PACKAGE_HASH
+        )
+      )
+    );
+  }, [activeAddress, farm]);
+
+  useEffect(() => {
+    setFetching(true);
+    handleFetchBalance();
+    setFetching(false);
+  }, [activeAddress]);
+
+  useEffect(() => {
+    handleFetchBalance();
+  }, [isPending, isChildPending]);
 
   useEffect(() => {
     setState(isPending);

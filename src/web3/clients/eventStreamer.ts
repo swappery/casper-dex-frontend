@@ -17,9 +17,9 @@ streamer.on('data', (data) => {
     }, data);
 
     if (routerEvents && routerEvents.success) {
-      console.log("*** EVENT ***");
-      console.log(routerEvents.data);
-      console.log("*** ***");
+      // console.log("*** EVENT ***");
+      // console.log(routerEvents.data);
+      // console.log("*** ***");
     }
 
     const farmEvents = farmEventParser({
@@ -39,8 +39,8 @@ streamer.on('data', (data) => {
     }, data);
 
     if (farmEvents && farmEvents.success) {
-      console.log("*** EVENT ***");
-      console.log(farmEvents.data);
-      console.log("*** ***");
+      // console.log("*** EVENT ***");
+      // console.log(farmEvents.data);
+      // console.log("*** ***");
     }
  })
