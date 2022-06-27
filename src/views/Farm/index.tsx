@@ -92,7 +92,7 @@ export default function Farm() {
       </div>
       <div className="2xl:container 2xl:mx-auto py-[30px] xl:py-[80px] px-[20px] md:px-[80px] lg:px-0">
         <div className="grid grid-cols-11">
-          <div className="col-span-12 lg:col-start-6 lg:col-end-8 justify-end items-end">
+          <div className="col-span-12 lg:col-start-2 lg:col-end-4 justify-start items-start">
             <StakedToggle
               checked={stakedOnly}
               setChecked={setStakedOnly}

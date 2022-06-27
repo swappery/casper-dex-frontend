@@ -4,7 +4,7 @@ interface ToggleProps {
 }
 export default function StakedToggle({ checked, setChecked }: ToggleProps) {
   return (
-    <div className="form-control flex justify-center items-center pt-1">
+    <div className="form-control flex justify-start items-start pt-1">
       <label className="label cursor-pointer gap-2">
         <input
           type="checkbox"
