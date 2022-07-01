@@ -20,6 +20,7 @@ interface StakingModalProps {
   show: boolean;
   setShow: (show: boolean) => void;
   setState: (state: boolean) => void;
+  isFetching: boolean;
 }
 
 export default function StakingModal({
@@ -31,6 +32,7 @@ export default function StakingModal({
   show,
   setShow,
   setState,
+  isFetching,
 }: StakingModalProps) {
   const [actionDisabled, setActionDisabled] = useState<boolean>(true);
   const [actionText, setActionText] = useState<string>("");
@@ -48,7 +50,7 @@ export default function StakingModal({
         ? 0
         : amountWithoutDecimals(currentAmount, decimals - HIDDEN_LENGTH)
     );
-  }, []);
+  }, [isFetching]);
 
   useEffect(() => {
     setState(isPending);

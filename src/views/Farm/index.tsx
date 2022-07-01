@@ -92,13 +92,13 @@ export default function Farm() {
       </div>
       <div className="2xl:container 2xl:mx-auto py-[30px] xl:py-[80px] px-[20px] md:px-[80px] lg:px-0">
         <div className="grid grid-cols-11">
-          <div className="col-span-12 lg:col-start-2 lg:col-end-4 justify-start items-start">
+          <div className="col-span-12 lg:col-start-2 lg:col-end-5">
             <StakedToggle
               checked={stakedOnly}
               setChecked={setStakedOnly}
             ></StakedToggle>
           </div>
-          <div className="col-span-12 lg:col-start-8 lg:col-end-11">
+          <div className="flex items-center col-span-12 lg:col-start-8 lg:col-end-11">
             <input
               className="font-orator-std focus:outline-none w-full py-[6px] px-3 md:py-2 md:px-5 bg-lightblue rounded-[30px] text-[14px] md:text-[20px] text-black border border-neutral"
               placeholder="Search Farm"

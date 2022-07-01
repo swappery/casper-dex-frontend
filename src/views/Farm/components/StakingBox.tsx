@@ -220,6 +220,7 @@ export default function StakingBox({
         decimals={farm.lpToken.decimals}
         farm={farm}
         setState={setChildPending}
+        isFetching={isFetching}
       ></StakingModal>
       <ConnectModal
         show={showConnectModal}
